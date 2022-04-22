@@ -13,6 +13,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $this->call([
+            //AssetTypesSeeder::class,
+           // CreateUsersList::class,
+           //CreateDesktopsList::class,
+           //CreateDesktopsMaintenanceLog::class
+           //CreateLaptopsList::class,
+           //CreatePhoneList::class,
+           //CreatePhoneListReassigned::class
+           //CreateModemList::class
+           //CreatePoliciesData::class
+           //CreateMotorbikesList::class
+           //CreateMotorsListReassigned::class
+           //CreateMotorMaintenanceList::class
+           //CreatePrintersList::class
+           //CreateRoutersList::class
+           //CreateSwitchesList::class
+          // CreateCVPProducts::class
+        ]);
     }
 }

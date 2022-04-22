@@ -1,0 +1,40 @@
+.login-page,
+.register-page {
+    height: 80vh !important;
+    background-image: url("/assets/dist/img/bg-img.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.login-box-msg,
+.register-box-msg {
+    color: grey;
+}
+
+ul .login-page,
+.register-page {
+    margin-top: 0px;
+}
+
+.content-wrapper {
+    background-color: #ffffff;
+}
+
+.info-box-number {
+    font-size: 24px;
+}
+
+.product-img {
+    border-radius: 20px;
+    width: 600px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.product-thumbnail-img {
+    border-radius: 20px;
+    width: 200px;
+    max-height: 160;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
