@@ -216,7 +216,7 @@
 
                 <!-- BEGINNING : Staff, Branch Manager Menus -->
                 @if (Auth::user()->hasRole('bimas staff|branch manager'))
-                    <li class="nav-item has-treeview">
+                    {{-- <li class="nav-item has-treeview">
                         <a href="{{ route('user.groups') }}"
                             class="nav-link {{ $page_name == 'groups' ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
@@ -242,6 +242,30 @@
                                 <a href="{{ route('user.groups') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>User Groups</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li> --}}
+                    <li class="nav-item has-treeview">
+                        <a href="{{ route('shop.products.index') }}"
+                            class="nav-link {{ $page_name == 'shop' ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-motorcycle"></i>
+                            <p>
+                                Biddings Shop
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('shop.products.index') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Motorbikes</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('shop.orders') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>User Biddings</p>
                                 </a>
                             </li>
                         </ul>

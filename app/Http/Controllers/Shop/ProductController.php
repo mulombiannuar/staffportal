@@ -40,10 +40,11 @@ class ProductController extends Controller
     {
         $pageData = [
 			'page_name' => 'shop',
-            'title' => 'Add New Motorbike Item',
+            'title' => 'Add New Motorbike',
             'categories' => Category::getCategories(),
             'branches' => Admin::getBranches(),
-            'types' => Admin::getMotorTypes()
+            'types' => Admin::getMotorTypes(),
+            'user' => User::getUserById(Auth::user()->id),
         ];
         return view('shop.product.create', $pageData);
     }

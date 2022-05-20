@@ -46,37 +46,52 @@
                                     <td>{{ $product->user_name }}</td>
                                     <td>{{ $product->branch_name }}</td>
                                     <td>
-                                        @if ($product->status == 0)
-                                            <form action="{{ route('shop.products.publish', $product->product_id) }}"
-                                                method="post"
-                                                onclick="return confirm('Do you really want to publish this product?')">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-xs btn-danger"><i
+                                        @if (Auth::user()->hasRole('admin'))
+                                            @if ($product->status == 0)
+                                                <form action="{{ route('shop.products.publish', $product->product_id) }}"
+                                                    method="post"
+                                                    onclick="return confirm('Do you really want to publish this product?')">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-xs btn-danger"><i
+                                                            class="fa fa-times-circle"></i>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form
+                                                    action="{{ route('shop.products.unpublish', $product->product_id) }}"
+                                                    method="post"
+                                                    onclick="return confirm('Do you really want to unpublish this product?')">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="btn btn-xs btn-success"><i
+                                                            class="fa fa-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @else
+                                            @if ($product->status == 0)
+                                                <button type="button" class="btn btn-xs btn-danger"><i
                                                         class="fa fa-times-circle"></i>
                                                 </button>
-                                            </form>
-                                        @else
-                                            <form action="{{ route('shop.products.unpublish', $product->product_id) }}"
-                                                method="post"
-                                                onclick="return confirm('Do you really want to unpublish this product?')">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-xs btn-success"><i
+                                            @else
+                                                <button type="buttom" class="btn btn-xs btn-success"><i
                                                         class="fa fa-check-circle"></i>
                                                 </button>
-                                            </form>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
                                         <div class="margin">
-                                            <div class="btn-group">
-                                                <a href="{{ route('shop.products.edit', $product->product_id) }}">
-                                                    <button type="button" class="btn btn-xs btn-default"><i
-                                                            class="fa fa-edit"></i>
-                                                        Edit</button>
-                                                </a>
-                                            </div>
+                                            @if (Auth::user()->hasRole('admin') || $product->officer == Auth::user()->id)
+                                                <div class="btn-group">
+                                                    <a href="{{ route('shop.products.edit', $product->product_id) }}">
+                                                        <button type="button" class="btn btn-xs btn-default"><i
+                                                                class="fa fa-edit"></i>
+                                                            Edit</button>
+                                                    </a>
+                                                </div>
+                                            @endif
                                             <div class="btn-group">
                                                 <a href="{{ route('shop.products.show', $product->product_id) }}">
                                                     <button type="button" class="btn btn-xs btn-info"><i
@@ -84,17 +99,20 @@
                                                         View</button>
                                                 </a>
                                             </div>
-                                            <div class="btn-group">
-                                                <form action="{{ route('shop.products.destroy', $product->product_id) }}"
-                                                    method="post"
-                                                    onclick="return confirm('Do you really want to delete this record?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-xs btn-danger"><i
-                                                            class="fa fa-trash"></i>
-                                                        Delete</button>
-                                                </form>
-                                            </div>
+                                            @if (Auth::user()->hasRole('admin'))
+                                                <div class="btn-group">
+                                                    <form
+                                                        action="{{ route('shop.products.destroy', $product->product_id) }}"
+                                                        method="post"
+                                                        onclick="return confirm('Do you really want to delete this record?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-xs btn-danger"><i
+                                                                class="fa fa-trash"></i>
+                                                            Delete</button>
+                                                    </form>
+                                                </div>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

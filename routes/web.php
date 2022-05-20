@@ -225,11 +225,11 @@ Route::middleware(['auth'])->prefix('shop')->name('shop.')->group(function(){
     Route::get('/', [ShopController::class, 'index'])->name('index');
     Route:: resource('categories', CategoryController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin']);
     
-    Route::post('products/save-image', [ProductController::class, 'saveProductImage'])->name('products.save-image')->middleware(['role:admin']);
-    Route::delete('products/delete/{id}', [ProductController::class, 'deleteProductImage'])->name('products.delete-image')->middleware(['role:admin']);
+    Route::post('products/save-image', [ProductController::class, 'saveProductImage'])->name('products.save-image')->middleware(['role:admin|bimas staff|branch manager']);
+    Route::delete('products/delete/{id}', [ProductController::class, 'deleteProductImage'])->name('products.delete-image')->middleware(['role:admin|bimas staff|branch manager']);
     Route::put('products/publish/{product}',  [ProductController::class, 'publishProduct'])->name('products.publish')->middleware(['role:admin']);
     Route::put('products/unpublish/{product}',  [ProductController::class, 'unPublishProduct'])->name('products.unpublish')->middleware(['role:admin']);
-    Route:: resource('products', ProductController::class)->middleware(['role:admin']);
+    Route:: resource('products', ProductController::class)->middleware(['role:admin|bimas staff|branch manager']);
 
     Route::put('sliders/publish/{slider}',  [SliderController::class, 'publishSlider'])->name('sliders.publish')->middleware(['role:admin']);
     Route::put('sliders/unpublish/{slider}',  [SliderController::class, 'unPublishSlider'])->name('sliders.unpublish')->middleware(['role:admin']);
@@ -238,6 +238,7 @@ Route::middleware(['auth'])->prefix('shop')->name('shop.')->group(function(){
     Route::get('messages', [ShopController::class, 'messages'])->name('messages');
     Route::get('orders', [ShopController::class, 'orders'])->name('orders');
     Route::get('orders/{id}', [ShopController::class, 'getOrderById'])->name('get-order');
+    Route::get('orders/products/{product}', [ShopController::class, 'ordersByProductId'])->name('get-product-orders');
 
     Route::get('users', [ShopController::class, 'users'])->name('users');
 

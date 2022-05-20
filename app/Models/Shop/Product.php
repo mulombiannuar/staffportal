@@ -195,4 +195,10 @@ class Product extends Model
                   ->where('branch_id', $id)
                   ->get();
     }
+
+    public static function getDistinctProducts()
+    {
+        return DB::table('orders')->select('product')->distinct('product')->get();
+    }
+    
 }

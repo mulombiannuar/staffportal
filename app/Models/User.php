@@ -128,7 +128,7 @@ class User extends Authenticatable
     public static function getUsers()
     {
        return  User::where('accessibility', 1)
-                    ->where('status', 1)
+                    // ->where('status', 1)
                     ->where('deleted_at', null)
                     ->leftJoin('profiles', 'profiles.user_id', '=', 'users.id' )
                     ->leftJoin('outposts', 'outposts.outpost_id', '=', 'profiles.outpost' )

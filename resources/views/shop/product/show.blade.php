@@ -21,24 +21,27 @@
                             <!-- Profile -->
                             <div class="card card-warning">
                                 <div class="card-header">
-                                    <h3 class="card-title"><i class="fa fa-plus"></i> Add Product Images</h3>
+                                    <h3 class="card-title"><i class="fa fa-image"></i> Product Images</h3>
                                 </div>
                                 <div class="card-body">
-                                    <fieldset class="border pb-3 pl-5 pr-5">
-                                        <legend class="w-auto pl-2 pr-2">Add Images </legend>
-                                        <form class="m-2 form-inline" action="{{ route('shop.products.save-image') }}"
-                                            enctype="multipart/form-data" method="post">
-                                            @csrf
-                                            <div class="form-group mb-2">
-                                                <input type="file" name="image" class="form-control-file" id="image"
-                                                    required>
-                                                <input type="hidden" name="product_id"
-                                                    value="{{ $product->product_id }}" />
-                                            </div>
-                                            <button type="submit" class="btn btn-info mb-2"><i class="fa fa-upload"></i>
-                                                Upload Image</button>
-                                        </form>
-                                    </fieldset>
+                                    @if (Auth::user()->hasRole('admin') || $product->officer == Auth::user()->id)
+                                        <fieldset class="border pb-3 pl-5 pr-5">
+                                            <legend class="w-auto pl-2 pr-2">Add Images </legend>
+                                            <form class="m-2 form-inline" action="{{ route('shop.products.save-image') }}"
+                                                enctype="multipart/form-data" method="post">
+                                                @csrf
+                                                <div class="form-group mb-2">
+                                                    <input type="file" name="image" class="form-control-file" id="image"
+                                                        required>
+                                                    <input type="hidden" name="product_id"
+                                                        value="{{ $product->product_id }}" />
+                                                </div>
+                                                <button type="submit" class="btn btn-info mb-2"><i
+                                                        class="fa fa-upload"></i>
+                                                    Upload Image</button>
+                                            </form>
+                                        </fieldset>
+                                    @endif
                                     <fieldset class="border mt-5 pb-3 pl-5 pr-5">
                                         <legend class="w-auto pl-2 pr-2">Product Images </legend>
                                         @if (!empty($images))
@@ -57,19 +60,21 @@
                                                                                 alt="{{ $image->image }}"
                                                                                 title="{{ $image->image }}">
                                                                         </a>
-                                                                        <div class="btn-group m-5">
-                                                                            <form
-                                                                                action="{{ route('shop.products.delete-image', $image->image_id) }}"
-                                                                                method="post"
-                                                                                onclick="return confirm('Do you really want to delete this image?')">
-                                                                                @csrf
-                                                                                @method('DELETE')
-                                                                                <button type="submit"
-                                                                                    class="btn btn-xs btn-danger"><i
-                                                                                        class="fa fa-trash"></i>
-                                                                                    Delete Image</button>
-                                                                            </form>
-                                                                        </div>
+                                                                        @if (Auth::user()->hasRole('admin') || $product->officer == Auth::user()->id)
+                                                                            <div class="btn-group m-5">
+                                                                                <form
+                                                                                    action="{{ route('shop.products.delete-image', $image->image_id) }}"
+                                                                                    method="post"
+                                                                                    onclick="return confirm('Do you really want to delete this image?')">
+                                                                                    @csrf
+                                                                                    @method('DELETE')
+                                                                                    <button type="submit"
+                                                                                        class="btn btn-xs btn-danger"><i
+                                                                                            class="fa fa-trash"></i>
+                                                                                        Delete Image</button>
+                                                                                </form>
+                                                                            </div>
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @endforeach

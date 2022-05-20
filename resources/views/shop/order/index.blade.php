@@ -7,7 +7,6 @@
             <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-list"></i> Manage {{ $title }}
-                        ({{ $products->count() }})
                     </h3>
                 </div>
                 <!-- /.card-header -->
@@ -19,40 +18,65 @@
                                 <th>PRODUCT NAME</th>
                                 <th>LOAN BALANCE</th>
                                 <th>DISPOSAL PRICE</th>
-                                <th>BIDDER NAME</th>
-                                <th>BID AMOUNT</th>
-                                <th>BID DATE</th>
+                                <th>CLIENT NAME</th>
                                 <th>LOCATION</th>
-                                <th>BRANCH OFFICER</th>
                                 <th>BRANCH</th>
-                                <th>ACTION</th>
+                                <th>CNT</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($products as $product)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ strtoupper($product->reg_no) . ' - ' . ucwords($product->product_name) }}</td>
-                                    <td>Ksh. {{ number_format($product->loan_balance, 2) }}</td>
-                                    <td>Ksh. {{ number_format($product->disposal_price, 2) }}</td>
-                                    <td>{{ $product->customer_name . '-' . $product->customer_mobile }}</td>
-                                    <td><strong>Ksh. {{ number_format($product->bid_amount, 2) }}</strong></td>
-                                    <td>{{ $product->bid_date }}</td>
-                                    <td>{{ $product->county . '-' . $product->location }}</td>
-                                    <td>{{ $product->user_name }}</td>
-                                    <td>{{ $product->branch_name }}</td>
-                                    <td>
-                                        <div class="margin">
-                                            <div class="btn-group">
-                                                <a href="{{ route('shop.get-order', $product->order_id) }}">
-                                                    <button type="button" class="btn btn-xs btn-warning"><i
-                                                            class="fa fa-bars"></i> View
-                                                    </button>
-                                                </a>
+                                @if (Auth::user()->hasRole('admin'))
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ strtoupper($product->data->reg_no) . ' - ' . ucwords($product->data->product_name) }}
+                                        </td>
+                                        <td>Ksh. {{ number_format($product->data->loan_balance, 2) }}</td>
+                                        <td>Ksh. {{ number_format($product->data->disposal_price, 2) }}</td>
+                                        <td>{{ $product->data->client_name . '-' . $product->data->mobile_no }}</td>
+                                        <td>{{ $product->data->location }}</td>
+                                        <td>{{ $product->data->branch_name }}</td>
+                                        <td><strong>{{ $product->count }}</strong></td>
+                                        <td>
+                                            <div class="margin">
+                                                <div class="btn-group">
+                                                    <a href="{{ route('shop.get-product-orders', $product->product) }}">
+                                                        <button type="button" class="btn btn-xs btn-warning"><i
+                                                                class="fa fa-bars"></i>
+                                                        </button>
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                @else
+                                    @if ($product->data->branch_id == 3)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ strtoupper($product->data->reg_no) . ' - ' . ucwords($product->data->product_name) }}
+                                            </td>
+                                            <td>Ksh. {{ number_format($product->data->loan_balance, 2) }}</td>
+                                            <td>Ksh. {{ number_format($product->data->disposal_price, 2) }}</td>
+                                            <td>{{ $product->data->client_name . '-' . $product->data->mobile_no }}</td>
+                                            <td>{{ $product->data->location }}</td>
+                                            <td>{{ $product->data->branch_name }}</td>
+                                            <td><strong>{{ $product->count }}</strong></td>
+                                            <td>
+                                                <div class="margin">
+                                                    <div class="btn-group">
+                                                        <a
+                                                            href="{{ route('shop.get-product-orders', $product->product) }}">
+                                                            <button type="button" class="btn btn-xs btn-warning"><i
+                                                                    class="fa fa-bars"></i>
+                                                            </button>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endif
                             @endforeach
                         </tbody>
                     </table>

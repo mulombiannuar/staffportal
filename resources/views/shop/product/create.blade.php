@@ -18,44 +18,50 @@
                                     <div class="modal-body">
                                         <fieldset class="border pb-3 pl-5 pr-5">
                                             <legend class="w-auto pl-2 pr-2">Product Details </legend>
-                                            <div class="row">
-                                                <div class="col-sm-4">
-                                                    <div class="form-group">
-                                                        <label for="branch_id">Branch</label>
-                                                        <select name="branch" id="branch" class="form-control select2"
-                                                            id="branch_id" required>
-                                                            <option class="mb-1" value="">
-                                                                - Select Branch -</option>
-                                                            @foreach ($branches as $branch)
-                                                                <option value="{{ $branch->branch_id }}">
-                                                                    {{ $branch->branch_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
+                                            @if (Auth::user()->hasRole('admin'))
+                                                <div class="row">
+                                                    <div class="col-sm-4">
+                                                        <div class="form-group">
+                                                            <label for="branch_id">Branch</label>
+                                                            <select name="branch" id="branch" class="form-control select2"
+                                                                id="branch_id" required>
+                                                                <option class="mb-1" value="">
+                                                                    - Select Branch -</option>
+                                                                @foreach ($branches as $branch)
+                                                                    <option value="{{ $branch->branch_id }}">
+                                                                        {{ $branch->branch_name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-sm-4">
-                                                    <div class="form-group">
-                                                        <label for="outposts">Outpost</label>
-                                                        <select name="outpost_id" class="form-control select2" id="outposts"
-                                                            required>
-                                                            <option class="mb-1" value="">
-                                                                - Select Branch First -</option>
-                                                        </select>
+                                                    <div class="col-sm-4">
+                                                        <div class="form-group">
+                                                            <label for="outposts">Outpost</label>
+                                                            <select name="outpost_id" class="form-control select2"
+                                                                id="outposts" required>
+                                                                <option class="mb-1" value="">
+                                                                    - Select Branch First -</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-sm-4">
-                                                    <div class="form-group">
-                                                        <label for="users">Users</label>
-                                                        <select name="user_id" id="users" class="form-control select2"
-                                                            id="user_id" required>
-                                                            <option class="mb-1" value="">
-                                                                - Select Outpost First -</option>
-                                                        </select>
+                                                    <div class="col-sm-4">
+                                                        <div class="form-group">
+                                                            <label for="users">Users</label>
+                                                            <select name="user_id" id="users" class="form-control select2"
+                                                                id="user_id" required>
+                                                                <option class="mb-1" value="">
+                                                                    - Select Outpost First -</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                            </div>
+                                                </div>
+                                            @else
+                                                <input type="hidden" name="branch" value="{{ $user->branch_id }}">
+                                                <input type="hidden" name="outpost_id" value="{{ $user->outpost_id }}">
+                                                <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                            @endif
 
                                             <div class="row">
                                                 <div class="col-sm-4">

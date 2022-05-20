@@ -9,9 +9,11 @@ use App\Models\Shop\Contact;
 use App\Models\Shop\Order;
 use App\Models\Shop\Product;
 use App\Models\Shop\Slider;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Auth;
 
 class ShopController extends Controller
 {
@@ -45,12 +47,26 @@ class ShopController extends Controller
 
     public function orders()
     {
-         $pageData = [
+       //return Order::getDistinctUserBids();  
+       $pageData = [
               'page_name' => 'shop',
-              'title' => 'User Bidding Orders',
-              'products' => Order::getAllBids(),
+              'title' => 'Motorbike Bidding Orders',
+              'products' => Order::getDistinctUserBids(),
+              'user' => User::getUserById(Auth::user()->id),
           ];
         return view('shop.order.index', $pageData);
+    }
+
+    public function ordersByProductId($product_id)
+    {
+      //return Order::getBidsByProduct($product);
+      $product = Product::find($product_id) ;
+      $pageData = [
+              'page_name' => 'shop',
+              'title' =>ucwords($product->reg_no) . ' - ' . ucwords($product->product_name),
+              'products' => Order::getBidsByProduct($product_id),
+          ];
+        return view('shop.order.product_bids', $pageData);
     }
 
     public function getOrderById($id)

@@ -138,6 +138,7 @@ class ShopAPIController extends Controller
             DB::table('carts')->where('cart_id', $carts[$s])->update(['status' => 1]);
             DB::table('orders')->insert([
                 'cart_id' => $carts[$s],
+                'product' => Cart::find($carts[$s])->product_id,
                 'bid_number' => Admin::getRandomNumbers(1000000,9999999),
                 'customer_id' => $request->input('user_id'),
                 'location' => $request->input('location'),
