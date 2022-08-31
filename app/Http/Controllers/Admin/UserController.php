@@ -448,15 +448,18 @@ class UserController extends Controller
 
     public function devices()
     {
+        $devices = User::getUserDevices(Auth::user()->id);
         $user = User::getUserById(Auth::user()->id);
-        $token = null;
+        
         if (Auth::user()->hasRole('branch manager')){
-            $token = $user->branch_id;
+            $devices = User::getBranchDevices($user->branch_id);
         }
+        
+        //return $devices;
         $pageData = [
             'page_name' => 'devices',
             'title' => 'User Assigned Devices',
-            'devices' => [],
+            'devices' => $devices,
         ];
         return view('user.user_devices', $pageData);
     }

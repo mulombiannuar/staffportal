@@ -35,6 +35,24 @@ class Phone extends Model
                   ->get();
     }
 
+    public static function getUserPhones($user_id)
+    {
+        return DB::table('phones')
+                  ->join('users', 'users.id', '=', 'phones.assigned_to')
+                  ->join('profiles', 'profiles.user_id', '=', 'users.id' )
+                  ->join('outposts', 'outposts.outpost_id', '=', 'profiles.outpost')
+                  ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+                  ->select(
+                    'phones.*',
+                    'phones.name as device_name',
+                    'outposts.outpost_name',
+                    'branches.branch_name',
+                    'users.name',
+                   )
+                  ->where('assigned_to', $user_id)
+                  ->get();
+    }
+
     public function getBranchPhones($id)
     {
         return DB::table('phones')
@@ -46,6 +64,7 @@ class Phone extends Model
                     'phones.*',
                     'outposts.outpost_name',
                     'branches.branch_name',
+                    'phones.name as device_name',
                     'users.name',
                    )
                   ->where('branch_id', $id)

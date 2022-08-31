@@ -46,9 +46,28 @@ class Desktop extends Model
                     'desktops.*',
                     'outposts.outpost_name',
                     'branches.branch_name',
+                    'desktops.name as device_name',
                     'users.name',
                    )
                   ->where('branch_id', $id)
+                  ->get();
+    }
+
+    public static function getUserDesktops($user_id)
+    {
+        return DB::table('desktops')
+                  ->join('users', 'users.id', '=', 'desktops.assigned_to')
+                  ->join('profiles', 'profiles.user_id', '=', 'users.id' )
+                  ->join('outposts', 'outposts.outpost_id', '=', 'profiles.outpost')
+                  ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+                  ->select(
+                    'desktops.*',
+                    'outposts.outpost_name',
+                    'branches.branch_name',
+                    'desktops.name as device_name',
+                    'users.name',
+                   )
+                  ->where('assigned_to', $user_id)
                   ->get();
     }
 

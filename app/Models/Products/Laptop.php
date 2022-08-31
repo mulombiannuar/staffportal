@@ -46,9 +46,28 @@ class Laptop extends Model
                     'laptops.*',
                     'outposts.outpost_name',
                     'branches.branch_name',
+                    'laptops.name as device_name',
                     'users.name',
                    )
                   ->where('branch_id', $id)
+                  ->get();
+    }
+
+    public static function getUserLaptops($user_id)
+    {
+        return DB::table('laptops')
+                  ->join('users', 'users.id', '=', 'laptops.assigned_to')
+                  ->join('profiles', 'profiles.user_id', '=', 'users.id' )
+                  ->join('outposts', 'outposts.outpost_id', '=', 'profiles.outpost')
+                  ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+                  ->select(
+                    'laptops.*',
+                    'outposts.outpost_name',
+                    'branches.branch_name',
+                    'laptops.name as device_name',
+                    'users.name',
+                   )
+                  ->where('assigned_to', $user_id)
                   ->get();
     }
 

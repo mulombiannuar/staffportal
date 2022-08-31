@@ -228,4 +228,32 @@ class User extends Authenticatable
       
         return $str;
     }
+
+    
+    public static function getUserDevices($user_id)
+    {
+        return 
+        [
+            'phones' => Phone::getUserPhones($user_id),
+            'laptops' => Laptop::getUserLaptops($user_id),
+            'motors' => Motor::getUserMotors($user_id),
+            'desktops' => Desktop::getUserDesktops($user_id),
+        ];
+    }
+
+    public static function getBranchDevices($branch_id)
+    {
+        $phone = new Phone();
+        $laptop = new Laptop();
+        $motor = new Motor();
+        $desktop = new Desktop();
+        return  
+        [
+            'phones' => $phone->getBranchPhones($branch_id),
+            'laptops' => $laptop->getBranchLaptops($branch_id),
+            'motors' => $motor->getBranchMotors($branch_id),
+            'desktops' => $desktop->getBranchDesktops($branch_id),
+        ];
+    }
+        
 }
