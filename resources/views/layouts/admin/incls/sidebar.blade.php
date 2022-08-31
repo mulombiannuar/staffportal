@@ -21,10 +21,10 @@
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                data-accordion="false">
                 <li class="nav-item has-treeview menu-open">
-                    <a href="{{ route('dashboard') }}"
-                        class="nav-link {{ $page_name == 'dashboard' ? 'active' : '' }}">
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ $page_name == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Dashboard
@@ -38,6 +38,15 @@
                         <i class="fa fa-user nav-icon"></i>
                         <p>
                             Profile
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('user.devices') }}"
+                        class="nav-link {{ $page_name == 'devices' ? 'active' : '' }}">
+                        <i class="fa fa-list-alt nav-icon"></i>
+                        <p>
+                            Assigned Devices
                         </p>
                     </a>
                 </li>
@@ -132,7 +141,7 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item has-treeview">
+                    {{-- <li class="nav-item has-treeview">
                         <a href="{{ route('admin.groups.index') }}"
                             class="nav-link{{ $page_name == 'groups' ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
@@ -161,7 +170,7 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
+                    </li> --}}
 
                     <li class="nav-item">
                         <a href="{{ route('admin.insurances.index') }}"
@@ -211,6 +220,16 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.budgets.index') }}"
+                            class="nav-link {{ $page_name == 'budgets' ? 'active' : '' }}">
+                            <i class="fa fa-list nav-icon"></i>
+                            <p>
+                                Budget Templates
+                            </p>
+                        </a>
+                    </li>
                     <!-- END : Finance, Admin Menus -->
                 @endif
 
@@ -246,6 +265,15 @@
                             </li>
                         </ul>
                     </li> --}}
+                    <li class="nav-item">
+                        <a href="{{ route('user.budgets') }}"
+                            class="nav-link {{ $page_name == 'budgets' ? 'active' : '' }}">
+                            <i class="fa fa-list nav-icon"></i>
+                            <p>
+                                Budget Templates
+                            </p>
+                        </a>
+                    </li>
                     <li class="nav-item has-treeview">
                         <a href="{{ route('shop.products.index') }}"
                             class="nav-link {{ $page_name == 'shop' ? 'active' : '' }}">
@@ -296,7 +324,8 @@
                 @endif
 
                 <li class="nav-item">
-                    <a href="{{ 'logout' }}" class="nav-link" onclick="event.preventDefault();
+                    <a href="{{ 'logout' }}" class="nav-link"
+                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                         @csrf
                         <i class="fa fa-power-off nav-icon"></i>

@@ -41,25 +41,105 @@ class Message extends Model
         $user_id ='15571' ; 
         $smsGatewayUrl = 'https://api.prsp.tangazoletu.com/?';
         $passkey = '2CFKzjE9K3'; 
+       
 
         $textmessage = urlencode($message_body);
         $api_params ='User_ID='.$user_id.'&passkey='.$passkey.'&service=1&sender='.$sender.'&dest='.$mobileno.'&msg='.$textmessage;
-        $smsgatewaydata = $smsGatewayUrl.$api_params;
-        $url = $smsgatewaydata;
-        
+        $url = $smsGatewayUrl.$api_params;
+      
         // create a new cURL resource
         $ch = curl_init();
         
         // set URL and other appropriate options
         curl_setopt($ch, CURLOPT_POST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         
         // grab URL and pass it to the browser
-        $output = curl_exec($ch);
+        $response = curl_exec($ch);
+        $err = curl_error($ch);
         
         // close cURL resource, and free up system resources
-        return curl_close($ch);  
+        curl_close($ch);
+
+        if ($err) {
+            return "cURL Error #:" . $err;
+        } else {
+            return $response;
+        }
+    }
+
+    public function sendSms2($mobileno, $message_body)
+    {       
+       //https://www.directsms.com.au/api/http/php-code-sample/
+       $sender = 'BIMAS';
+       $user_id ='15571' ; 
+       $smsGatewayUrl = 'https://api.prsp.tangazoletu.com/?';
+       $passkey = '2CFKzjE9K3';
+
+       $textmessage = urlencode($message_body);
+       $api_params ='User_ID='.$user_id.'&passkey='.$passkey.'&service=1&sender='.$sender.'&dest='.$mobileno.'&msg='.$textmessage;
+       $url = $smsGatewayUrl.$api_params;
+
+       file($url);
+       return true;
+    }
+
+    public function sendSms3($mobileno, $message_body)
+    {       
+        $sender = 'BIMAS';
+        $user_id ='15571' ; 
+        $smsGatewayUrl = 'https://api.prsp.tangazoletu.com/?';
+        $passkey = '2CFKzjE9K3'; 
+        $isError = 0;
+        $errorMessage = true;
+
+        $textmessage = urlencode($message_body);
+       // $api_params ='User_ID='.$user_id.'&passkey='.$passkey.'&service=1&sender='.$sender.'&dest='.$mobileno.'&msg='.$textmessage;
+       // $smsgatewaydata = $smsGatewayUrl.$api_params;
+        //$url = $smsgatewaydata;
+
+        $postData = array(
+            'User_ID' => $user_id,
+            'passkey' => $passkey,
+            'service' => 1,
+            'sender' => $sender,
+            'message' => $textmessage,
+            'dest' => $mobileno,
+        );
+        
+        // create a new cURL resource
+        $ch = curl_init();
+        
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $smsGatewayUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $postData
+        ));
+
+        //Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+        //get response
+        $output = curl_exec($ch);
+
+        //Print error if any
+        if (curl_errno($ch)) {
+            $isError = true;
+            $errorMessage = curl_error($ch);
+        }
+       return curl_close($ch);
+        if($isError){
+            return array('error' => 1 , 'message' => $errorMessage);
+        }else{
+            return array('error' => 0 );
+        }
     }
 
      //// Send session website access token

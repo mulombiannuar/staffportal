@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BudgetTemplate;
 use App\Models\Group;
 use App\Models\Message;
 use App\Models\Profile;
@@ -427,6 +428,37 @@ class UserController extends Controller
         $message->message_body = $messageBody;
         $message->save();
         return back()->with('success', 'Account profile details successfully updated');
+    }
+
+    public function budgets()
+    {
+        $user = User::getUserById(Auth::user()->id);
+        $token = null;
+        if (Auth::user()->hasRole('branch manager')){
+            $token = $user->branch_id;
+        }
+
+        $pageData = [
+            'page_name' => 'budgets',
+            'title' => 'Budget Templates',
+            'templates' => BudgetTemplate::getUserTemplates(Auth::user()->id, $token),
+        ];
+        return view('budgets.user_budgets', $pageData);
+    }
+
+    public function devices()
+    {
+        $user = User::getUserById(Auth::user()->id);
+        $token = null;
+        if (Auth::user()->hasRole('branch manager')){
+            $token = $user->branch_id;
+        }
+        $pageData = [
+            'page_name' => 'devices',
+            'title' => 'User Assigned Devices',
+            'devices' => [],
+        ];
+        return view('user.user_devices', $pageData);
     }
 
 }

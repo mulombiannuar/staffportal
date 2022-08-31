@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AssetController;
+use App\Http\Controllers\Admin\BudgetController;
 use App\Http\Controllers\Admin\CVPController;
 use App\Http\Controllers\Admin\GroupController;
 use App\Http\Controllers\Admin\GroupMeetingController;
@@ -61,6 +62,8 @@ Route::get('login', function () {
     return view('auth.login', ['title' => 'Login']); 
  })->middleware('token')->name('login');
 
+Route::get('test', [TestController::class, 'index'])->middleware(['role:admin']);
+Route::get('send-sms', [AdminController::class, 'sendSms']);
 
 Route::get('/', [AdminController::class, 'getAccessToken']);
 Route::get('auth/token/get', [AdminController::class, 'getAccessToken'])->name('get.token');
@@ -162,6 +165,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function(){
     Route::delete('packages/delete/{id}', [CVPController::class, 'destroyPackage'])->name('packages.deletepackage')->middleware(['role:admin']);
     Route::get('packages/add/{id}/product', [CVPController::class, 'create'])->name('packages.addpackage')->middleware(['role:admin']);
     Route:: resource('packages', CVPController::class, ['except' => ['create']])->middleware(['role:admin']);
+
+    ///Budgets
+    Route:: resource('budgets', BudgetController::class, ['except' => ['show']])->middleware(['role:admin|finance']);
+    
 });
 
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function(){
@@ -210,6 +217,11 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function(){
     Route::delete('group-visits/delete-member/{id}', [GroupVisitationController::class, 'deleteMember'])->name('group-visits.delete-member');
     Route::get('group-visits/files/{id}', [GroupVisitationController::class, 'filePreview'])->name('group-visits.file');
     
+    /// Budgets
+    Route::get('budgets', [UserController::class, 'budgets'])->name('budgets');
+
+    /// Devices
+    Route::get('devices', [UserController::class, 'devices'])->name('devices');
 
 });
 

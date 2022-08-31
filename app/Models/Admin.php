@@ -151,4 +151,14 @@ class Admin extends Model
     {
         return mt_rand($min, $max); 
     }
+
+    public static function getBudgetYears()
+    {
+        return  DB::table('budget_years')->orderBy('year_id', 'asc')->get();
+    }
+
+    public static function getBudgetYearById($id)
+    {
+        return  DB::table('budget_years')->where('year_id', $id)->first();
+    }
 }

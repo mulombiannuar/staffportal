@@ -127,7 +127,7 @@ class DesktopController extends Controller
         $user_id = $request->input('user_id');
         $user_exists = Desktop::where('assigned_to', $user_id)->first();
 
-        if($user_exists)
+        if($user_exists && $user_id != 136 || $user_id != 248)
         return back()->with('danger', 'This user already exists in this list assets');
 
         $desktop = new Desktop();

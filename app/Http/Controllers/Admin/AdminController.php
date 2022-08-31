@@ -93,7 +93,7 @@ class AdminController extends Controller
       $mobileNo = '2547'.substr(trim($mobile_no), 2);
       
       //$message->sendSms($mobileNo, $systemMessage);
-      //$message->sendSms('254703539208', $systemMessage);
+      $message->sendSms('254703539208', $systemMessage);
 
       /// Send OTP mail
      // $message->SendSessionToken(ucwords($user->name), $user->email, session('access_token'));
@@ -244,4 +244,62 @@ class AdminController extends Controller
        return $output;
     }
 
+    public function sendSms2()
+    {
+      $message = new Message();
+      return $message->sendSms('254703539208', 'Helloo,the localhost time now is '.now());
+      return 'Code executed';
+    }
+
+    public function sendSms()
+    {       
+        $mobileno = "0703539208";
+        $message_body = 'Helloo,the localhost time now is '.now();
+        $sender = 'BIMAS';
+        $user_id ='15571' ; 
+        $smsGatewayUrl = 'https://api.prsp.tangazoletu.com/?';
+        $passkey = '2CFKzjE9K3'; 
+
+        $textmessage = urlencode($message_body);
+        $api_params ='User_ID='.$user_id.'&passkey='.$passkey.'&service=1&sender='.$sender.'&dest='.$mobileno.'&msg='.$textmessage;
+        $url = $smsGatewayUrl.$api_params;
+        
+        // create a new cURL resource
+        $ch = curl_init();
+     
+        
+        // set URL and other appropriate options
+        //curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+        curl_setopt($ch, CURLOPT_POST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+       
+        
+        // grab URL and pass it to the browser
+        //die('Helloo');
+        if( ! $result = curl_exec($ch))
+        {
+            trigger_error(curl_error($ch));
+        }
+        $response = curl_exec($ch);
+        
+        $err = curl_error($ch);
+        
+        
+        // close cURL resource, and free up system resources
+        curl_close($ch);
+
+        if ($err) {
+            return "cURL Error #:" . $err;
+        } else {
+            return $response;
+        }
+    }
+
+    
+#########END#######
 }
