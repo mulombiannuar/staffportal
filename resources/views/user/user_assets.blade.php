@@ -10,7 +10,7 @@
                         <div class="card-header p-2">
                             <ul class="nav nav-pills">
                                 <li class="nav-item"><a class="nav-link active" href="#phones" data-toggle="tab"><i
-                                            class="fa fa-phone"></i> Mobile Phones</a></li>
+                                            class="fa fa-mobile"></i> Mobile Phones</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#laptops" data-toggle="tab"><i
                                             class="fa fa-laptop"></i>
                                         Laptops</a></li>
@@ -26,7 +26,7 @@
                                     <!-- Profile -->
                                     <div class="card card-warning">
                                         <div class="card-header">
-                                            <h3 class="card-title"><i class="fa fa-phone"></i> Mobile Phones</h3>
+                                            <h3 class="card-title"><i class="fa fa-mobile"></i> Mobile Phones</h3>
                                         </div>
                                         <div class="card-body">
                                             <table id="table1"
@@ -78,7 +78,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th>SN</th>
-                                                            <th>PHONE NAME</th>
+                                                            <th>LAPTOP NAME</th>
                                                             <th>S/NUMBER</th>
                                                             <th>S/MODEL</th>
                                                             <th>O/SYSTEM</th>
@@ -115,7 +115,7 @@
                                     <!-- roles user -->
                                     <div class="card card-warning">
                                         <div class="card-header">
-                                            <h3 class="card-title"><i class="fa fa-desktop"></i> Transactions</h3>
+                                            <h3 class="card-title"><i class="fa fa-desktop"></i> Desktops</h3>
                                         </div>
                                         <div class="card-body">
                                             <div class="card-body">
@@ -123,7 +123,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th>SN</th>
-                                                            <th>PHONE NAME</th>
+                                                            <th>DESKTOP NAME</th>
                                                             <th>S/NUMBER</th>
                                                             <th>S/MODEL</th>
                                                             <th>O/SYSTEM</th>
@@ -160,20 +160,22 @@
                                     <!-- roles user -->
                                     <div class="card card-warning">
                                         <div class="card-header">
-                                            <h3 class="card-title"><i class="fa fa-motorbike"></i> Motorbikes</h3>
+                                            <h3 class="card-title"><i class="fa fa-motorcycle"></i> Motorbikes</h3>
                                         </div>
                                         <div class="card-body">
-                                            <table class="table table-sm table-bordered table-striped table-head-fixed">
+                                            <table id="table3"
+                                                class="table table-sm table-bordered table-striped table-head-fixed">
                                                 <thead>
                                                     <tr>
                                                         <th>SN</th>
                                                         <th>TYPE</th>
-                                                        <th>NAME</th>
+                                                        <th>MOTOR NAME</th>
                                                         <th>CHASSIS NUMBER</th>
                                                         <th>MODEL</th>
                                                         <th>REG NO</th>
                                                         <th>USER</th>
                                                         <th>OUTPOST</th>
+                                                        <th>VIEW</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -187,6 +189,16 @@
                                                             <td>{{ $asset->reg_no }}</td>
                                                             <td>{{ $asset->name }}</td>
                                                             <td>{{ $asset->outpost_name }}</td>
+                                                            <td>
+                                                                <div class="btn-group">
+                                                                    <a href="{{ route('user.motors', $asset->motor_id) }}">
+                                                                        <button type="button"
+                                                                            class="btn btn-xs btn-info"><i
+                                                                                class="fa fa-eye"></i>
+                                                                            View Details</button>
+                                                                    </a>
+                                                                </div>
+                                                            </td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>

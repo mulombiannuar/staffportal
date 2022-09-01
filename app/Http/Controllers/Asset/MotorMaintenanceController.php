@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Message;
 use App\Models\MotorMaintenance;
+use App\Models\MaintenanceLog;
 use App\Models\Products\Motor;
 use App\Models\User;
 use Carbon\Carbon;
@@ -79,6 +80,15 @@ class MotorMaintenanceController extends Controller
             ],
 
         ]);
+
+        // Check if the user has pending approval
+        if (!Auth::user()->hasRole('admin|asset maintenance')){
+            $user_id = $request->input('user_id');
+            if (MotorMaintenance::where(['user_id' => $user_id, 'status' => 0])->first()) {
+                return back()->with('danger', 'You have a pending booking approval. Cannot apply another one');
+            }
+        }
+
         //return $request;
         $log = new MotorMaintenance();
         $log->user_id = $request->input('user_id');
@@ -102,8 +112,8 @@ class MotorMaintenanceController extends Controller
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
       
-        //$message->sendSms($mobileNo, $systemMessage);
-        $message->sendSms('254703539208', $systemMessage);
+        $message->sendSms($mobileNo, $messageBody);
+        //$message->sendSms('254703539208', $systemMessage);
 
         $message->message_status = 'sent'; 
         $message->message_type = 'booking'; 
@@ -131,7 +141,10 @@ class MotorMaintenanceController extends Controller
             $message->message_body = $messageBody;
             $message->save();
         }
-        return redirect(route('admin.motors.show', $log->asset_id))->with('success', 'You have successfully lodged new booking with reference '.$log->reference .' dated '.$log->date);
+        if (Auth::user()->hasRole('admin')){
+            return redirect(route('admin.motors.show', $log->asset_id))->with('success', 'You have successfully lodged new booking with reference '.$log->reference .' dated '.$log->date);
+        }
+        return back()->with('success', 'You have successfully lodged new booking with reference '.$log->reference .' dated '.$log->date);
     }
 
     /**
@@ -254,8 +267,8 @@ class MotorMaintenanceController extends Controller
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
       
-        //$message->sendSms($mobileNo, $systemMessage);
-        $message->sendSms('254703539208', $systemMessage);
+        $message->sendSms($mobileNo, $messageBody);
+        //$message->sendSms('254703539208', $messageBody);
 
         $message->message_status = 'sent'; 
         $message->message_type = 'booking_approval'; 

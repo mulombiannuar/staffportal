@@ -3,9 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
+use App\Models\AssignedAsset;
 use App\Models\BudgetTemplate;
+use App\Models\DrivingLicense;
+use App\Models\FuelConsumption;
 use App\Models\Group;
+use App\Models\InsurancePolicy;
 use App\Models\Message;
+use App\Models\MotorMaintenance;
+use App\Models\Products\Motor;
 use App\Models\Profile;
 use App\Models\User;
 use Carbon\Carbon;
@@ -446,22 +453,47 @@ class UserController extends Controller
         return view('budgets.user_budgets', $pageData);
     }
 
-    public function devices()
+    public function assets()
     {
-        $devices = User::getUserDevices(Auth::user()->id);
+        $assets = User::getUserDevices(Auth::user()->id);
         $user = User::getUserById(Auth::user()->id);
         
         if (Auth::user()->hasRole('branch manager')){
-            $devices = User::getBranchDevices($user->branch_id);
+            $assets = User::getBranchDevices($user->branch_id);
         }
         
         //return $devices;
         $pageData = [
-            'page_name' => 'devices',
-            'title' => 'User Assigned Devices',
-            'devices' => $devices,
+            'page_name' => 'assets',
+            'title' => 'User Assigned Assets',
+            'devices' => $assets,
         ];
-        return view('user.user_devices', $pageData);
+        return view('user.user_assets', $pageData);
+    }
+
+    public function motor($id)
+    {
+        $asset = new Motor();
+        $assign = new AssignedAsset();
+        $license = new DrivingLicense();
+        $log = new MotorMaintenance();
+        $fuel = new FuelConsumption();
+        //return $log->getLogsByAssetId($id);
+        $details = $asset->getMotorById($id);
+        $pageData = [
+            'asset' => $details,
+			'page_name' => 'assets',
+            'title' => $details->type.' Details - '.ucwords($details->chassis_number),
+            'branches' => Admin::getBranches(),
+            'assigns' => $assign->getAssetAssignedHistory($id, 5),
+            'licenses' => $license->getLicensesByAssetId($id),
+            'logs' => $log->getLogsByAssetId($id),
+            'fuels' => $fuel->getConsumptionsByAssetId($id),
+            'products' => InsurancePolicy::getInsuranceProducts(),
+            'companies' => InsurancePolicy::getInsuranceCompanies(),
+            'policy' => InsurancePolicy::getInsurancePolicyByRefNumber($details->reg_no)
+        ];
+        return view('user.user_motors', $pageData);
     }
 
 }

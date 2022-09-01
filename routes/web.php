@@ -26,6 +26,7 @@ use App\Http\Controllers\Asset\PrinterController;
 use App\Http\Controllers\Asset\RouterController;
 use App\Http\Controllers\Asset\ScannerController;
 use App\Http\Controllers\Asset\SwitchController;
+use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Shop\CategoryController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\ShopController;
@@ -143,18 +144,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function(){
     Route:: resource('switches', SwitchController::class, ['except' => ['index']])->middleware(['role:admin']);
     Route:: resource('ups', PowerSupplyController::class, ['except' => ['index']])->middleware(['role:admin']);
 
-    Route:: resource('licenses', LicenseController::class, ['except' => ['create', 'show', 'edit']])->middleware(['role:admin']);
-    Route:: resource('fuels', FuelConsumptionController::class, ['except' => ['create', 'edit']])->middleware(['role:admin']);
+    Route:: resource('licenses', LicenseController::class, ['except' => ['create', 'show', 'edit']]);
+    Route:: resource('fuels', FuelConsumptionController::class, ['except' => ['create', 'edit']]);
     
     Route::put('motor-logs/save/{log_id}', [MotorMaintenanceController::class, 'saveService'])->name('motor-logs.save')->middleware(['role:admin']);
     Route::put('motor-logs/approve/{log_id}', [MotorMaintenanceController::class, 'approveBooking'])->name('motor-logs.approve')->middleware(['role:admin']);
     Route::get('motor-logs/book/asset_id={asset_id}&service=maintenance', [MotorMaintenanceController::class, 'book'])->name('motor-logs.book')->middleware(['role:admin']);
-    Route:: resource('motor-logs', MotorMaintenanceController::class, ['except' => ['create']])->middleware(['role:admin']);
+    Route:: resource('motor-logs', MotorMaintenanceController::class, ['except' => ['create']]);
     
     Route::put('insurances/renew/{id}', [InsuranceController::class, 'renew'])->name('insurances.renew')->middleware(['role:admin']);
     Route::get('insurances/renew/{id}', [InsuranceController::class, 'renewPolicy'])->name('insurances.renew-policy')->middleware(['role:admin']);
     Route::get('insurances/report', [InsuranceController::class, 'insuranceReport'])->name('insurances.report')->middleware(['role:admin']);
-    Route:: resource('insurances', InsuranceController::class)->middleware(['role:admin']);
+    Route:: resource('insurances', InsuranceController::class);
 
     Route::get('system-processes', [ProcessController::class, 'systemProcesses'])->name('processes.index')->middleware(['role:admin']);
     Route::post('processes/policy-expiration-status', [ProcessController::class, 'policyExpirationStatus'])->name('processes.policyexpirationstatus')->middleware(['role:admin']);
@@ -221,7 +222,13 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function(){
     Route::get('budgets', [UserController::class, 'budgets'])->name('budgets');
 
     /// Devices
-    Route::get('devices', [UserController::class, 'devices'])->name('devices');
+    Route::get('assets', [UserController::class, 'assets'])->name('assets');
+    Route::get('assets/{id}', [UserController::class, 'motor'])->name('motors');
+
+    /// Motorbike booking
+    Route::get('motor-logs/book/asset_id={asset_id}&service=maintenance', [MotorMaintenanceController::class, 'book'])->name('motor-logs.book');
+    Route:: resource('motor-logs', MotorMaintenanceController::class, ['except' => ['create']]);
+    
 
 });
 
@@ -253,5 +260,10 @@ Route::middleware(['auth'])->prefix('shop')->name('shop.')->group(function(){
     Route::get('orders/products/{product}', [ShopController::class, 'ordersByProductId'])->name('get-product-orders');
 
     Route::get('users', [ShopController::class, 'users'])->name('users');
+
+});
+
+Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(function(){
+    Route:: resource('campaigns', CustomerController::class)->middleware(['role:admin']);
 
 });
