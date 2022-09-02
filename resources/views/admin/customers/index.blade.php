@@ -33,38 +33,46 @@
                             @foreach ($campaigns as $campaign)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ strtoupper($campaign->campaign_name) }}</td>
+                                    <td>
+                                        <a href="{{ route('customers.campaigns.show', $campaign->campaign_id) }}">
+                                            {{ strtoupper($campaign->campaign_name) }} ({{ $campaign->count }})
+                                        </a>
+                                    </td>
                                     <td>{{ $campaign->start_date }}</td>
                                     <td>{{ $campaign->end_date }}</td>
                                     <td>{{ $campaign->target_areas }}</td>
                                     <td>{{ $campaign->target_products }}</td>
                                     <td>{{ $campaign->user_name }}</td>
                                     <td>
-                                        <div class="btn-group">
-                                            <a href="{{ route('customers.campaigns.show', $campaign->campaign_id) }}">
-                                                <button type="button" class="btn btn-sm btn-info"><i class="fa fa-eye"></i>
-                                                    Show Details</button>
-                                            </a>
+                                        <div class="margin">
+                                            <div class="btn-group">
+                                                <a href="{{ route('customers.campaigns.show', $campaign->campaign_id) }}">
+                                                    <button type="button" class="btn btn-sm btn-info"><i
+                                                            class="fa fa-eye"></i>
+                                                        Show</button>
+                                                </a>
+                                            </div>
+                                            <div class="btn-group">
+                                                <a href="{{ route('customers.campaigns.edit', $campaign->campaign_id) }}">
+                                                    <button type="button" class="btn btn-sm btn-default"><i
+                                                            class="fa fa-edit"></i>
+                                                        Edit</button>
+                                                </a>
+                                            </div>
+                                            <div class="btn-group">
+                                                <form
+                                                    action="{{ route('customers.campaigns.destroy', $campaign->campaign_id) }}"
+                                                    method="post"
+                                                    onclick="return confirm('Do you really want to delete this record?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger"><i
+                                                            class="fa fa-trash"></i>
+                                                        Delete</button>
+                                                </form>
+                                            </div>
                                         </div>
-                                        <div class="btn-group">
-                                            <a href="{{ route('customers.campaigns.edit', $campaign->campaign_id) }}">
-                                                <button type="button" class="btn btn-sm btn-default"><i
-                                                        class="fa fa-edit"></i>
-                                                    Edit</button>
-                                            </a>
-                                        </div>
-                                        <div class="btn-group">
-                                            <form
-                                                action="{{ route('customers.campaigns.destroy', $campaign->campaign_id) }}"
-                                                method="post"
-                                                onclick="return confirm('Do you really want to delete this record?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"><i
-                                                        class="fa fa-trash"></i>
-                                                    Delete</button>
-                                            </form>
-                                        </div>
+                                    </td>
                             @endforeach
                         </tbody>
                     </table>

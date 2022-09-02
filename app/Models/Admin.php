@@ -31,6 +31,11 @@ class Admin extends Model
         return  DB::table('branches')->where('branch_id', $id)->first();
     }
 
+    public static function getOutpostById($id)
+    {
+        return  DB::table('outposts')->where('outpost_id', $id)->first();
+    }
+
     public static function getCvpProducts()
     {
         return  DB::table('cvp_products')->orderBy('product_id', 'asc')->get();

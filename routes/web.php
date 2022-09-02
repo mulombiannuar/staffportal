@@ -266,4 +266,12 @@ Route::middleware(['auth'])->prefix('shop')->name('shop.')->group(function(){
 Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(function(){
     Route:: resource('campaigns', CustomerController::class)->middleware(['role:admin']);
 
+    Route::get('add&campaign={campaign_id}', [CustomerController::class, 'addCustomer'])->name('add_customer')->middleware(['role:admin|communication']);
+    Route::post('save-customer', [CustomerController::class, 'saveCustomer'])->name('save_customer')->middleware(['role:admin|communication']);
+    Route::get('edit/{id}', [CustomerController::class, 'editCustomer'])->name('edit_customer')->middleware(['role:admin|communication']);
+    Route::get('show/{id}', [CustomerController::class, 'showCustomer'])->name('show_customer');
+    Route::put('update-customer/{id}', [CustomerController::class, 'updateCustomer'])->name('update_customer')->middleware(['role:admin|communication']);
+    Route::delete('delete-customer/{id}', [CustomerController::class, 'deleteCustomer'])->name('delete_customer')->middleware(['role:admin|communication']);
+    Route::put('save-officer-message/{id}', [CustomerController::class, 'saveOfficerMessage'])->name('save_officer_message');
+
 });

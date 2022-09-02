@@ -78,7 +78,8 @@
                                 <div class="col-sm-3">
                                     <div class="form-group">
                                         <label for="type">Approval</label>
-                                        <select name="status" id="status" class="form-control select2" id="type" required>
+                                        <select name="status" id="status" class="form-control select2" id="type"
+                                            required>
                                             <option class="mb-1"
                                                 value="{{ $log->status == 0 ? 'Select Approval Status' : $log->status }}">
                                                 @if ($log->status == 0)
@@ -106,8 +107,7 @@
                                     <div class="form-group">
                                         <label for="approval_message">Approval Message</label>
                                         <textarea class="form-control" name="approval_message" id="approval_message" cols="4" rows="3"
-                                            placeholder="Enter approval message here" autocomplete="on"
-                                            required>{{ $log->approval_message }}</textarea>
+                                            placeholder="Enter approval message here" autocomplete="on" required>{{ $log->approval_message }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -163,9 +163,9 @@
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="service_cost">Service Cost</label>
-                                            <input type="number" name="service_cost" class="form-control"
-                                                id="service_cost" value="{{ $log->service_cost }}"
-                                                placeholder="Enter service cost" autocomplete="on" required>
+                                            <input type="number" name="service_cost" class="form-control" id="service_cost"
+                                                value="{{ $log->service_cost }}" placeholder="Enter service cost"
+                                                autocomplete="on" required>
                                         </div>
                                     </div>
                                 </div>
@@ -174,16 +174,14 @@
                                         <div class="form-group">
                                             <label for="service_done">Services Done</label>
                                             <textarea class="form-control" name="service_done" id="service_done" cols="4" rows="3"
-                                                placeholder="Enter detailed services done here" autocomplete="on"
-                                                required>{{ $log->service_done }}</textarea>
+                                                placeholder="Enter detailed services done here" autocomplete="on" required>{{ $log->service_done }}</textarea>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="additional_info">Additional Information & Recommendations</label>
                                             <textarea class="form-control" name="additional_info" id="additional_info" cols="4" rows="3"
-                                                placeholder="Enter Additional Information & Recommendations"
-                                                autocomplete="on" required>{{ $log->additional_info }}</textarea>
+                                                placeholder="Enter Additional Information & Recommendations" autocomplete="on" required>{{ $log->additional_info }}</textarea>
                                         </div>
                                     </div>
                                 </div>
