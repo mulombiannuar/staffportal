@@ -96,7 +96,7 @@ class MotorMaintenanceController extends Controller
         $log->type = $request->input('type');
         $log->date = $request->input('date');
         $log->message = $request->input('message');
-        $log->reference = 'Bkl-'.date('YmdHi');
+        $log->reference = 'BKL-'.date('YmdHi');
         $log->save();
 
         $user = User::getUserById($log->user_id);
@@ -104,7 +104,7 @@ class MotorMaintenanceController extends Controller
 
         //Save audit trail
         $activity_type = 'Booking Creation';
-        $systemMessage = 'You have successfully lodged new booking with reference '.$log->reference .' dated '.$log->date;
+        $systemMessage = 'you have successfully lodged new booking with reference '.$log->reference .' dated '.$log->date;
         User::saveAuditTrail($activity_type, $systemMessage);
 
         //Send email and SMS notification to owner

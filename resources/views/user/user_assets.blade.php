@@ -73,37 +73,36 @@
                                             <h3 class="card-title"><i class="fa fa-laptop"></i> Laptops</h3>
                                         </div>
                                         <div class="card-body">
-                                            <div class="card-body">
-                                                <table class="table table-sm table-bordered table-striped table-head-fixed">
-                                                    <thead>
+                                            <table id="table2"
+                                                class="table table-sm table-bordered table-striped table-head-fixed">
+                                                <thead>
+                                                    <tr>
+                                                        <th>SN</th>
+                                                        <th>LAPTOP NAME</th>
+                                                        <th>S/NUMBER</th>
+                                                        <th>S/MODEL</th>
+                                                        <th>O/SYSTEM</th>
+                                                        <th>USER</th>
+                                                        <th>OUTPOST</th>
+                                                        <th>DATE ASSIGNED</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($devices['laptops'] as $asset)
                                                         <tr>
-                                                            <th>SN</th>
-                                                            <th>LAPTOP NAME</th>
-                                                            <th>S/NUMBER</th>
-                                                            <th>S/MODEL</th>
-                                                            <th>O/SYSTEM</th>
-                                                            <th>USER</th>
-                                                            <th>OUTPOST</th>
-                                                            <th>DATE ASSIGNED</th>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ strtoupper($asset->device_name) }}</td>
+                                                            <td>{{ $asset->serial_number }}</td>
+                                                            <td>{{ $asset->model }}</td>
+                                                            <td>{{ $asset->operating_system }}</td>
+                                                            <td>{{ $asset->name }}</td>
+                                                            <td>{{ $asset->outpost_name }}</td>
+                                                            <td>{{ date_format(date_create($asset->date_assigned), 'D, d M Y') }}
+                                                            </td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($devices['laptops'] as $asset)
-                                                            <tr>
-                                                                <td>{{ $loop->iteration }}</td>
-                                                                <td>{{ strtoupper($asset->device_name) }}</td>
-                                                                <td>{{ $asset->serial_number }}</td>
-                                                                <td>{{ $asset->model }}</td>
-                                                                <td>{{ $asset->operating_system }}</td>
-                                                                <td>{{ $asset->name }}</td>
-                                                                <td>{{ $asset->outpost_name }}</td>
-                                                                <td>{{ date_format(date_create($asset->date_assigned), 'D, d M Y') }}
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
                                         </div>
                                         <!-- /.card-body -->
                                     </div>
@@ -118,37 +117,36 @@
                                             <h3 class="card-title"><i class="fa fa-desktop"></i> Desktops</h3>
                                         </div>
                                         <div class="card-body">
-                                            <div class="card-body">
-                                                <table class="table table-sm table-bordered table-striped table-head-fixed">
-                                                    <thead>
+                                            <table id="table4"
+                                                class="table table-sm table-bordered table-striped table-head-fixed">
+                                                <thead>
+                                                    <tr>
+                                                        <th>SN</th>
+                                                        <th>DESKTOP NAME</th>
+                                                        <th>S/NUMBER</th>
+                                                        <th>S/MODEL</th>
+                                                        <th>O/SYSTEM</th>
+                                                        <th>USER</th>
+                                                        <th>OUTPOST</th>
+                                                        <th>DATE ASSIGNED</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($devices['desktops'] as $asset)
                                                         <tr>
-                                                            <th>SN</th>
-                                                            <th>DESKTOP NAME</th>
-                                                            <th>S/NUMBER</th>
-                                                            <th>S/MODEL</th>
-                                                            <th>O/SYSTEM</th>
-                                                            <th>USER</th>
-                                                            <th>OUTPOST</th>
-                                                            <th>DATE ASSIGNED</th>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ strtoupper($asset->device_name) }}</td>
+                                                            <td>{{ $asset->serial_number }}</td>
+                                                            <td>{{ $asset->model }}</td>
+                                                            <td>{{ $asset->operating_system }}</td>
+                                                            <td>{{ $asset->name }}</td>
+                                                            <td>{{ $asset->outpost_name }}</td>
+                                                            <td>{{ date_format(date_create($asset->date_assigned), 'D, d M Y') }}
+                                                            </td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($devices['desktops'] as $asset)
-                                                            <tr>
-                                                                <td>{{ $loop->iteration }}</td>
-                                                                <td>{{ strtoupper($asset->device_name) }}</td>
-                                                                <td>{{ $asset->serial_number }}</td>
-                                                                <td>{{ $asset->model }}</td>
-                                                                <td>{{ $asset->operating_system }}</td>
-                                                                <td>{{ $asset->name }}</td>
-                                                                <td>{{ $asset->outpost_name }}</td>
-                                                                <td>{{ date_format(date_create($asset->date_assigned), 'D, d M Y') }}
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
                                         </div>
                                         <!-- /.card-body -->
                                     </div>

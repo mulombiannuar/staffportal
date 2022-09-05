@@ -178,6 +178,7 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
+        Customer::where('campaign_id', $id)->delete();
         CustomerCampaign::find($id)->delete();
 
         //Save audit trail
@@ -253,7 +254,7 @@ class CustomerController extends Controller
         $messageBody = $message->getGreetings(strtoupper($customer->customer_name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim( $customer->customer_phone), 2);
     
-        //$message->sendSms($mobileNo, $systemMessage);
+        //$message->sendSms($mobileNo, $messageBody);
         $message->sendSms('254703539208', $messageBody);
 
         $message->message_status = 'sent'; 
@@ -273,7 +274,7 @@ class CustomerController extends Controller
         $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
     
         //$message->sendSms($mobileNo, $systemMessage);
-        $message->sendSms('254703539208', $messageBody);
+        $message->sendSms('254703539208', $systemMessage);
 
         $message->message_status = 'sent'; 
         $message->message_type = 'sms_officer'; 
@@ -396,10 +397,45 @@ class CustomerController extends Controller
 
         //Save audit trail
         $activity_type = 'Officer Response Message';
-        $description = 'Successfully updated response message customer issue for'. $customer->customer_name;
+        $description = 'Successfully updated response message customer issue for '. $customer->customer_name;
         User::saveAuditTrail($activity_type, $description);
 
         return back()->with('success', 'Successfully created updated response message');
+    }
+
+    public function saveAdminMessage(Request $request, $id)
+    {
+        //return $request;
+        $request->validate([
+            'admin_message' => [
+                'required',
+            ],
+        ]);
+
+        //return $request;
+        $customer = Customer::find($id);
+        $customer->admin_message = $request->input('admin_message');
+        $customer->issue_sorted = $request->input('issue_sorted');
+        $customer->save();
+
+        //Save audit trail
+        $activity_type = 'Admin Response Message';
+        $description = 'Successfully updated response message customer issue for '. $customer->customer_name;
+        User::saveAuditTrail($activity_type, $description);
+
+        return back()->with('success', 'Successfully created updated response message');
+    }
+
+    public function branchCustomers()
+    {
+        $user = User::getUserById(Auth::user()->id);
+        $branch = Admin::getBranchById($user->branch_id);
+        $pageData = [
+			'page_name' => 'customers',
+            'title' => 'Branch Customers : '.$branch->branch_name,
+            'customers' => Customer::getCustomersByBranch($user->branch_id)
+        ];
+        return view('admin.customers.branch_customers', $pageData);
     }
 
    

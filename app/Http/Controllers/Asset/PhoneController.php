@@ -115,8 +115,9 @@ class PhoneController extends Controller
 
         $user_id = $request->input('user_id');
         $user_exists = Phone::where('assigned_to', $user_id)->first();
+        $user = User::find($user_id);
 
-        if($user_exists)
+        if(!empty($user_exists) && !$user->hasRole('admin'))
         return back()->with('danger', 'This user already exists in this list assets');
 
         $phone = new Phone();

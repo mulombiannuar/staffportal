@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
            //CreateRoutersList::class
            //CreateSwitchesList::class
           // CreateCVPProducts::class
+          //CreateCustomersList::class
         ]);
     }
 }

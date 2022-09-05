@@ -27,7 +27,8 @@ class Customer extends Model
                     'users.name as user_name',
                     'officers.name as officer_name',
                    )
-                  ->orderBy('customer_id', 'desc')
+                  //->orderBy('customer_id', 'desc')
+                  ->orderBy('customers.created_at', 'desc')
                   ->get();
     }
 
@@ -41,12 +42,14 @@ class Customer extends Model
                   ->join('branches', 'branches.branch_id', '=', 'customers.branch_id')
                   ->select(
                     'customers.*',
+                    'customer_campaigns.*',
                     'outposts.outpost_name',
                     'branches.branch_name',
                     'users.name as user_name',
                     'officers.name as officer_name',
                    )
                   ->where('customers.branch_id', $branch_id)
+                  ->orderBy('customers.created_at', 'desc')
                   ->get();
     }
 
@@ -66,6 +69,7 @@ class Customer extends Model
                     'officers.name as officer_name',
                    )
                   ->where('customers.campaign_id', $campaign_id)
+                  ->orderBy('customers.created_at', 'desc')
                   ->get();
     }
 

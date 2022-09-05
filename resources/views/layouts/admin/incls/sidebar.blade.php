@@ -140,6 +140,32 @@
                         </ul>
                     </li>
 
+
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.insurances.index') }}"
+                            class="nav-link {{ $page_name == 'insurance' ? 'active' : '' }}">
+                            <i class="fa fa-list-alt nav-icon"></i>
+                            <p>
+                                Insurance Policies
+                            </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.messages.index') }}"
+                            class="nav-link {{ $page_name == 'messages' ? 'active' : '' }}">
+                            <i class="fa fa-envelope nav-icon"></i>
+                            <p>
+                                Messages
+                            </p>
+                        </a>
+                    </li>
+                @endif
+                <!-- END : Admin Menus -->
+
+                <!--BEGINNING : Admin,Communication-->
+                @if (Auth::user()->hasRole('admin|communication'))
                     <li class="nav-item has-treeview">
                         <a href="#" class="nav-link {{ $page_name == 'customers' ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
@@ -169,31 +195,11 @@
                             </li>
                         </ul>
                     </li>
-
-                    <li class="nav-item">
-                        <a href="{{ route('admin.insurances.index') }}"
-                            class="nav-link {{ $page_name == 'insurance' ? 'active' : '' }}">
-                            <i class="fa fa-list-alt nav-icon"></i>
-                            <p>
-                                Insurance Policies
-                            </p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{{ route('admin.messages.index') }}"
-                            class="nav-link {{ $page_name == 'messages' ? 'active' : '' }}">
-                            <i class="fa fa-envelope nav-icon"></i>
-                            <p>
-                                Messages
-                            </p>
-                        </a>
-                    </li>
                 @endif
-                <!-- END : Admin Menus -->
+                <!--END : Admin,Communication-->
 
+                <!-- BEGINNING : Finance, Admin Menus -->
                 @if (Auth::user()->hasRole('admin|finance'))
-                    <!-- BEGINNING : Finance, Admin Menus -->
                     <li class="nav-item has-treeview">
                         <a href="{{ route('admin.groups.index') }}"
                             class="nav-link {{ $page_name == 'finance' ? 'active' : '' }}">
@@ -228,41 +234,11 @@
                             </p>
                         </a>
                     </li>
-                    <!-- END : Finance, Admin Menus -->
                 @endif
+                <!-- END : Finance, Admin Menus -->
 
                 <!-- BEGINNING : Staff, Branch Manager Menus -->
                 @if (Auth::user()->hasRole('bimas staff|branch manager'))
-                    {{-- <li class="nav-item has-treeview">
-                        <a href="{{ route('user.groups') }}"
-                            class="nav-link {{ $page_name == 'groups' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-users"></i>
-                            <p>
-                                Groups Management
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ route('user.expenses.index') }}" class="nav-link">
-                                    <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>User Expenses</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('user.meetings.groups') }}" class="nav-link">
-                                    <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>Group Meetings</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('user.groups') }}" class="nav-link">
-                                    <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>User Groups</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li> --}}
                     <li class="nav-item">
                         <a href="{{ route('user.budgets') }}"
                             class="nav-link {{ $page_name == 'budgets' ? 'active' : '' }}">
@@ -292,6 +268,35 @@
                                 <a href="{{ route('shop.orders') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>User Biddings</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link {{ $page_name == 'customers' ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>
+                                Branch Customers
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('customers.branch_customers') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Customers Campaigns</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Website Loans</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Website Contacts</p>
                                 </a>
                             </li>
                         </ul>

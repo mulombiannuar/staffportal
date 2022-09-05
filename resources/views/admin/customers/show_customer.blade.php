@@ -113,61 +113,64 @@
                         </div>
                         <div class="modal-footer justify-content-between">
                             <button type="submit" class="btn btn-warning"> <i class="fa fa-plus"></i>
-                                Update Message</button>
+                                Update Officer Message</button>
                         </div>
                     </form>
                 </div>
                 <!-- /.card-body -->
             </div>
             <!-- /.card -->
-            <div class="card card-success">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-list-alt"></i> Admin Message
-                    </h3>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <form action="{{ route('customers.update_customer', $customer->customer_id) }}" method="post">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <div class="form-group">
-                                        <label for="type">Issue Resolved</label>
-                                        <select name="issue_sorted" id="issue_sorted" class="form-control select2"
-                                            id="issue_sorted" required>
-                                            <option value="{{ $customer->issue_sorted }}">
-                                                @if ($customer->issue_sorted == 0)
-                                                    {{ 'Not Resolved' }}
-                                                @else
-                                                    {{ 'Resolved' }}
-                                                @endif
-                                            </option>
-                                            <option value="1">Resolved</option>
-                                            <option value="0">Not Resolved</option>
-                                        </select>
+            @if (Auth::user()->hasRole('admin'))
+                <div class="card card-success">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fa fa-list-alt"></i> Admin Message
+                        </h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <form action="{{ route('customers.save_admin_message', $customer->customer_id) }}"
+                            method="post">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="type">Issue Resolved</label>
+                                            <select name="issue_sorted" id="issue_sorted" class="form-control select2"
+                                                id="issue_sorted" required>
+                                                <option value="{{ $customer->issue_sorted }}">
+                                                    @if ($customer->issue_sorted == 0)
+                                                        {{ 'Not Resolved' }}
+                                                    @else
+                                                        {{ 'Resolved' }}
+                                                    @endif
+                                                </option>
+                                                <option value="1">Resolved</option>
+                                                <option value="0">Not Resolved</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-8">
-                                    <div class="form-group">
-                                        <label for="admin_message">Enter your message</label>
-                                        <textarea class="form-control" name="admin_message" id="admin_message" cols="4" rows="2"
-                                            placeholder="Enter your message here" autocomplete="on" required>{{ $customer->admin_message }}</textarea>
+                                    <div class="col-sm-8">
+                                        <div class="form-group">
+                                            <label for="admin_message">Enter your message</label>
+                                            <textarea class="form-control" name="admin_message" id="admin_message" cols="4" rows="2"
+                                                placeholder="Enter your message here" autocomplete="on" required>{{ $customer->admin_message }}</textarea>
+                                        </div>
                                     </div>
-                                </div>
 
+                                </div>
                             </div>
-                        </div>
-                        <div class="modal-footer justify-content-between">
-                            <button type="submit" class="btn btn-warning"> <i class="fa fa-plus"></i>
-                                Update Customer Data</button>
-                        </div>
-                    </form>
+                            <div class="modal-footer justify-content-between">
+                                <button type="submit" class="btn btn-info"> <i class="fa fa-plus"></i>
+                                    Update Admin Message</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.card-body -->
                 </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
+                <!-- /.card -->
+            @endif
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->

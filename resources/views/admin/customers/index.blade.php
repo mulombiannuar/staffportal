@@ -21,8 +21,8 @@
                             <tr>
                                 <th>SN</th>
                                 <th>CAMPAIGN NAME</th>
-                                <th>START DATE</th>
-                                <th>END DATE</th>
+                                {{-- <th>START DATE</th> --}}
+                                {{-- <th>END DATE</th> --}}
                                 <th>TARGET AREAS</th>
                                 <th>TARGET PRODUCTS</th>
                                 <th>CR RATE%</th>
@@ -38,8 +38,8 @@
                                             {{ strtoupper($campaign->campaign_name) }} ({{ $campaign->count }})
                                         </a>
                                     </td>
-                                    <td>{{ $campaign->start_date }}</td>
-                                    <td>{{ $campaign->end_date }}</td>
+                                    {{-- <td>{{ $campaign->start_date }}</td> --}}
+                                    {{-- <td>{{ $campaign->end_date }}</td> --}}
                                     <td>{{ $campaign->target_areas }}</td>
                                     <td>{{ $campaign->target_products }}</td>
                                     <td>{{ $campaign->user_name }}</td>
@@ -47,14 +47,14 @@
                                         <div class="margin">
                                             <div class="btn-group">
                                                 <a href="{{ route('customers.campaigns.show', $campaign->campaign_id) }}">
-                                                    <button type="button" class="btn btn-sm btn-info"><i
+                                                    <button type="button" class="btn btn-xs btn-info"><i
                                                             class="fa fa-eye"></i>
                                                         Show</button>
                                                 </a>
                                             </div>
                                             <div class="btn-group">
                                                 <a href="{{ route('customers.campaigns.edit', $campaign->campaign_id) }}">
-                                                    <button type="button" class="btn btn-sm btn-default"><i
+                                                    <button type="button" class="btn btn-xs btn-default"><i
                                                             class="fa fa-edit"></i>
                                                         Edit</button>
                                                 </a>
@@ -66,7 +66,7 @@
                                                     onclick="return confirm('Do you really want to delete this record?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger"><i
+                                                    <button type="submit" class="btn btn-xs btn-danger"><i
                                                             class="fa fa-trash"></i>
                                                         Delete</button>
                                                 </form>

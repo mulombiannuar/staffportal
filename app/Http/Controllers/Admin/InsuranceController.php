@@ -153,7 +153,7 @@ class InsuranceController extends Controller
         $messageBody = $message->getGreetings(strtoupper($insurance->client_name)).' '.$systemMessage;
         $mobileNo = '2547'.substr(trim($insurance->client_phone), 2);
     
-        //$message->sendSms($mobileNo, $systemMessage);
+        //$message->sendSms($mobileNo, $messageBody);
         //$message->sendSms('254703539208', $systemMessage);
 
         $message->message_status = 'sent'; 
