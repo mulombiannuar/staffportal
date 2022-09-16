@@ -182,13 +182,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('customers.loans') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Website Loans</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('customers.contacts') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Website Contacts</p>
                                 </a>
@@ -244,7 +244,7 @@
                             class="nav-link {{ $page_name == 'budgets' ? 'active' : '' }}">
                             <i class="fa fa-list nav-icon"></i>
                             <p>
-                                Budget Templates
+                                User Budgets
                             </p>
                         </a>
                     </li>
@@ -288,15 +288,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('customers.loans') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Website Loans</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>Website Contacts</p>
                                 </a>
                             </li>
                         </ul>

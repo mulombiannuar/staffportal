@@ -145,7 +145,7 @@
                                         <div class="icon">
                                             <i class="fa fa-users"></i>
                                         </div>
-                                        <a href="{{ route('user.assets') }}" class="small-box-footer">More info <i
+                                        <a href="{{ route('admin.packages.index') }}" class="small-box-footer">More info <i
                                                 class="fas fa-arrow-circle-right"></i></a>
                                     </div>
                                 </div>
@@ -249,6 +249,21 @@
                                         </div>
                                         <a href="{{ route('customers.branch_customers') }}" class="small-box-footer">More
                                             info <i class="fas fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+                                <!-- ./col -->
+                                <div class="col-lg-3 col-6 col-sm-12">
+                                    <!-- small box -->
+                                    <div class="small-box bg-success">
+                                        <div class="inner">
+                                            <p>User Guide</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-book"></i>
+                                        </div>
+                                        <a href="https://drive.google.com/file/d/1FMjmZ6QIQXSSK75os4_PnQywkf7ZErTe/view?usp=sharing"
+                                            target="_blank" class="small-box-footer">More info <i
+                                                class="fas fa-arrow-circle-right"></i></a>
                                     </div>
                                 </div>
                                 <!-- ./col -->

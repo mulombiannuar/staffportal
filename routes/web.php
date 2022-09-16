@@ -275,5 +275,11 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
     Route::put('save-officer-message/{id}', [CustomerController::class, 'saveOfficerMessage'])->name('save_officer_message');
     Route::put('save-admin-message/{id}', [CustomerController::class, 'saveAdminMessage'])->name('save_admin_message');
     Route::get('branch', [CustomerController::class, 'branchCustomers'])->name('branch_customers');
+    
+    Route::get('contacts', [CustomerController::class, 'contacts'])->name('contacts')->middleware(['role:admin|communication']);
+    Route::get('loans', [CustomerController::class, 'loans'])->name('loans');
+    Route::get('loans/{id}', [CustomerController::class, 'showLoan'])->where('id', '[0-9]+')->name('show-loan');
+    Route::put('loans/{id}', [CustomerController::class, 'approveLoan'])->where('id', '[0-9]+')->name('approve-loan');
+    Route::put('comment-loan/{id}', [CustomerController::class, 'commentLoan'])->where('id', '[0-9]+')->name('comment-loan');
 
 });

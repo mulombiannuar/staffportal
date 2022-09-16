@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 
 class CustomerController extends Controller
 {
@@ -437,6 +439,181 @@ class CustomerController extends Controller
         ];
         return view('admin.customers.branch_customers', $pageData);
     }
+
+    ## Beginning of API methods
+    public function loans()
+    {
+        $data = [];
+        try{
+            $remote_url = env('WEBSITE_URL');
+            $client =  new Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false )));
+            //$client = new Client(); 
+
+            $user = User::getUserById(Auth::user()->id);
+            $url = Auth::user()->hasRole('admin|communication')
+            ? $remote_url."api/customers/v1/get-loans/" 
+            : $remote_url."api/customers/v1/get-branch-loans/{$user->branch_id}";
+            
+            $response = $client->request('GET', $url, [
+                'verify'  => false,
+            ]);
+
+            $responseBody = json_decode($response->getBody());
+
+            $data = $responseBody;
+        } catch (\Throwable $e){
+            file_put_contents("log.txt", $e . " \n", FILE_APPEND);
+        }
+        
+        $pageData = [
+			'page_name' => 'customers',
+            'title' => 'Website Applied Loans',
+            'loans' => $data,
+        ];
+        return view('admin.customers.loans', $pageData);
+    }
+
+    public function showLoan($id)
+    {
+        $data = [];
+        try{
+            $remote_url = env('WEBSITE_URL');
+            $client = new Client(); 
+
+            $url = $remote_url."api/customers/v1/get-loans/{$id}";
+            
+            $response = $client->request('GET', $url, [
+                'verify'  => false,
+            ]);
+
+            $responseBody = json_decode($response->getBody());
+
+            $data = $responseBody[0];
+        } catch (\Throwable $e){
+            file_put_contents("log.txt", $e . " \n", FILE_APPEND);
+        }
+        $pageData = [
+			'page_name' => 'customers',
+            'title' => 'Loan Details',
+            'loan' => $data,
+        ];
+        return view('admin.customers.loan', $pageData);
+      
+    }
+
+    public function approveLoan(Request $request, $id)
+    {
+        try {
+                $remote_url = 'https://www.bimaskenya.com/';
+                //$client = new Client(); 
+                $client =  new Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, ), ));
+                $url = $remote_url."api/customers/v1/approve-loan/{$id}";
+                
+                $response = $client->request('PUT', $url);
+
+                $response = $client->put(
+                    $url,
+                    [
+                        RequestOptions::ALLOW_REDIRECTS => [
+                            'max' => 5,
+                            'track_redirects' => true,
+                        ],
+                        RequestOptions::FORM_PARAMS => $request->all(),
+                    ]
+                );
+                $statusCode = $response->getStatusCode(); // 200
+           } 
+        catch (\Throwable $th) {
+              throw $th;
+              file_put_contents("log.txt", $th . " \n", FILE_APPEND);
+              return back()->with('warning', 'There was an error while trying to approve the request : '.$th);
+        }
+
+         //Save audit trail
+         $activity_type = 'Online Loan Approval';
+         $description = 'Successfully approved online loan with ID '. $id;
+         User::saveAuditTrail($activity_type, $description);
+            
+        return back()->with('success', 'Loan approved successfully with status code : '.$statusCode);
+    }
+
+    public function commentLoan(Request $request, $id)
+    {
+        $request->validate([
+            'commented_by' => [
+                'required',
+            ],
+            'officer_comment' => [
+                'required',
+            ],
+        ]);
+        
+        try {
+            $remote_url = 'https://www.bimaskenya.com/';
+            //$client = new Client(); 
+            $client =  new Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, ), ));
+            $url = $remote_url."api/customers/v1/comment-loan/{$id}";
+            
+            $response = $client->request('PUT', $url);
+
+            $response = $client->put(
+                $url,
+                [
+                    RequestOptions::ALLOW_REDIRECTS => [
+                        'max' => 5,
+                        'track_redirects' => true,
+                    ],
+                    RequestOptions::FORM_PARAMS => $request->all(),
+                ]
+            );
+            $statusCode = $response->getStatusCode(); // 200
+       } 
+    catch (\Throwable $th) {
+          throw $th;
+          file_put_contents("log.txt", $th . " \n", FILE_APPEND);
+          return back()->with('warning', 'There was an error while trying to submit your comment : '.$th);
+       }
+
+        //Save audit trail
+        $activity_type = 'Online Loan Commenting';
+        $description = 'Successfully commented on online loan with ID '. $id;
+        User::saveAuditTrail($activity_type, $description);
+        
+       return back()->with('success', 'Comment submitted successfully with status code : '.$statusCode);
+    }
+
+    public function contacts()
+    {
+        $data = [];
+        try{
+            $remote_url = env('WEBSITE_URL');
+            $client = new Client(); 
+
+            $url = $remote_url."api/customers/v1/get-contacts/";
+            
+            $response = $client->request('GET', $url, [
+                'verify'  => false,
+            ]);
+
+            $responseBody = json_decode($response->getBody());
+
+            $data = $responseBody;
+        } catch (\Throwable $e){
+            file_put_contents("log.txt", $e . " \n", FILE_APPEND);
+        }
+
+      //  return $data;
+      
+        $pageData = [
+			'page_name' => 'customers',
+            'title' => 'Website Contacts',
+            'contacts' => $data,
+        ];
+        return view('admin.customers.contacts', $pageData);
+    }
+
+
+    
 
    
 }
