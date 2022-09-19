@@ -62,17 +62,19 @@
                                                         View</button>
                                                 </a>
                                             </div>
-                                            <div class="btn-group">
-                                                <form action="{{ route('admin.motors.destroy', $asset->motor_id) }}"
-                                                    method="post"
-                                                    onclick="return confirm('Do you really want to delete this record?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-xs btn-danger"><i
-                                                            class="fa fa-trash"></i>
-                                                        Delete</button>
-                                                </form>
-                                            </div>
+                                            @if (Auth::user()->hasRole('admin'))
+                                                <div class="btn-group">
+                                                    <form action="{{ route('admin.motors.destroy', $asset->motor_id) }}"
+                                                        method="post"
+                                                        onclick="return confirm('Do you really want to delete this record?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-xs btn-danger"><i
+                                                                class="fa fa-trash"></i>
+                                                            Delete</button>
+                                                    </form>
+                                                </div>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

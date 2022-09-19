@@ -51,7 +51,7 @@
                 </li>
 
                 <!-- BEGINNING : Admin Menus -->
-                @if (Auth::user()->hasRole('admin'))
+                @if (Auth::user()->hasRole('admin|motor maintenance'))
                     <li class="nav-item">
                         <a href="{{ route('admin.assets.index') }}"
                             class="nav-link {{ $page_name == 'assets' ? 'active' : '' }}">
@@ -61,7 +61,9 @@
                             </p>
                         </a>
                     </li>
+                @endif
 
+                @if (Auth::user()->hasRole('admin'))
                     <li class="nav-item">
                         <a href="{{ route('shop.index') }}"
                             class="nav-link {{ $page_name == 'shop' ? 'active' : '' }}">

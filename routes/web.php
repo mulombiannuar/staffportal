@@ -112,12 +112,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function(){
     Route::get('groups/{id}', [GroupController::class, 'show'])->name('groups.show');
 
     /// Assets Management
-    Route::get('assets/categories', [AssetController::class, 'categories'])->name('assets.categories')->middleware(['role:admin']);
-    Route::get('assets', [AssetController::class, 'index'])->name('assets.index')->middleware(['role:admin']);
-    Route::get('assets/{id}', [AssetController::class, 'show'])->name('assets.show')->middleware(['role:admin']);
-    Route::post('assets/assign', [AssetController::class, 'assignAsset'])->name('assets.assign')->middleware(['role:admin']);
-    Route::delete('assets/{id}', [AssetController::class, 'deleteAssignment'])->name('assets.delete')->middleware(['role:admin']);
-    Route::put('assets/{id}', [AssetController::class, 'updateAssignment'])->name('assets.update')->middleware(['role:admin']);
+    Route::get('assets/categories', [AssetController::class, 'categories'])->name('assets.categories')->middleware(['role:admin|motor maintenance']);
+    Route::get('assets', [AssetController::class, 'index'])->name('assets.index')->middleware(['role:admin|motor maintenance']);
+    Route::get('assets/{id}', [AssetController::class, 'show'])->name('assets.show')->middleware(['role:admin|motor maintenance']);
+    Route::post('assets/assign', [AssetController::class, 'assignAsset'])->name('assets.assign')->middleware(['role:admin|motor maintenance']);
+    Route::delete('assets/{id}', [AssetController::class, 'deleteAssignment'])->name('assets.delete')->middleware(['role:admin|motor maintenance']);
+    Route::put('assets/{id}', [AssetController::class, 'updateAssignment'])->name('assets.update')->middleware(['role:admin|motor maintenance']);
 
     Route::get('repairs', [AssetController::class, 'repairsData'])->name('repairs.index')->middleware(['role:admin']);
     Route::post('repairs/save', [AssetController::class, 'saveRepairData'])->name('repairs.save')->middleware(['role:admin']);
@@ -137,7 +137,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function(){
     Route:: resource('laptops', LaptopController::class, ['except' => ['index']])->middleware(['role:admin']);
     Route:: resource('phones', PhoneController::class, ['except' => ['index']])->middleware(['role:admin']);
     Route:: resource('modems', ModemController::class, ['except' => ['index']])->middleware(['role:admin']);
-    Route:: resource('motors', MotorController::class, ['except' => ['index']])->middleware(['role:admin']);
+    Route:: resource('motors', MotorController::class, ['except' => ['index']])->middleware(['role:admin|motor maintenance']);
     Route:: resource('printers', PrinterController::class, ['except' => ['index']])->middleware(['role:admin']);
     Route:: resource('routers', RouterController::class, ['except' => ['index']])->middleware(['role:admin']);
     Route:: resource('scanners', ScannerController::class, ['except' => ['index']])->middleware(['role:admin']);
@@ -147,9 +147,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function(){
     Route:: resource('licenses', LicenseController::class, ['except' => ['create', 'show', 'edit']]);
     Route:: resource('fuels', FuelConsumptionController::class, ['except' => ['create', 'edit']]);
     
-    Route::put('motor-logs/save/{log_id}', [MotorMaintenanceController::class, 'saveService'])->name('motor-logs.save')->middleware(['role:admin']);
-    Route::put('motor-logs/approve/{log_id}', [MotorMaintenanceController::class, 'approveBooking'])->name('motor-logs.approve')->middleware(['role:admin']);
-    Route::get('motor-logs/book/asset_id={asset_id}&service=maintenance', [MotorMaintenanceController::class, 'book'])->name('motor-logs.book')->middleware(['role:admin']);
+    Route::put('motor-logs/save/{log_id}', [MotorMaintenanceController::class, 'saveService'])->name('motor-logs.save')->middleware(['role:admin|motor maintenance']);
+    Route::put('motor-logs/approve/{log_id}', [MotorMaintenanceController::class, 'approveBooking'])->name('motor-logs.approve')->middleware(['role:admin|motor maintenance']);
+    Route::get('motor-logs/book/asset_id={asset_id}&service=maintenance', [MotorMaintenanceController::class, 'book'])->name('motor-logs.book')->middleware(['role:admin|motor maintenance']);
     Route:: resource('motor-logs', MotorMaintenanceController::class, ['except' => ['create']]);
     
     Route::put('insurances/renew/{id}', [InsuranceController::class, 'renew'])->name('insurances.renew')->middleware(['role:admin']);
@@ -236,7 +236,7 @@ Route::middleware(['auth'])->prefix('export')->name('export.')->group(function()
     Route::get('user-expense/{id}', [PDFController::class, 'userExpense'])->name('user-expense');
     Route::get('claim-expense', [PDFController::class, 'claimExpenses'])->name('claim-expense')->middleware(['role:admin|branch manager|accountant|finance manager']);;
     Route::get('cvp-data', [PDFController::class, 'cvpData'])->name('cvp-data')->middleware(['role:admin|branch manager|accountant|finance manager']);;
-    Route::get('logs/show/log_id={log_id}&product_id={product_id}', [PDFController::class, 'showMaintenanceLogData'])->name('logs.show')->middleware(['role:admin']);
+    Route::get('logs/show/log_id={log_id}&product_id={product_id}', [PDFController::class, 'showMaintenanceLogData'])->name('logs.show')->middleware(['role:admin|motor maintenance']);
 
 });
 
