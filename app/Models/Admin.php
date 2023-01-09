@@ -166,4 +166,10 @@ class Admin extends Model
     {
         return  DB::table('budget_years')->where('year_id', $id)->first();
     }
+
+    public static function getLoanProducts()
+    {
+        return DB::table('loan_products')->where('status', 1)->orderBy('product_name', 'asc')->get();
+    }
+   
 }

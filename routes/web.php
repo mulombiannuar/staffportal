@@ -27,6 +27,8 @@ use App\Http\Controllers\Asset\RouterController;
 use App\Http\Controllers\Asset\ScannerController;
 use App\Http\Controllers\Asset\SwitchController;
 use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\Records\ClientController;
+use App\Http\Controllers\Records\LoanFormController;
 use App\Http\Controllers\Shop\CategoryController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\ShopController;
@@ -282,5 +284,14 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
     Route::get('loans/{id}', [CustomerController::class, 'showLoan'])->where('id', '[0-9]+')->name('show-loan');
     Route::put('loans/{id}', [CustomerController::class, 'approveLoan'])->where('id', '[0-9]+')->name('approve-loan');
     Route::put('comment-loan/{id}', [CustomerController::class, 'commentLoan'])->where('id', '[0-9]+')->name('comment-loan');
+
+});
+
+Route::middleware(['auth'])->prefix('records')->name('records.')->group(function(){
+    Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
+    Route:: resource('clients', ClientController::class)->middleware(['role:admin|records']);
+    
+    Route::get('loan-forms/products', [LoanFormController::class, 'loanProducts'])->name('loan-forms.products');
+    Route:: resource('loan-forms', LoanFormController::class)->middleware(['role:admin|records']);
 
 });
