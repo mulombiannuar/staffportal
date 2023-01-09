@@ -267,7 +267,7 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
     Route:: resource('campaigns', CustomerController::class)->middleware(['role:admin|communication']);
 
     Route::get('add&campaign={campaign_id}', [CustomerController::class, 'addCustomer'])->name('add_customer')->middleware(['role:admin|communication']);
-    Route::post('save-customer', [CustomerController::class, 'saveCustomer'])->name('save_customer')->middleware(['role:admin|communication']);
+    Route::post('save-customer', [CustomerController::class, 'saveCustomer'])->name('save_customer');
     Route::get('edit/{id}', [CustomerController::class, 'editCustomer'])->name('edit_customer')->middleware(['role:admin|communication']);
     Route::get('show/{id}', [CustomerController::class, 'showCustomer'])->name('show_customer');
     Route::put('update-customer/{id}', [CustomerController::class, 'updateCustomer'])->name('update_customer')->middleware(['role:admin|communication']);
@@ -275,6 +275,7 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
     Route::put('save-officer-message/{id}', [CustomerController::class, 'saveOfficerMessage'])->name('save_officer_message');
     Route::put('save-admin-message/{id}', [CustomerController::class, 'saveAdminMessage'])->name('save_admin_message');
     Route::get('branch', [CustomerController::class, 'branchCustomers'])->name('branch_customers');
+    Route::get('add-customer', [CustomerController::class, 'addBranchCustomer'])->name('branch_customers.add');
     
     Route::get('contacts', [CustomerController::class, 'contacts'])->name('contacts')->middleware(['role:admin|communication']);
     Route::get('loans', [CustomerController::class, 'loans'])->name('loans');

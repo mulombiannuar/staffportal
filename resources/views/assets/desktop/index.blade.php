@@ -22,10 +22,10 @@
                                 <th>COMPUTER NAME</th>
                                 <th>SERIAL NUMBER</th>
                                 <th>OPERATING SYSTEM</th>
+                                <th>MS OFFICE</th>
                                 <th>SYSTEM MODEL</th>
                                 <th>PROCESSOR</th>
                                 <th>USER</th>
-                                <th>BRANCH</th>
                                 <th>OUTPOST</th>
                                 <th>ACTION</th>
                             </tr>
@@ -36,11 +36,11 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ strtoupper($asset->name) }}</td>
                                     <td>{{ $asset->serial_number }}</td>
-                                    <td>{{ $asset->operating_system }}</td>
+                                    <td>{{ $asset->operating_system }} / {{ $asset->os_key }}</td>
+                                    <td>{{ $asset->office_name }} / {{ $asset->office_key }}</td>
                                     <td>{{ $asset->model }}</td>
                                     <td>{{ $asset->processor }}</td>
                                     <td>{{ $asset->user_name }}</td>
-                                    <td>{{ $asset->branch_name }}</td>
                                     <td>{{ $asset->outpost_name }}</td>
                                     <td>
                                         <div class="margin">

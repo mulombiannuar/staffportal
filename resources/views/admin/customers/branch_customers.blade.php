@@ -4,6 +4,12 @@
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
+            <div class="margin mb-2 text-right">
+                <a href="{{ route('customers.branch_customers.add') }}">
+                    <button type="button" class="btn btn-secondary"><i class="fa fa-plus"></i> Add New
+                        Customer</button>
+                </a>
+            </div>
             <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-customers"></i> {{ $title }}</h3>

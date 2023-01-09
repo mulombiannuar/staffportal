@@ -282,7 +282,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $user = User::find($id);
         $user->status = 0;
@@ -293,6 +293,7 @@ class UserController extends Controller
         $description = 'Deleted the user '.$user->name;
         User::saveAuditTrail($activity_type, $description);
 
+        //$request->session()->flash('success', 'User deleted successfully');
         return back()->with('success', 'User deleted successfully');
     }
 

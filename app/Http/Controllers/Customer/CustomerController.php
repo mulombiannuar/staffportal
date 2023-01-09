@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Customer;
 use App\Models\CustomerCampaign;
 use App\Models\Message;
+use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -202,6 +203,19 @@ class CustomerController extends Controller
         return view('admin.customers.add_customer', $pageData);
     }
 
+    public function addBranchCustomer()
+    {
+        //return Profile::getProfileByUserId(Auth::user()->id);
+        $pageData = [
+            'page_name' => 'customers',
+            'title' => 'Add New Branch Customer',
+            'campaigns' => CustomerCampaign::getCampaigns(),
+            'user' => Profile::getProfileByUserId(Auth::user()->id),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+        ];
+        return view('admin.customers.add_branch_customer', $pageData);
+    }
+
     public function saveCustomer(Request $request)
     {
         //return $request;
@@ -251,7 +265,7 @@ class CustomerController extends Controller
 
         //Send sms notification to the customer
         $outpost = Admin::getOutpostById($customer->outpost_id);
-        $systemMessage = 'thank you for contacting BIMAS concerning our products and services. For assistance you can contact our officer at '.$outpost->outpost_name.' branch office on '.$outpost->office_number.'. For self service dial *645*300#. BIMAS';
+        $systemMessage = 'thank you for contacting BIMAS concerning our products and services. Our officer at '.$outpost->outpost_name.'-'.$outpost->office_number.' will get in touch with you concerning your issue. In case your issue is not resolved, you can contact our customer care line on 0110408032. For self service dial *645*300#. BIMAS';
         $message = new Message();
         $messageBody = $message->getGreetings(strtoupper($customer->customer_name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim( $customer->customer_phone), 2);
@@ -302,7 +316,17 @@ class CustomerController extends Controller
         $message->message_body = $messageBody;
         $message->save();
 
-        return redirect(route('customers.campaigns.show', $customer->campaign_id))->with('success', 'Successfully created new customer issue for '.$customer->customer_name. '. Notifications sent to customer and relevant officer');
+        $emailSubject = 'New Customer Ticket for '.strtoupper($customer->customer_name).'-'.$customer->customer_phone. ' raised on Staffportal';
+        $emailMessage = $customer->customer_message;
+        $customerCareEmail = 'customercare@bimaskenya.com';
+        $ictSupportEmail = 'ictsupport@bimaskenya.com';
+        $sendEmail = new Message();
+        $sendEmail->SendSystemEmail('Customer Care', $customerCareEmail, $emailMessage, $emailSubject);
+        $sendEmail->SendSystemEmail('ICT Support Care', $ictSupportEmail, $emailMessage, $emailSubject);
+
+         if(Auth::user()->hasRole('admin|communication'))
+         return redirect(route('customers.campaigns.show', $customer->campaign_id))->with('success', 'Successfully created new customer issue for '.$customer->customer_name. '. Notifications sent to customer and relevant officer');
+        return redirect(route('customers.branch_customers'))->with('success', 'Successfully created new customer issue for '.$customer->customer_name. '. Notifications sent to customer and relevant officer');
     }
     
     public function editCustomer($id)
