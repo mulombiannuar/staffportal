@@ -14,6 +14,7 @@
                             <div class="col-sm-12">
                                 <form action="{{ route('records.loan-forms.update', $loan_form->form_id) }}" method="post"
                                     enctype="multipart/form-data">
+                                    @method('PUT')
                                     @csrf
                                     <div class="modal-body">
                                         <div class="row">

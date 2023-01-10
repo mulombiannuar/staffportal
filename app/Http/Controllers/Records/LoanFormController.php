@@ -12,6 +12,7 @@ use App\Utilities\Buttons;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class LoanFormController extends Controller
@@ -120,7 +121,7 @@ class LoanFormController extends Controller
          $description = 'Successfully uploaded new loan form for '. $client->client_name;
          User::saveAuditTrail($activity_type, $description);
 
-         return redirect(route('records.loan-forms.index'))->with('success', 'Successfully registered new records client '.$client->client_name);
+         return redirect(route('records.loan-forms.index'))->with('success', 'Successfully upladed new loan form for'.$client->client_name);
     }
 
     /**
@@ -131,7 +132,15 @@ class LoanFormController extends Controller
      */
     public function show($id)
     {
-        //
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Loan Form Details',
+            'products' => Admin::getLoanProducts(),
+            'loan_form' => LoanForm::getLoanFormById($id),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+        ];
+        return view('records.forms.show', $pageData);
     }
 
     /**
@@ -163,7 +172,57 @@ class LoanFormController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'branch' => 'required|integer',
+            'outpost_id' => 'required|integer',
+            'clients' => 'required|integer',
+            'filing_type' => 'required|integer',
+            'file_label' => 'required|integer',
+            'product' => 'required|integer',
+            'amount' => 'required|string|max:255',
+            'disbursment_date' => 'required|string|max:255',
+            'loan_form' => "mimes:pdf",
+        ]);
+
+         $client = Client::find($request->clients);
+         $product = Admin::getLoanProductById($request->product);
+         $fileLabel = FilingLabel::find($request->file_label);
+         $filingType = DB::table('filing_types')->where('type_id', $request->filing_type)->first();
+
+         //client-0108981-wf04-cash loan-cash001-1673348015
+         $loanFormName = $this->getFormName($client, $product, $filingType, $fileLabel); 
+
+         $form = LoanForm::find($id);
+         $loanFormDocName = $form->file_name;
+         
+         if($request->hasFile('loan_form')) 
+         {
+             Storage::delete('public/assets/loans/'.$loanFormDocName);
+
+             $extension = $request->file('loan_form')->getClientOriginalExtension();
+             
+             $loanFormDocName = $loanFormName.'.'.$extension;
+ 
+             $request->file('loan_form')->storeAs('public/assets/loans', $loanFormDocName);
+         }
+         
+         $form->product_id = $product->product_id;
+         $form->client_id = $client->client_id;
+         $form->filing_type_id = $request->filing_type;
+         $form->file_number = $request->file_label;
+         $form->amount = $request->amount;
+         $form->disbursment_date = $request->disbursment_date;
+         $form->payee = $request->payee;
+         $form->cheque_no = $request->cheque_no;
+         $form->file_name = $loanFormDocName;
+         $form->save();
+
+         //Save audit trail
+         $activity_type = 'Loan Form Updation';
+         $description = 'Successfully updated loan form for '. $client->client_name;
+         User::saveAuditTrail($activity_type, $description);
+
+         return redirect(route('records.loan-forms.index'))->with('success', 'Successfully updated existing loan form for '.$client->client_name);
     }
 
     /**
@@ -174,7 +233,16 @@ class LoanFormController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $form = LoanForm::find($id);
+        Storage::delete('public/assets/loans/'.$form->file_name);
+        $form->delete();
+
+        //Save audit trail
+        $activity_type = 'Loan Form Deletion';
+        $description = 'Successfully deleted loanw ith id '. $id;
+        User::saveAuditTrail($activity_type, $description);
+
+        return redirect(route('records.loan-forms.index'))->with('success', 'Successfully deleted loan form with id '.$id);
     }
 
     public function loanProducts()
@@ -230,11 +298,10 @@ class LoanFormController extends Controller
 
     private function getFormName($client, $product, $filingType, $fileLabel)
     {
-        $name = 'client-'.$client->bimas_br_id.
-                      '-'.$product->product_code.
-                      '-'.$filingType->type_name.
-                      '-'.$fileLabel->file_label.$fileLabel->file_number.
+        return 'client-'.$client->bimas_br_id.
+                      '-'.strtoupper($product->product_code).
+                      '-'.ucwords($filingType->type_name).
+                      '-'.strtoupper($fileLabel->file_label.$fileLabel->file_number).
                       '-'.time();
-        return strtolower($name);
     }
 }
