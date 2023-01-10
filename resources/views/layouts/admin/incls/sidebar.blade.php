@@ -224,7 +224,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('customers.contacts') }}" class="nav-link">
+                                <a href="{{ route('records.loan-forms.index') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Loan Forms</p>
                                 </a>
@@ -232,13 +232,13 @@
                             <li class="nav-item">
                                 <a href="{{ route('customers.contacts') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>Requested Loan Forms</p>
+                                    <p>Requested Forms</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('customers.contacts') }}" class="nav-link">
+                                <a href="{{ route('records.filing-labels.index') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>Cabinet Files</p>
+                                    <p>Filing Labels</p>
                                 </a>
                             </li>
                         </ul>

@@ -10,6 +10,7 @@ use App\Models\GroupMeeting;
 use App\Models\Message;
 use App\Models\Products\Modem;
 use App\Models\Products\Phone;
+use App\Models\Records\Client;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserExpense;
@@ -93,7 +94,7 @@ class AdminController extends Controller
       $mobileNo = '2547'.substr(trim($mobile_no), 2);
       
       //$message->sendSms($mobileNo, $systemMessage);
-      $message->sendSms('254703539208', $systemMessage);
+      //$message->sendSms('254703539208', $systemMessage);
 
       /// Send OTP mail
      // $message->SendSessionToken(ucwords($user->name), $user->email, session('access_token'));
@@ -191,6 +192,23 @@ class AdminController extends Controller
           }
        }
        
+       return $output;
+    }
+
+    public function fetchOutpostClients(Request $request)
+    {
+       $outpost =  $request->input('outpost');
+       $users = Client::getClientsByOutpost($outpost);
+       $output = '';
+       if (count($users) == 0) {
+         $output .= '<option value="">- No Clients found -</option>';
+       }else{
+          $output .= '<option value="">- Select Client below -</option>';
+          foreach ($users as $user) 
+          {
+            $output .= '<option value="'.$user->client_id.'">'.$user->bimas_br_id.' - '.$user->client_name.'</option>';
+          }
+       }
        return $output;
     }
 

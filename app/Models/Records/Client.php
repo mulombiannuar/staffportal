@@ -32,4 +32,14 @@ class Client extends Model
                      ->orderBy('bimas_br_id', 'asc')
                      ->get();
     }
+
+    public static function getClientsByOutpost($outpost_id)
+    {
+        return Client::where('outpost_id', $outpost_id)->orderBy('bimas_br_id', 'asc')->get();
+    }
+
+    public static function getClientsByBranch($branch_id)
+    {
+        return Client::where('branch_id', $branch_id)->orderBy('bimas_br_id', 'asc')->get();
+    }
 }

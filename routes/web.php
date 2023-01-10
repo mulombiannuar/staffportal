@@ -28,6 +28,7 @@ use App\Http\Controllers\Asset\ScannerController;
 use App\Http\Controllers\Asset\SwitchController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Records\ClientController;
+use App\Http\Controllers\Records\FilingLabelController;
 use App\Http\Controllers\Records\LoanFormController;
 use App\Http\Controllers\Shop\CategoryController;
 use App\Http\Controllers\Shop\ProductController;
@@ -79,6 +80,8 @@ Route::post('get-sub-counties', [AdminController::class, 'fetchSubCounties'])->n
 Route::post('get-outposts', [AdminController::class, 'fetchBranchOutposts'])->name('get.outposts');
 Route::get('get-users', [AdminController::class, 'fetchBranchUsers'])->name('get.users');
 Route::get('get-ousers', [AdminController::class, 'fetchOutpostUsers'])->name('get.ousers');
+Route::get('get-oclients', [AdminController::class, 'fetchOutpostClients'])->name('get.oclients');
+Route::get('get-filing-files', [LoanFormController::class, 'fetchFilingLabelsByType'])->name('get.filing-files');
 Route::get('get-phoneusers', [AdminController::class, 'fetchOutpostPhones'])->name('get.phoneusers');
 Route::get('get-modemusers', [AdminController::class, 'fetchOutpostModems'])->name('get.modemusers');
 
@@ -292,6 +295,9 @@ Route::middleware(['auth'])->prefix('records')->name('records.')->group(function
     Route:: resource('clients', ClientController::class)->middleware(['role:admin|records']);
     
     Route::get('loan-forms/products', [LoanFormController::class, 'loanProducts'])->name('loan-forms.products');
+    Route::get('loan-forms/get-loan-forms', [LoanFormController::class, 'getLoanForms'])->name('loan-forms.get-loan-forms');
     Route:: resource('loan-forms', LoanFormController::class)->middleware(['role:admin|records']);
+
+    Route:: resource('filing-labels', FilingLabelController::class)->except('edit')->middleware(['role:admin|records']);
 
 });

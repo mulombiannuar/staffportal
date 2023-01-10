@@ -171,5 +171,10 @@ class Admin extends Model
     {
         return DB::table('loan_products')->where('status', 1)->orderBy('product_name', 'asc')->get();
     }
+
+    public static function getLoanProductById($id)
+    {
+        return DB::table('loan_products')->where('product_id', $id)->first();
+    }
    
 }

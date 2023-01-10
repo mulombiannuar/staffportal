@@ -41,8 +41,7 @@
                                         <div class="btn-group">
                                             <a href="{{ route('user.expenses.show', $expense->expense_id) }}"
                                                 title="Click to view expense details">
-                                                <button type="button" class="btn btn-xs btn-info"><i
-                                                        class="fa fa-eye"></i>
+                                                <button type="button" class="btn btn-xs btn-info"><i class="fa fa-eye"></i>
                                                     View</button>
                                             </a>
                                         </div>
@@ -86,9 +85,9 @@
                                             <div class="col-sm-4">
                                                 <div class="form-group">
                                                     <label for="end_date">End Date</label>
-                                                    <input type="date" name="end_date" class="form-control" id="end_date"
-                                                        value="{{ date('Y-m-d') }}" placeholder="Select Expense End Date"
-                                                        autocomplete="on" required>
+                                                    <input type="date" name="end_date" class="form-control"
+                                                        id="end_date" value="{{ date('Y-m-d') }}"
+                                                        placeholder="Select Expense End Date" autocomplete="on" required>
                                                 </div>
                                             </div>
                                             <div class="col-sm-4">

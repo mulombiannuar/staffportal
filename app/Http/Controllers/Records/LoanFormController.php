@@ -4,9 +4,15 @@ namespace App\Http\Controllers\Records;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Records\Client;
+use App\Models\Records\FilingLabel;
+use App\Models\Records\LoanForm;
+use App\Models\User;
+use App\Utilities\Buttons;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class LoanFormController extends Controller
 {
@@ -17,7 +23,28 @@ class LoanFormController extends Controller
      */
     public function index()
     {
-        //
+       // return $this->getLoanForms();
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Records Loan Forms ('.LoanForm::count().')',
+        ];
+        return view('records.forms.index', $pageData);
+    }
+
+    public function getLoanForms()
+    {
+        $forms = LoanForm::getLoanForms();
+        return DataTables::of($forms)
+                        ->addIndexColumn()
+                        ->addColumn('action', function ($form) {
+                            return Buttons::dataTableButtons(
+                                route('records.loan-forms.show', $form->form_id),
+                                route('records.loan-forms.edit', $form->form_id),
+                                route('records.loan-forms.destroy', $form->form_id),
+                            );
+                        })
+                        ->rawColumns(['action'])
+                        ->make(true);
     }
 
     /**
@@ -27,7 +54,14 @@ class LoanFormController extends Controller
      */
     public function create()
     {
-        //
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Add Loan Forms',
+            'products' => Admin::getLoanProducts(),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+        ];
+        return view('records.forms.create', $pageData);
     }
 
     /**
@@ -38,7 +72,55 @@ class LoanFormController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'branch' => 'required|integer',
+            'outpost_id' => 'required|integer',
+            'clients' => 'required|integer',
+            'filing_type' => 'required|integer',
+            'file_label' => 'required|integer',
+            'product' => 'required|integer',
+            'amount' => 'required|string|max:255',
+            'disbursment_date' => 'required|string|max:255',
+            'loan_form' => "required|mimes:pdf",
+        ]);
+
+         $client = Client::find($request->clients);
+         $product = Admin::getLoanProductById($request->product);
+         $fileLabel = FilingLabel::find($request->file_label);
+         $filingType = DB::table('filing_types')->where('type_id', $request->filing_type)->first();
+
+         //client-0108981-wf04-cash loan-cash001-1673348015
+         $loanFormName = $this->getFormName($client, $product, $filingType, $fileLabel); 
+
+         $loanFormDocName = 'nopdf.pdf';
+         if($request->hasFile('loan_form')) 
+         {
+             $extension = $request->file('loan_form')->getClientOriginalExtension();
+             
+             $loanFormDocName = $loanFormName.'.'.$extension;
+ 
+             $request->file('loan_form')->storeAs('public/assets/loans', $loanFormDocName);
+         }
+
+         $form = new LoanForm();
+         $form->product_id = $product->product_id;
+         $form->client_id = $client->client_id;
+         $form->filing_type_id = $request->filing_type;
+         $form->file_number = $request->file_label;
+         $form->amount = $request->amount;
+         $form->disbursment_date = $request->disbursment_date;
+         $form->payee = $request->payee;
+         $form->cheque_no = $request->cheque_no;
+         $form->file_name = $loanFormDocName;
+         $form->created_by = Auth::user()->id;
+         $form->save();
+
+         //Save audit trail
+         $activity_type = 'Loan Form Upload';
+         $description = 'Successfully uploaded new loan form for '. $client->client_name;
+         User::saveAuditTrail($activity_type, $description);
+
+         return redirect(route('records.loan-forms.index'))->with('success', 'Successfully registered new records client '.$client->client_name);
     }
 
     /**
@@ -60,7 +142,16 @@ class LoanFormController extends Controller
      */
     public function edit($id)
     {
-        //
+        //return LoanForm::getLoanFormById($id);
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Update Loan Form',
+            'products' => Admin::getLoanProducts(),
+            'loan_form' => LoanForm::getLoanFormById($id),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+        ];
+        return view('records.forms.edit', $pageData);
     }
 
     /**
@@ -118,5 +209,32 @@ class LoanFormController extends Controller
             'headers' => $headers,
             'rows' => $rows
         ];
+    }
+
+    public function fetchFilingLabelsByType(Request $request)
+    {
+       $type =  $request->input('type');
+       $labels = FilingLabel::getFilesByType($type);
+       $output = '';
+       if (count($labels) == 0) {
+         $output .= '<option value="">- No Record Files Found -</option>';
+       }else{
+          $output .= '<option value="">- Select Record File below -</option>';
+          foreach ($labels as $label) 
+          {
+            $output .= '<option value="'.$label->label_id.'">'.$label->file_label.$label->file_number.'</option>';
+          }
+       }
+       return $output;
+    }
+
+    private function getFormName($client, $product, $filingType, $fileLabel)
+    {
+        $name = 'client-'.$client->bimas_br_id.
+                      '-'.$product->product_code.
+                      '-'.$filingType->type_name.
+                      '-'.$fileLabel->file_label.$fileLabel->file_number.
+                      '-'.time();
+        return strtolower($name);
     }
 }
