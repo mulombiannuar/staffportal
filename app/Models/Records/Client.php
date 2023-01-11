@@ -23,6 +23,16 @@ class Client extends Model
                 ->first();
     }
 
+    public static function getClientBRId($client_id)
+    {
+        return Client::join('users', 'users.id', '=', 'clients.created_by')
+                ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
+                ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
+                ->select('clients.*', 'branch_name', 'outpost_name')
+                ->where(['bimas_br_id'=> $client_id])
+                ->first();
+    }
+
     public static function getClients()
     {
         return Client::join('users', 'users.id', '=', 'clients.created_by')

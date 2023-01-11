@@ -142,8 +142,6 @@
                         </ul>
                     </li>
 
-
-
                     <li class="nav-item">
                         <a href="{{ route('admin.insurances.index') }}"
                             class="nav-link {{ $page_name == 'insurance' ? 'active' : '' }}">
@@ -230,7 +228,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('customers.contacts') }}" class="nav-link">
+                                <a href="{{ route('records.requested-forms.index') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Requested Forms</p>
                                 </a>

@@ -64,7 +64,7 @@
                                                             {{ $loan_form->product_name }}</option>
                                                         @foreach ($products as $product)
                                                             <option value="{{ $product->product_id }}">
-                                                                {{ $product->product_name }}
+                                                                {{ $product->product_code . ' - ' . $product->product_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>

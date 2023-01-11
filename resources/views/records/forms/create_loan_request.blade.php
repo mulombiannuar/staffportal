@@ -22,8 +22,8 @@
                                                     <label for="branch_id">Branch</label>
                                                     <select name="branch" id="branch" class="form-control select2"
                                                         id="branch_id" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Branch -</option>
+                                                        <option class="mb-1" value="{{ $loan_form->branch_id }}">
+                                                            {{ $loan_form->branch_name }}</option>
                                                         @foreach ($branches as $branch)
                                                             <option value="{{ $branch->branch_id }}">
                                                                 {{ $branch->branch_name }}
@@ -37,8 +37,8 @@
                                                     <label for="outposts">Outpost</label>
                                                     <select name="outpost_id" class="form-control select2" id="outposts"
                                                         required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Branch First -</option>
+                                                        <option class="mb-1" value="{{ $loan_form->outpost_id }}">
+                                                            {{ $loan_form->outpost_name }}</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -47,8 +47,8 @@
                                                     <label for="client_id">Clients</label>
                                                     <select name="clients" class="form-control select2" id="users"
                                                         required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Outpost First -</option>
+                                                        <option class="mb-1" value="{{ $client->client_id }}">
+                                                            {{ $client->client_name }}</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -59,8 +59,8 @@
                                                     <label for="product">Loan Product</label>
                                                     <select name="product" id="product" class="form-control select2"
                                                         id="product" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Loan Product -</option>
+                                                        <option class="mb-1" value="{{ $loan_form->product_id }}">
+                                                            {{ $loan_form->product_name }}</option>
                                                         @foreach ($products as $product)
                                                             <option value="{{ $product->product_id }}">
                                                                 {{ $product->product_code . ' - ' . $product->product_name }}
@@ -74,10 +74,20 @@
                                                 <div class="form-group">
                                                     <label for="amount">Loan Amount</label>
                                                     <input type="number" name="amount" class="form-control" id="amount"
-                                                        placeholder="Loan Amount" value="{{ old('amount') }}"
+                                                        placeholder="Loan Amount" value="{{ $loan_form->amount }}"
                                                         autocomplete="off" required>
                                                 </div>
                                             </div>
+                                            <div class="col-md-4 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="client_name">Disbursment Date</label>
+                                                    <input type="date" name="disbursment_date" class="form-control"
+                                                        id="name" placeholder="Disbursment date" autocomplete="off"
+                                                        value="{{ $loan_form->disbursment_date }}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
                                             <div class="col-sm-4">
                                                 <div class="form-group">
                                                     <label for="filing_type">Filing Type</label>
@@ -93,8 +103,6 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
                                             <div class="col-sm-4">
                                                 <div class="form-group">
                                                     <label for="file_label">File Labels</label>
@@ -105,14 +113,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="client_name">Disbursment Date</label>
-                                                    <input type="date" name="disbursment_date" class="form-control"
-                                                        id="name" placeholder="Disbursment date" autocomplete="off"
-                                                        value="{{ old('disbursment_date') }}" required>
-                                                </div>
-                                            </div>
+
                                             <div class="col-md-4 col-sm-12">
                                                 <div class="form-group">
                                                     <label for="loan_form">Loan Form (PDF Only)</label>
@@ -141,6 +142,7 @@
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="submit" class="btn btn-secondary"> <i class="fa fa-user-plus"></i>

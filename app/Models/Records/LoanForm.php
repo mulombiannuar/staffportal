@@ -69,4 +69,18 @@ class LoanForm extends Model
                      ->orderBy('bimas_br_id', 'asc')
                      ->get();
     }
+
+    public static function getRequestedLoanForm($client_id, $product_id, $amount, $date)
+    {
+        return LoanForm::join('clients', 'clients.client_id', '=', 'loan_forms.client_id')
+                       ->join('loan_products', 'loan_products.product_id', '=', 'loan_forms.product_id')
+                       //->select('clients.*', 'users.name as created_by', 'branch_name', 'outpost_name')
+                       ->where([
+                            'amount' => $amount,
+                            'loan_forms.client_id'=> $client_id,
+                            'loan_forms.product_id' => $product_id,
+                            'disbursment_date' => $date
+                        ])
+                       ->first();
+    }
 }

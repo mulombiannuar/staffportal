@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Records\Client;
 use App\Models\Records\FilingLabel;
 use App\Models\Records\LoanForm;
+use App\Models\Records\RequestedLoanForm;
 use App\Models\User;
 use App\Utilities\Buttons;
 use Illuminate\Http\Request;
@@ -63,6 +64,28 @@ class LoanFormController extends Controller
             'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
         ];
         return view('records.forms.create', $pageData);
+    }
+
+    public function createLoanFormUsingLoanRequest(Request $request)
+    {
+        $request->validate([
+            'client_id' => 'required|string',
+            'request_id' => 'required|integer',
+        ]);
+
+        $form = new RequestedLoanForm();
+        $clientLoanData = $form->getLoanFormRequestById($request->request_id);
+
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Add Loan Forms',
+            'products' => Admin::getLoanProducts(),
+            'loan_form' => $clientLoanData,
+            'client' => Client::getClientBRId($request->client_id),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+        ];
+        return view('records.forms.create_loan_request', $pageData);
     }
 
     /**

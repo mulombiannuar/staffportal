@@ -30,6 +30,7 @@ use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Records\ClientController;
 use App\Http\Controllers\Records\FilingLabelController;
 use App\Http\Controllers\Records\LoanFormController;
+use App\Http\Controllers\Records\RequestedLoanFormController;
 use App\Http\Controllers\Shop\CategoryController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\ShopController;
@@ -292,12 +293,18 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
 
 Route::middleware(['auth'])->prefix('records')->name('records.')->group(function(){
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
+    Route::get('clients/request/{id}', [ClientController::class, 'createClientUsingLoanRequest'])->name('clients.loan-request');
     Route:: resource('clients', ClientController::class)->middleware(['role:admin|records']);
     
     Route::get('loan-forms/products', [LoanFormController::class, 'loanProducts'])->name('loan-forms.products');
     Route::get('loan-forms/get-loan-forms', [LoanFormController::class, 'getLoanForms'])->name('loan-forms.get-loan-forms');
+    Route::get('loan-forms/add', [LoanFormController::class, 'createLoanFormUsingLoanRequest'])->name('loan-forms.add-form');
     Route:: resource('loan-forms', LoanFormController::class)->middleware(['role:admin|records']);
 
     Route:: resource('filing-labels', FilingLabelController::class)->except('edit')->middleware(['role:admin|records']);
+   
+    Route::get('get-outpost-requests', [RequestedLoanFormController::class, 'fetchOutpostRequests'])->name('get-outpost-requests');
+    Route::post('requested-forms/approve', [RequestedLoanFormController::class, 'approveRequest'])->name('requested-forms.approve');
+    Route:: resource('requested-forms', RequestedLoanFormController::class)->middleware(['role:admin|records']);
 
 });

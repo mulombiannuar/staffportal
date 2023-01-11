@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Message;
 use App\Models\Records\Client;
+use App\Models\Records\RequestedLoanForm;
 use App\Models\User;
 use App\Utilities\Buttons;
 use Illuminate\Http\Request;
@@ -59,6 +60,20 @@ class ClientController extends Controller
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
         ];
         return view('records.clients.create', $pageData);
+    }
+
+    public function createClientUsingLoanRequest($request_id)
+    {
+        $form = new RequestedLoanForm();
+        $clientLoanData = $form->getLoanFormRequestById($request_id);
+
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Add New Client',
+            'client' => $clientLoanData,
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+        ];
+        return view('records.clients.create_loan_client', $pageData);
     }
 
     /**

@@ -16,22 +16,26 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <table id="datatable" class="table table-sm table-bordered table-striped table-head-fixed">
+                    <table id="table1" class="table table-sm table-bordered table-striped table-head-fixed">
                         <thead>
                             <tr>
                                 <th>S.N</th>
                                 <th>NAMES</th>
-                                <th>BR ID</th>
-                                <th>MOBILE</th>
-                                <th>NATIONAL ID</th>
-                                <th>BRANCH</th>
-                                <th>OUTPOST</th>
-                                <th>CREATED BY</th>
-                                <th>ACTIONS</th>
+                                <th>CODE</th>
+                                <th>CLASS ID</th>
+                                <th>CREATED AT</th>
                             </tr>
                         </thead>
                         <tbody>
-
+                            @foreach ($products as $product)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $product->product_name }}</td>
+                                    <td><strong>{{ $product->product_code }}</strong></td>
+                                    <td>{{ $product->product_class_id }}</td>
+                                    <td>{{ $product->created_at }}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -77,6 +81,10 @@
                     {
                         data: 'outpost_name',
                         name: 'outpost_name'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
                     },
                     {
                         data: 'created_by',

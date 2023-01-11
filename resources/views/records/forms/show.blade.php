@@ -1,4 +1,4 @@
-@extends('layouts.admin.form')
+@extends('layouts.admin.table')
 
 @section('content')
     <!-- Main content -->
@@ -138,71 +138,15 @@
                                 <h3 class="card-title"><i class="fa fa-users"></i> Officers Requests</h3>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('admin.assets.assign') }}" method="post">
-                                    @csrf
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label for="branch_id">Branch</label>
-                                                    <select name="branch" id="branch" class="form-control select2"
-                                                        id="branch_id" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Branch -</option>
-                                                        @foreach ($branches as $branch)
-                                                            <option value="{{ $branch->branch_id }}">
-                                                                {{ $branch->branch_name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label for="outposts">Outpost</label>
-                                                    <select name="outpost_id" class="form-control select2" id="outposts"
-                                                        required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Branch First -</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label for="users">Outposts Loan Requests</label>
-                                                    <select name="user_id" id="users" class="form-control select2"
-                                                        id="user_id" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Outpost First -</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="message">Additional Info</label>
-                                                    <textarea class="form-control" name="message" id="message" cols="4" rows="2"
-                                                        placeholder="Enter additional info" autocomplete="on" required></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer justify-content-between">
-                                        <button type="submit" class="btn btn-primary"> <i class="fa fa-user-plus"></i>
-                                            Give Access Rights</button>
-                                    </div>
-                                </form>
-
-                                <table id="table2" class="table table-sm table-bordered table-striped">
+                                <table id="table1" class="table table-sm table-bordered table-striped">
                                     <thead>
                                         <tr>
                                             <th>S.N</th>
-                                            <th>PREVIOUS USER</th>
-                                            <th>CURRENT USER</th>
-                                            <th>ASSIGNED BY</th>
-                                            <th>DATE ASSIGNED</th>
+                                            <th>REFERENCE</th>
+                                            <th>REQUESTED BY</th>
+                                            <th>BRANCH</th>
+                                            <th>OUTPOST</th>
+                                            <th>DATE REQUESTED</th>
                                             <th>MESSAGE</th>
                                             <th>ACTION</th>
                                         </tr>
@@ -226,89 +170,3 @@
     </section>
     <!-- /.content -->
 @endsection
-@push('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#branch').change(function() {
-                branch_id = $('#branch').val();
-                if (branch_id != '') {
-                    $.ajax({
-                        url: "{{ route('get.outposts') }}",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        type: "POST",
-                        data: {
-                            branch_id: branch_id
-                        },
-                        success: function(data) {
-                            console.log(data);
-                            $('#outposts').html(data);
-                        },
-                        error: function(xhr, desc, err) {
-                            console.log(xhr);
-                            //console.log("Details0: " + desc + "\nError:" + err);
-                        },
-                    });
-                } else {
-                    $('#outposts').html('<option value="">Select Branch</option>');
-                }
-            });
-
-            $('#outposts').change(function() {
-                outpost = $('#outposts').val();
-                if (outpost != '') {
-                    $.ajax({
-                        url: "{{ route('get.oclients') }}",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        type: "GET",
-                        data: {
-                            outpost: outpost
-                        },
-                        success: function(data) {
-                            console.log(data);
-                            $('#users').html(data);
-                        },
-                        error: function(xhr, desc, err) {
-                            console.log(xhr);
-                            //console.log("Details0: " + desc + "\nError:" + err);
-                        },
-                    });
-                } else {
-                    $('#users').html('<p value="text text-danger">No Users Found in that Branch</p>');
-                }
-            });
-
-            $('#types').change(function() {
-                type = $('#types').val();
-                if (type != '') {
-                    $.ajax({
-                        url: "{{ route('get.filing-files') }}",
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        type: "GET",
-                        data: {
-                            type: type
-                        },
-                        success: function(data) {
-                            console.log(data);
-                            $('#labels').html(data);
-                        },
-                        error: function(xhr, desc, err) {
-                            console.log(xhr);
-                            //console.log("Details0: " + desc + "\nError:" + err);
-                        },
-                    });
-                    if (type == 5) {
-                        document.getElementById("cheque").style.display = "block";
-                    }
-                } else {
-                    $('#labels').html('<p value="text text-danger">No Filing files found</p>');
-                }
-            });
-        });
-    </script>
-@endpush
