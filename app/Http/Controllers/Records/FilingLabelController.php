@@ -126,10 +126,12 @@ class FilingLabelController extends Controller
     public function show($id)
     {
         $file = FilingLabel::getLabelById($id);
+        //return LoanForm::getLoanFormsByFileNumber($id);
         $pageData = [
             'file' => $file,
 			'page_name' => 'records',
             'filing_label' => FilingLabel::getLabelById($id),
+            'loan_forms' => LoanForm::getLoanFormsByFileNumber($id),
             'title' => $file->type_name.' - '.$file->file_label.$file->file_number
         ];
         return view('records.filings.show', $pageData);

@@ -80,6 +80,15 @@ class Buttons
             ';
     }
 
+    public static function dataTableViewButton($viewRoute)
+    {
+        return '<div class="margin">
+                    <div class="btn-group">
+                        <a href="'.$viewRoute.'" class="btn btn-xs btn-info"><i class="fa fa-bars"></i> Show</a>
+                    </div>
+               </div>';
+    }
+
     public static function dataTableEditButton($viewRoute, $editRoute, $deleteRoute)
     {
         return '
@@ -119,5 +128,6 @@ class Buttons
            ';
     }
 
+   
 }
 ?>

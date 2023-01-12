@@ -29,8 +29,7 @@ License URL: http://www.bimaskenya.com
         href="{{ asset('assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
-    <link rel="stylesheet"
-        href="{{ asset('assets/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/bs-stepper/css/bs-stepper.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/dropzone/min/dropzone.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/dist/css/adminlte.min.css') }}">
@@ -42,7 +41,11 @@ License URL: http://www.bimaskenya.com
         @include('layouts.admin.incls.navbar')
         @include('layouts.admin.incls.sidebar')
         <div class="content-wrapper" style="min-height: 1203.6px;">
-            @include('layouts.admin.incls.page-header')
+            @if (isset($page_title))
+                <br>
+            @else
+                @include('layouts.admin.incls.page-header')
+            @endif
             @include('layouts.admin.incls.alerts')
             @yield('content')
         </div>

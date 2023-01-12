@@ -199,26 +199,20 @@
                 <!--END : Admin,Communication-->
 
                 <!--BEGINNING : Records Management-->
-                @if (Auth::user()->hasRole('admin|records'))
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link {{ $page_name == 'records' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-users"></i>
-                            <p>
-                                Records Management
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
+                <li class="nav-item has-treeview">
+                    <a href="#" class="nav-link {{ $page_name == 'records' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>
+                            Records Management
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @if (Auth::user()->hasRole('admin|records'))
                             <li class="nav-item">
                                 <a href="{{ route('records.clients.index') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Records Clients</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('records.loan-forms.products') }}" class="nav-link">
-                                    <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>Products</p>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -239,9 +233,29 @@
                                     <p>Filing Labels</p>
                                 </a>
                             </li>
-                        </ul>
-                    </li>
-                @endif
+                            <li class="nav-item">
+                                <a href="{{ route('records.loan-forms.products') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Loan Products</p>
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a href="{{ route('user.loan-forms.view') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Loan Forms</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Client Change Forms</p>
+                                </a>
+                            </li>
+                        @endif
+                    </ul>
+                </li>
+
                 <!--END : Records Management-->
 
                 <!-- BEGINNING : Finance, Admin Menus -->

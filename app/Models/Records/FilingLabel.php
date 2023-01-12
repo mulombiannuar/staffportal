@@ -25,7 +25,7 @@ class FilingLabel extends Model
 
     public function getFilesByFilingType($type)
     {
-        $labels = $this->getFilesByType($type);
+        $labels = FilingLabel::getFilesByType($type);
         for ($s=0; $s <count($labels) ; $s++) { 
             $labels[$s]->count = count(LoanForm::where('file_number', $labels[$s]->label_id)->get());
         }

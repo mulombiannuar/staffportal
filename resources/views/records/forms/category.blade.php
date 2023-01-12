@@ -4,30 +4,29 @@
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <div class="margin mb-2 text-right">
-                <a href="{{ route('records.clients.create') }}">
-                    <button type="button" class="btn btn-primary"><i class="fa fa-plus"></i> Add New
-                        Records Client</button>
-                </a>
-            </div>
+
             <div class="card card-warning">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-users"></i> {{ $title }}</h3>
+                    <h3 class="card-title"><i class="fa fa-list"></i> {{ $title }}</h3>
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <table width="100%" id="datatable"
-                        class="table table-sm table-bordered table-striped table-head-fixed">
+                    <table id="datatable" width="100%" class="table table-sm table-bordered table-striped table-head-fixed">
                         <thead>
                             <tr>
                                 <th>S.N</th>
+                                <th>FILING TYPE</th>
                                 <th>NAMES</th>
                                 <th>BR ID</th>
                                 <th>MOBILE</th>
                                 <th>NATIONAL ID</th>
                                 <th>BRANCH</th>
                                 <th>OUTPOST</th>
-                                <th>CREATED BY</th>
+                                <th>PRODUCT</th>
+                                <th>CODE</th>
+                                <th>AMOUNT</th>
+                                <th>DISBURSMENT DATE</th>
+                                <th>FILE NUMBER</th>
                                 <th>ACTIONS</th>
                             </tr>
                         </thead>
@@ -50,10 +49,14 @@
             $("#datatable").DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('records.clients.get-clients') }}",
+                ajax: "{{ route('records.loan-forms.filing-type', $filing_type->type_id) }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
+                    },
+                    {
+                        data: 'type_name',
+                        name: 'type_name'
                     },
                     {
                         data: 'client_name',
@@ -80,8 +83,24 @@
                         name: 'outpost_name'
                     },
                     {
-                        data: 'created_by',
-                        name: 'created_by'
+                        data: 'product_name',
+                        name: 'product_name'
+                    },
+                    {
+                        data: 'product_code',
+                        name: 'product_code'
+                    },
+                    {
+                        data: 'amount',
+                        name: 'amount'
+                    },
+                    {
+                        data: 'disbursment_date',
+                        name: 'disbursment_date'
+                    },
+                    {
+                        data: 'filing_number',
+                        name: 'filing_number'
                     },
                     {
                         data: 'action',

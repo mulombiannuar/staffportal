@@ -11,8 +11,8 @@
                                     class="fa fa-list"></i>
                                 File Loan Forms</a></li>
                         <li class="nav-item"><a class="nav-link " href="#details" data-toggle="tab"><i
-                                    class="fa fa-bars"></i>
-                                File Details</a></li>
+                                    class="fa fa-edit"></i>
+                                Update File Details</a></li>
 
                     </ul>
                 </div><!-- /.card-header -->
@@ -43,7 +43,30 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-
+                                            @foreach ($loan_forms as $form)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $form->client_name }}</td>
+                                                    <td>{{ $form->bimas_br_id }}</td>
+                                                    <td>{{ $form->client_phone }}</td>
+                                                    <td>{{ $form->national_id }}</td>
+                                                    <td>{{ $form->branch_name }}</td>
+                                                    <td>{{ $form->outpost_name }}</td>
+                                                    <td>{{ $form->product_name }}</td>
+                                                    <td>{{ $form->amount }}</td>
+                                                    <td>{{ $form->disbursment_date }}</td>
+                                                    <td>
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('records.loan-forms.show', $form->form_id) }}"
+                                                                title="Click to view details">
+                                                                <button type="button" class="btn btn-xs btn-info"><i
+                                                                        class="fa fa-eye"></i>
+                                                                    View</button>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>

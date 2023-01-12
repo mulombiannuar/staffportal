@@ -25,10 +25,11 @@ class LoanFormController extends Controller
      */
     public function index()
     {
-       // return $this->getLoanForms();
+       //return $this->getLoanForms();
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Records Loan Forms ('.LoanForm::count().')',
+            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
         ];
         return view('records.forms.index', $pageData);
     }
@@ -49,6 +50,35 @@ class LoanFormController extends Controller
                         ->make(true);
     }
 
+    public function loanCategory(Request $request)
+    {
+        $request->validate(['category' => 'required|integer']);
+        $filing_type = DB::table('filing_types')->where('type_id', $request->category)->first();
+        $pageData = [
+			'page_name' => 'records',
+            'filing_type' => $filing_type,
+            'title' => $filing_type->type_name. ' Forms',
+            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+        ];
+        return view('records.forms.category', $pageData);
+    }
+
+    public function getLoanFormsByFilingType($type_id)
+    {
+        $forms = LoanForm::getLoanFormsByType($type_id);
+        return DataTables::of($forms)
+                        ->addIndexColumn()
+                        ->addColumn('action', function ($form) {
+                            return Buttons::dataTableButtons(
+                                route('records.loan-forms.show', $form->form_id),
+                                route('records.loan-forms.edit', $form->form_id),
+                                route('records.loan-forms.destroy', $form->form_id),
+                            );
+                        })
+                        ->rawColumns(['action'])
+                        ->make(true);
+    }
+  
     /**
      * Show the form for creating a new resource.
      *
@@ -155,11 +185,14 @@ class LoanFormController extends Controller
      */
     public function show($id)
     {
+        $form = new RequestedLoanForm();
+        //return LoanForm::getLoanFormById($id);
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Loan Form Details',
             'products' => Admin::getLoanProducts(),
             'loan_form' => LoanForm::getLoanFormById($id),
+            'loan_forms' => $form->getLoanFormRequestByFormId($id),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
             'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
         ];

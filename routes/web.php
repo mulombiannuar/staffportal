@@ -235,7 +235,12 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function(){
     Route::get('motor-logs/book/asset_id={asset_id}&service=maintenance', [MotorMaintenanceController::class, 'book'])->name('motor-logs.book');
     Route:: resource('motor-logs', MotorMaintenanceController::class, ['except' => ['create']]);
     
-
+    // loan forms
+    Route::get('loan-forms/attachment/{id}', [RequestedLoanFormController::class, 'viewRequestedLoanForm'])->name('loan-forms.attachment');
+    Route::get('loan-forms/{id}', [RequestedLoanFormController::class, 'requestedLoanForm'])->name('loan-forms.requested');
+    Route::get('loan-forms/request', [RequestedLoanFormController::class, 'requestLoanForm'])->name('loan-forms.request');
+    Route::post('loan-forms/request', [RequestedLoanFormController::class, 'store'])->name('loan-forms.request-loan');
+    Route::get('loan-forms', [RequestedLoanFormController::class, 'userRequestedLoanForms'])->name('loan-forms.view');
 });
 
 Route::middleware(['auth'])->prefix('export')->name('export.')->group(function(){
@@ -291,20 +296,23 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
 
 });
 
-Route::middleware(['auth'])->prefix('records')->name('records.')->group(function(){
+Route::middleware(['auth', 'role:admin|records'])->prefix('records')->name('records.')->group(function(){
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
     Route::get('clients/request/{id}', [ClientController::class, 'createClientUsingLoanRequest'])->name('clients.loan-request');
-    Route:: resource('clients', ClientController::class)->middleware(['role:admin|records']);
+    Route:: resource('clients', ClientController::class);
     
+    Route::get('loan-forms/category', [LoanFormController::class, 'loanCategory'])->name('loan-forms.category');
     Route::get('loan-forms/products', [LoanFormController::class, 'loanProducts'])->name('loan-forms.products');
     Route::get('loan-forms/get-loan-forms', [LoanFormController::class, 'getLoanForms'])->name('loan-forms.get-loan-forms');
+    Route::get('loan-forms/filing-type/{id}', [LoanFormController::class, 'getLoanFormsByFilingType'])->name('loan-forms.filing-type');
     Route::get('loan-forms/add', [LoanFormController::class, 'createLoanFormUsingLoanRequest'])->name('loan-forms.add-form');
-    Route:: resource('loan-forms', LoanFormController::class)->middleware(['role:admin|records']);
+    Route:: resource('loan-forms', LoanFormController::class);
 
-    Route:: resource('filing-labels', FilingLabelController::class)->except('edit')->middleware(['role:admin|records']);
+    Route:: resource('filing-labels', FilingLabelController::class)->except('edit');
    
     Route::get('get-outpost-requests', [RequestedLoanFormController::class, 'fetchOutpostRequests'])->name('get-outpost-requests');
+    Route::get('get-completed-requests', [RequestedLoanFormController::class, 'getCompletedRequests'])->name('get-completed-requests');
     Route::post('requested-forms/approve', [RequestedLoanFormController::class, 'approveRequest'])->name('requested-forms.approve');
-    Route:: resource('requested-forms', RequestedLoanFormController::class)->middleware(['role:admin|records']);
+    Route:: resource('requested-forms', RequestedLoanFormController::class);
 
 });

@@ -12,7 +12,7 @@
                     <li class="nav-item"><a class="nav-link" href="#details" data-toggle="tab"><i class="fa fa-edit"></i>
                             Loan Form Details</a></li>
                     <li class="nav-item"><a class="nav-link" href="#requests" data-toggle="tab"><i class="fa fa-users"></i>
-                            Officers Requests (34)</a></li>
+                            Officers Requests ({{ count($loan_forms) }})</a></li>
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
@@ -104,6 +104,14 @@
                                                 value="{{ $loan_form->disbursment_date }}" required>
                                         </div>
                                     </div>
+                                    <div class="col-md-4 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="filing_label">Filing Label</label>
+                                            <input type="text" name="filing_label" class="form-control"
+                                                id="name" placeholder="filing_label" autocomplete="off"
+                                                value="{{ $loan_form->file_label . $loan_form->file_number }}" required>
+                                        </div>
+                                    </div>
 
                                     @if ($loan_form->type_id == 5)
                                         <div class="col-md-4 col-sm-12">
@@ -143,16 +151,44 @@
                                         <tr>
                                             <th>S.N</th>
                                             <th>REFERENCE</th>
-                                            <th>REQUESTED BY</th>
-                                            <th>BRANCH</th>
+                                            <th>NAMES</th>
+                                            <th>BR ID</th>
                                             <th>OUTPOST</th>
                                             <th>DATE REQUESTED</th>
-                                            <th>MESSAGE</th>
-                                            <th>ACTION</th>
+                                            <th>REQUESTED BY</th>
+                                            <th>PRODUCT CODE</th>
+                                            <th>AMOUNT</th>
+                                            <th>DISBURSMENT DATE</th>
+                                            <th>VIEW</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-
+                                        @foreach ($loan_forms as $loan)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $loan->reference }}</td>
+                                                <td>{{ $loan->client_name }}</td>
+                                                <td>{{ $loan->bimas_br_id }}</td>
+                                                <td>{{ $loan->outpost_name }}</td>
+                                                <td>{{ $loan->date_requested }}</td>
+                                                <td>{{ $loan->name }}</td>
+                                                <td>{{ $loan->product_code }}</td>
+                                                <td>{{ $loan->amount }}</td>
+                                                <td>{{ $loan->disbursment_date }}</td>
+                                                <td>
+                                                    <div class="margin">
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('records.requested-forms.show', $loan->request_id) }}"
+                                                                title="Click to view details">
+                                                                <button type="button" class="btn btn-xs btn-info"><i
+                                                                        class="fa fa-eye"></i>
+                                                                    View</button>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>

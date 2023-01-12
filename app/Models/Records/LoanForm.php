@@ -31,6 +31,7 @@ class LoanForm extends Model
                     ->join('clients', 'clients.client_id', '=', 'loan_forms.client_id')
                     ->join('loan_products', 'loan_products.product_id', '=', 'loan_forms.product_id')
                     ->join('filing_labels', 'filing_labels.label_id', '=', 'loan_forms.file_number')
+                    ->join('filing_types', 'filing_types.type_id', '=', 'loan_forms.filing_type_id')
                     ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
                     ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
                     ->select(
@@ -41,8 +42,34 @@ class LoanForm extends Model
                         'product_name',
                         'product_code',
                         'file_label',
+                        'type_name',
                         'filing_labels.file_number as filing_number',
                         )
+                    ->orderBy('bimas_br_id', 'asc')
+                    ->get();
+    }
+
+    public static function getLoanFormsByType($type_id)
+    {
+        return LoanForm::join('users', 'users.id', '=', 'loan_forms.created_by')
+                    ->join('clients', 'clients.client_id', '=', 'loan_forms.client_id')
+                    ->join('loan_products', 'loan_products.product_id', '=', 'loan_forms.product_id')
+                    ->join('filing_labels', 'filing_labels.label_id', '=', 'loan_forms.file_number')
+                    ->join('filing_types', 'filing_types.type_id', '=', 'loan_forms.filing_type_id')
+                    ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
+                    ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
+                    ->select(
+                        'clients.*', 
+                        'loan_forms.*', 
+                        'branch_name', 
+                        'outpost_name',
+                        'product_name',
+                        'product_code',
+                        'file_label',
+                        'type_name',
+                        'filing_labels.file_number as filing_number',
+                        )
+                    ->where('filing_type_id', $type_id)
                     ->orderBy('bimas_br_id', 'asc')
                     ->get();
     }

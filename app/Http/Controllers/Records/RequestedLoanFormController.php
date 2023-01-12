@@ -10,11 +10,13 @@ use App\Models\Records\LoanForm;
 use App\Models\Records\RequestedLoanForm;
 use App\Models\Records\RequestedLoanFormApproval;
 use App\Models\User;
+use App\Utilities\Buttons;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class RequestedLoanFormController extends Controller
 {
@@ -25,13 +27,31 @@ class RequestedLoanFormController extends Controller
      */
     public function index()
     {
+        //return $this->getCompletedRequests();
         $loanRequest = new RequestedLoanForm();
+        //return $loanRequest->getLoanFormRequests(0);
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Requested Loan Forms',
-            'loanRequests' => $loanRequest->getLoanFormRequests()
+            'loanRequests' => $loanRequest->getLoanFormRequests(0),
+            'completed' => RequestedLoanForm::where('is_completed', 1)->count()
         ];
         return view('records.requested.index', $pageData);
+    }
+
+    public function getCompletedRequests()
+    {
+        $loanRequest = new RequestedLoanForm();
+        $loans = $loanRequest->getLoanFormRequests(1);
+        return DataTables::of($loans)
+                        ->addIndexColumn()
+                        ->addColumn('action', function ($loan) {
+                            return Buttons::dataTableViewButton(
+                                route('records.requested-forms.show', $loan->request_id)
+                            );
+                        })
+                        ->rawColumns(['action'])
+                        ->make(true);
     }
 
     /**
@@ -70,7 +90,7 @@ class RequestedLoanFormController extends Controller
             'branch' => 'required|integer',
             'outpost' => 'required|integer',
         ]);
-
+        //return $request;
         $product = Admin::getLoanProductById($request->product);
         $requestedForm = new RequestedLoanForm();
         $requestedForm->date_requested = Carbon::now();
@@ -117,8 +137,8 @@ class RequestedLoanFormController extends Controller
             $message = new Message();
             $messageBody = $message->getGreetings(strtoupper($admins[$s]['name'])).', '.$adminMessage;
             $mobileNo = $admins[$s]['mobile_no'];
-        
             //$message->sendSms($mobileNo, $sms);
+            $message->sendSms('254703539208', $messageBody);
 
             $message->message_status = 'sent'; 
             $message->message_type = 'records_admin'; 
@@ -134,7 +154,11 @@ class RequestedLoanFormController extends Controller
         $description = 'Created new loan form request of reference '. $requestedForm->reference;
         User::saveAuditTrail($activity_type, $description);
 
-        return redirect(route('records.requested-forms.index'))->with('success', 'You have successfully lodged new loan form request of reference '. $requestedForm->reference);
+        $redirectRoute = Auth::user()->hasRole('admin|records') 
+        ? route('records.requested-forms.index')
+        : route('user.loan-forms.view');
+
+        return redirect($redirectRoute)->with('success', 'You have successfully lodged new loan form request of reference '. $requestedForm->reference);
     }
 
     /**
@@ -156,7 +180,8 @@ class RequestedLoanFormController extends Controller
                 $loanRequest->amount, 
                 $loanRequest->disbursment_date);
         }
-
+        
+        //return RequestedLoanFormApproval::getRequestApprovalDetails($id);
         $pageData = [
             'client' => $client,
 			'page_name' => 'records',
@@ -164,6 +189,7 @@ class RequestedLoanFormController extends Controller
             'loan_form' => $requestedLoanForm,
             'title' => 'Loan Form Request Details',
             'products' => Admin::getLoanProducts(),
+            'approvalDetails' => RequestedLoanFormApproval::getRequestApprovalDetails($id),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
         ];
         return view('records.requested.show', $pageData);
@@ -252,27 +278,37 @@ class RequestedLoanFormController extends Controller
     public function approveRequest(Request $request)
     {
         $request->validate([
-            'approval_date' => 'required|string',
+            //'approval_date' => 'required|string',
             'approval_message' => 'required|string',
             'approval_status' => 'required|integer',
-            //'loan_form_id' => 'integer|required',
             'request_id' => 'integer|required'
         ]);
 
         $approvalStatus = $request->approval_status;
         $approvedForm = $request->loan_form_id;
+
+        $isLocked = null;
+        $approvalDate = now();
+        $formattedDate = date_create($request->approval_date);
+        $viewableDeadline = date_add($formattedDate, date_interval_create_from_date_string("5 days"));
+        
         if ($approvalStatus == 0) {
             $approvedForm = null;
+            $viewableDeadline = null;
+            $isLocked = 1;
         }
 
         $requestedForm = RequestedLoanForm::find($request->request_id);
+        $requestedForm->is_completed = 1;
         $requestedForm->is_approved = $request->approval_status;
         $requestedForm->request_loan_id = $approvedForm;
         $requestedForm->save();
 
         $approval = new RequestedLoanFormApproval();
+        $approval->is_locked = $isLocked;
+        $approval->date_approved = $approvalDate;
+        $approval->viewable_deadline = $viewableDeadline;
         $approval->approved_by = Auth::user()->id;
-        $approval->date_approved = $request->approval_date;
         $approval->approval_message = $request->approval_message;
         $approval->approval_status = $request->approval_status;
         $approval->loan_form_id = $approvedForm;
@@ -284,10 +320,10 @@ class RequestedLoanFormController extends Controller
         //send requester sms notification and email
         $requester = User::getUserById($requestedForm->requested_by);
         $message = new Message();
-        $approvalMessage = 'your loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.'. For assistance, contact the Records Department.';
+        $approvalMessage = 'your loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. For assistance, contact the Records Department.';
         $messageBody = $message->getGreetings(strtoupper($requester->name)).', '.$approvalMessage;
         $mobileNo = '2547'.substr(trim($requester->mobile_no), 2);
-        //$message->sendSms($mobileNo, $messageBody);
+        $message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 
         $message->message_type = 'loan_form_'.$action; 
@@ -320,7 +356,7 @@ class RequestedLoanFormController extends Controller
 
         //Save audit trail
         $activity_type = 'Loan Form Request Approval';
-        $description = 'Created new loan form request of reference '. $requestedForm->reference;
+        $description = 'Approved loan form request of reference '. $requestedForm->reference;
         User::saveAuditTrail($activity_type, $description);
  
         return redirect(route('records.requested-forms.index'))->with('success', 'You have successfully approved loan form request of reference '. $requestedForm->reference);
@@ -328,7 +364,7 @@ class RequestedLoanFormController extends Controller
 
     private function getRequestReference($product_code)
     {
-        return  strtoupper($product_code.date('YmdHi'));
+        return  strtoupper($product_code.'-'.date('YmdHi'));
     }
 
     public static function getRecordsAdmins()
@@ -354,5 +390,90 @@ class RequestedLoanFormController extends Controller
           }
        }
        return $output;
+    }
+
+    ///branch user loan form
+    public function userRequestedLoanForms()
+    {
+        $loanRequest = new RequestedLoanForm();
+        //return $loanRequest->getUserRequestedLoanForms(Auth::user()->id, 0);
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'User Requested Loan Forms',
+            'pendingRequests' => $loanRequest->getUserRequestedLoanForms(Auth::user()->id, 0),
+            'completedRequests' => $loanRequest->getUserRequestedLoanForms(Auth::user()->id, 1),
+        ];
+        return view('records.requested.user_requested_forms', $pageData);
+    }
+
+    public function requestLoanForm()
+    {
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Request Loan Form',
+            'products' => Admin::getLoanProducts(),
+            'user' => User::getUserById(Auth::user()->id),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+        ];
+        return view('records.requested.request_loan_form', $pageData);
+    }
+
+    public function requestedLoanForm($id)
+    {
+        $form = new RequestedLoanForm();
+        $loanRequest = $form->getLoanFormRequestById($id);
+
+        if(Auth::user()->id !== $loanRequest->requested_by)
+        return back()->with('warning', 'You dont have rights to view this loan form request');
+        
+        //check if viewable deadline has passed
+        $this->checkIfViewableDeadline($loanRequest);
+        
+        $pageData = [
+			'page_name' => 'records',
+            'loanRequest' => $loanRequest,
+            'title' => 'Loan Form Request Details',
+            'products' => Admin::getLoanProducts(),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+            'approvalDetails' => RequestedLoanFormApproval::getRequestApprovalDetails($id),
+        ];
+        return view('records.requested.requested_loan_form', $pageData);
+    }
+
+    public function viewRequestedLoanForm($id)
+    {
+        $form = new RequestedLoanForm();
+        $loanRequest = $form->getLoanFormRequestById($id);
+
+        $user = Auth::user();
+        if(!$user->hasRole('admin|records')){
+            if($user->id !== $loanRequest->requested_by)
+            return back()->with('warning', 'You dont have rights to view this loan form');
+        }
+
+        $pageData = [
+			'page_name' => 'records',
+            'page_title' => 'view',
+            'loan_form' => LoanForm::find($loanRequest->request_loan_id),
+            'title' => 'Requested Loan Form',
+        ];
+        return view('records.requested.view_loan_form', $pageData);
+    }
+
+    //check if viewable deadline has passed
+    private function checkIfViewableDeadline($loanRequest)
+    {
+        if ($loanRequest->is_locked) return true;
+        
+        $today = strtotime(now());
+        $deadline = strtotime($loanRequest->viewable_deadline);
+        
+        if ($today > $deadline){
+            $requestedForm = RequestedLoanFormApproval::find($loanRequest->approval_id);
+            $requestedForm->is_locked = 1;
+            $requestedForm->save();
+            return true;
+        }
+        return false;
     }
 }

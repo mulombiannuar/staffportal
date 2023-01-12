@@ -12,21 +12,24 @@ class RequestedLoanForm extends Model
     protected $table = 'requested_loan_forms';
     protected $primaryKey = 'request_id';
 
-    public function getLoanFormRequests()
+    public function getLoanFormRequests($status)
     {
         return DB::table('requested_loan_forms')
                  ->join('users', 'users.id', '=', 'requested_loan_forms.requested_by')
+                 //->leftJoin('loan_forms', 'loan_forms.form_id', '=', 'requested_loan_forms.request_loan_id')
                  ->join('loan_products', 'loan_products.product_id', '=', 'requested_loan_forms.product_id')
                  ->join('branches', 'branches.branch_id', '=', 'requested_loan_forms.branch_id')
                  ->join('outposts', 'outposts.outpost_id', '=', 'requested_loan_forms.outpost_id')
                  ->select(
                         'requested_loan_forms.*', 
+                        //'loan_forms.*',
                         'branch_name', 
                         'outpost_name',
                         'product_name',
                         'product_code',
                         'name',
                  )
+                 ->where('is_completed', $status)
                  ->orderBy('request_id', 'desc')
                  ->get();
     }
@@ -37,16 +40,18 @@ class RequestedLoanForm extends Model
                  ->join('users', 'users.id', '=', 'requested_loan_forms.requested_by')
                  ->join('loan_products', 'loan_products.product_id', '=', 'requested_loan_forms.product_id')
                  ->join('branches', 'branches.branch_id', '=', 'requested_loan_forms.branch_id')
+                 ->leftJoin('requested_loan_form_approvals', 'requested_loan_form_approvals.request_id', '=', 'requested_loan_forms.request_id')
                  ->join('outposts', 'outposts.outpost_id', '=', 'requested_loan_forms.outpost_id')
                  ->select(
                         'requested_loan_forms.*', 
+                        'requested_loan_form_approvals.*',
                         'branch_name', 
                         'outpost_name',
                         'product_name',
                         'product_code',
                         'name',
                  )
-                 ->where('request_id', $id)
+                 ->where('requested_loan_forms.request_id', $id)
                  ->first();
     }
 
@@ -69,13 +74,34 @@ class RequestedLoanForm extends Model
                  ->get();
     }
 
-    
     public static function getLoanFormRequestsByOutpostId($outpost_id)
     {
         return DB::table('requested_loan_forms')
                  ->join('users', 'users.id', '=', 'requested_loan_forms.requested_by')
                  ->select('requested_loan_forms.*', 'name')
                  ->where('outpost_id', $outpost_id)
+                 ->get();
+    }
+
+    public function getUserRequestedLoanForms($user_id, $status)
+    {
+        return DB::table('requested_loan_forms')
+                 ->join('users', 'users.id', '=', 'requested_loan_forms.requested_by')
+                 ->leftJoin('requested_loan_form_approvals', 'requested_loan_form_approvals.request_id', '=', 'requested_loan_forms.request_id')
+                 ->join('loan_products', 'loan_products.product_id', '=', 'requested_loan_forms.product_id')
+                 ->join('branches', 'branches.branch_id', '=', 'requested_loan_forms.branch_id')
+                 ->join('outposts', 'outposts.outpost_id', '=', 'requested_loan_forms.outpost_id')
+                 ->select(
+                        'requested_loan_form_approvals.*',
+                        'requested_loan_forms.*', 
+                        'branch_name', 
+                        'outpost_name',
+                        'product_name',
+                        'product_code',
+                        'name',
+                 )
+                 ->where(['requested_loan_forms.requested_by' => $user_id, 'is_completed' => $status])
+                 ->orderBy('requested_loan_forms.request_id', 'desc')
                  ->get();
     }
 
