@@ -80,16 +80,19 @@ class RequestedLoanFormController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'bimas_br_id' => 'required|string|digits:7|max:7|min:7|unique:clients,bimas_br_id',
-            'client_phone' => 'required|digits:12|max:12|min:12|unique:clients,client_phone',
-            'national_id' => 'required|string|max:255|unique:clients,national_id',
+            'bimas_br_id' => 'required|string|digits:7|max:7|min:7',
+            'client_phone' => 'required|digits:12|max:12|min:12',
+            'national_id' => 'required|string|max:255',
             'client_name' => 'required|string|max:255',
             'product' => 'required|integer',
             'amount' => 'required|string|max:255',
             'disbursment_date' => 'required|string|max:255',
             'branch' => 'required|integer',
             'outpost' => 'required|integer',
+            'user_id' => 'required|integer',
         ]);
+        //do something if that client is found in the system
+
         //return $request;
         $product = Admin::getLoanProductById($request->product);
         $requestedForm = new RequestedLoanForm();
@@ -100,6 +103,8 @@ class RequestedLoanFormController extends Controller
         $requestedForm->national_id = $request->input('national_id');
         $requestedForm->branch_id = $request->input('branch');
         $requestedForm->outpost_id = $request->input('outpost');
+        $requestedForm->return_date = $request->input('return_date');
+        $requestedForm->is_original = $request->input('is_original');
         $requestedForm->requested_by = $request->input('user_id');
         $requestedForm->amount = $request->input('amount');
         $requestedForm->product_id = $request->input('product');
@@ -108,11 +113,12 @@ class RequestedLoanFormController extends Controller
         $requestedForm->reference = $this->getRequestReference($product->product_code);
         $requestedForm->save();
 
+        $formType = $requestedForm->is_original? 'original copy' : 'electronic copy';
         //send user notification and email
         $message = new Message();
         $user = User::getUserById(Auth::user()->id);
 
-        $systemMessage = 'you have successfully lodged a new loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
+        $systemMessage = 'you have successfully lodged a new '.$formType.' loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
         $message->sendSms($mobileNo, $messageBody);
@@ -126,14 +132,14 @@ class RequestedLoanFormController extends Controller
         $message->save();
 
         //send email
-        $mailSubject = 'Loan form request of reference '.$requestedForm->reference;
+        $mailSubject = ucwords($formType).' Loan form request of reference '.$requestedForm->reference;
         $message->SendSystemEmail(ucwords($user->name), $user->email, $messageBody, strtoupper($mailSubject));
 
         //send sms to records admin
         $admins = $this->getRecordsAdmins();
         for ($s=0; $s <count($admins) ; $s++) 
         { 
-            $adminMessage = strtoupper($user->name).' has lodged a new loan form request with reference '.$requestedForm->reference;
+            $adminMessage = strtoupper($user->name).' has lodged a new '.$formType.' loan form request with reference '.$requestedForm->reference;
             $message = new Message();
             $messageBody = $message->getGreetings(strtoupper($admins[$s]['name'])).', '.$adminMessage;
             $mobileNo = $admins[$s]['mobile_no'];
@@ -151,14 +157,14 @@ class RequestedLoanFormController extends Controller
 
         //Save audit trail
         $activity_type = 'Loan Form Request';
-        $description = 'Created new loan form request of reference '. $requestedForm->reference;
+        $description = 'Created new '.$formType.' loan form request of reference '. $requestedForm->reference;
         User::saveAuditTrail($activity_type, $description);
 
         $redirectRoute = Auth::user()->hasRole('admin|records') 
         ? route('records.requested-forms.index')
         : route('user.loan-forms.view');
 
-        return redirect($redirectRoute)->with('success', 'You have successfully lodged new loan form request of reference '. $requestedForm->reference);
+        return redirect($redirectRoute)->with('success', 'You have successfully lodged new '.$formType.' loan form request of reference '. $requestedForm->reference);
     }
 
     /**
@@ -233,6 +239,7 @@ class RequestedLoanFormController extends Controller
             'disbursment_date' => 'required|string|max:255',
             'branch' => 'required|integer',
             'outpost' => 'required|integer',
+            'user_id' => 'required|integer',
         ]);
 
         $requestedForm = RequestedLoanForm::find($id);
@@ -245,6 +252,8 @@ class RequestedLoanFormController extends Controller
         $requestedForm->requested_by = $request->input('user_id');
         $requestedForm->amount = $request->input('amount');
         $requestedForm->product_id = $request->input('product');
+        $requestedForm->return_date = $request->input('return_date');
+        $requestedForm->is_original = $request->input('is_original');
         $requestedForm->officer_message = $request->input('officer_message');
         $requestedForm->disbursment_date = $request->input('disbursment_date');
         $requestedForm->save();
@@ -304,6 +313,8 @@ class RequestedLoanFormController extends Controller
         $requestedForm->request_loan_id = $approvedForm;
         $requestedForm->save();
 
+        $formType = $requestedForm->is_original? 'original copy' : 'electronic copy';
+
         $approval = new RequestedLoanFormApproval();
         $approval->is_locked = $isLocked;
         $approval->date_approved = $approvalDate;
@@ -320,7 +331,7 @@ class RequestedLoanFormController extends Controller
         //send requester sms notification and email
         $requester = User::getUserById($requestedForm->requested_by);
         $message = new Message();
-        $approvalMessage = 'your loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. For assistance, contact the Records Department.';
+        $approvalMessage = 'your '.$formType.' loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. For assistance, contact the Records Department.';
         $messageBody = $message->getGreetings(strtoupper($requester->name)).', '.$approvalMessage;
         $mobileNo = '2547'.substr(trim($requester->mobile_no), 2);
         $message->sendSms($mobileNo, $messageBody);
@@ -334,17 +345,17 @@ class RequestedLoanFormController extends Controller
         $message->save();
 
         //send email
-        $mailSubject = 'Loan form request of reference '.$requestedForm->reference;
+        $mailSubject = ucwords($formType). ' Loan form request of reference '.$requestedForm->reference;
         $message->SendSystemEmail(ucwords($requester->name), $requester->email, $messageBody, strtoupper($mailSubject));
         
         //send user notification
         $message = new Message();
         $user = User::getUserById(Auth::user()->id);
 
-        $systemMessage = 'you have successfully '.$action.' loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
+        $systemMessage = 'you have successfully '.$action.' '.$formType.'  loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
-        //$message->sendSms($mobileNo, $messageBody);
+        $message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 
         $message->message_type = 'loan_form_approval'; 
@@ -356,10 +367,10 @@ class RequestedLoanFormController extends Controller
 
         //Save audit trail
         $activity_type = 'Loan Form Request Approval';
-        $description = 'Approved loan form request of reference '. $requestedForm->reference;
+        $description = 'Approved '.$formType.'  loan form request of reference '. $requestedForm->reference;
         User::saveAuditTrail($activity_type, $description);
  
-        return redirect(route('records.requested-forms.index'))->with('success', 'You have successfully approved loan form request of reference '. $requestedForm->reference);
+        return redirect(route('records.requested-forms.index'))->with('success', 'You have successfully '.$action.' '.$formType.'  loan form request of reference '. $requestedForm->reference);
     }
 
     private function getRequestReference($product_code)

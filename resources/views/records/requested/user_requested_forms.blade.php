@@ -41,6 +41,7 @@
                                             <th>NATIONAL ID</th>
                                             <th>OUTPOST</th>
                                             <th>DATE REQUESTED</th>
+                                            <th>FORM TYPE</th>
                                             <th>REQUESTED BY</th>
                                             <th>PRODUCT CODE</th>
                                             <th>AMOUNT</th>
@@ -59,6 +60,8 @@
                                                 <td>{{ $loan->national_id }}</td>
                                                 <td>{{ $loan->outpost_name }}</td>
                                                 <td>{{ $loan->date_requested }}</td>
+                                                <td><strong>{{ $loan->is_original ? 'Original copy' : 'Electronic copy' }}</strong>
+                                                </td>
                                                 <td>{{ $loan->name }}</td>
                                                 <td>{{ $loan->product_code }}</td>
                                                 <td>{{ $loan->amount }}</td>
@@ -105,6 +108,7 @@
                                             <th>NATIONAL ID</th>
                                             <th>OUTPOST</th>
                                             <th>DATE REQUESTED</th>
+                                            <th>FORM TYPE</th>
                                             <th>DATE APPROVED</th>
                                             <th>PRODUCT CODE</th>
                                             <th>AMOUNT</th>
@@ -123,6 +127,8 @@
                                                 <td>{{ $loan->national_id }}</td>
                                                 <td>{{ $loan->outpost_name }}</td>
                                                 <td>{{ $loan->date_requested }}</td>
+                                                <td><strong>{{ $loan->is_original ? 'Original copy' : 'Electronic copy' }}</strong>
+                                                </td>
                                                 <td>{{ $loan->date_approved }}</td>
                                                 <td>{{ $loan->product_code }}</td>
                                                 <td>{{ $loan->amount }}</td>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Records;
 
 use App\Http\Controllers\Controller;
+use App\Models\Records\ClientChangeForm;
 use App\Models\Records\FilingLabel;
 use App\Models\Records\LoanForm;
 use App\Models\User;
@@ -131,7 +132,9 @@ class FilingLabelController extends Controller
             'file' => $file,
 			'page_name' => 'records',
             'filing_label' => FilingLabel::getLabelById($id),
-            'loan_forms' => LoanForm::getLoanFormsByFileNumber($id),
+            'loan_forms' => $file->file_type == 7 
+                         ? ClientChangeForm::getClientChangeFormsByFileLabel($id) 
+                         : LoanForm::getLoanFormsByFileNumber($id),
             'title' => $file->type_name.' - '.$file->file_label.$file->file_number
         ];
         return view('records.filings.show', $pageData);

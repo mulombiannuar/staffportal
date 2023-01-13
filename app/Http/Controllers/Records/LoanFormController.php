@@ -295,7 +295,7 @@ class LoanFormController extends Controller
 
         //Save audit trail
         $activity_type = 'Loan Form Deletion';
-        $description = 'Successfully deleted loanw ith id '. $id;
+        $description = 'Successfully deleted loan with id '. $id;
         User::saveAuditTrail($activity_type, $description);
 
         return redirect(route('records.loan-forms.index'))->with('success', 'Successfully deleted loan form with id '.$id);

@@ -28,6 +28,10 @@ class FilingLabel extends Model
         $labels = FilingLabel::getFilesByType($type);
         for ($s=0; $s <count($labels) ; $s++) { 
             $labels[$s]->count = count(LoanForm::where('file_number', $labels[$s]->label_id)->get());
+            
+            if ($labels[$s]->file_type == 7) 
+            $labels[$s]->count = count(ClientChangeForm::where('file_number', $labels[$s]->label_id)->get());
+           
         }
         return $labels;
     }

@@ -6,22 +6,67 @@
         <div class="card card-warning card-outline">
             <div class="card-header p-2">
                 <ul class="nav nav-pills">
-                    <li class="nav-item"><a class="nav-link active" href="#new-requests" data-toggle="tab"><i
+                    <li class="nav-item"><a class="nav-link active" href="#change-forms" data-toggle="tab"><i
                                 class="fa fa-list"></i>
-                            New User Requests ({{ count($loanRequests) }})</a></li>
+                            Client Change Forms ({{ $count }})</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#new-requests" data-toggle="tab"><i
+                                class="fa fa-list"></i>
+                            New User Requests ({{ count($pendingRequests) }})</a></li>
                     <li class="nav-item"><a class="nav-link" href="#completed" data-toggle="tab"><i
-                                class="fa fa-list-alt"></i> Completed Requests ({{ $completed }})</a></li>
+                                class="fa fa-list-alt"></i> Completed Requests ({{ count($completedRequests) }})</a></li>
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="new-requests">
+                    <div class="tab-pane active" id="change-forms">
                         <!-- User requests -->
                         <div class="card card-warning">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fa fa-list"></i> New User Requests</h3>
                                 <div class="text-right">
-                                    <a href="{{ route('records.requested-forms.create') }}">
+                                    <a href="{{ route('records.change-forms.create') }}">
+                                        <button type="button" class="btn btn-secondary"><i class="fa fa-plus-circle"></i>
+                                            Add New
+                                            Change Form</button>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <table id="datatable" width="100%"
+                                    class="table table-sm table-bordered table-striped table-head-fixed">
+                                    <thead>
+                                        <tr>
+                                            <th>S.N</th>
+                                            <th>NAMES</th>
+                                            <th>BR ID</th>
+                                            <th>MOBILE</th>
+                                            <th>NATIONAL ID</th>
+                                            <th>BRANCH</th>
+                                            <th>OUTPOST</th>
+                                            <th>DATE CHANGED</th>
+                                            <th>FILE NUMBER</th>
+                                            <th>CREATED BY</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.User requests -->
+                    </div>
+                    <!-- /.tab-pane -->
+
+                    <div class="tab-pane " id="new-requests">
+                        <!-- User requests -->
+                        <div class="card card-warning">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa fa-list"></i> New User Requests</h3>
+                                <div class="text-right">
+                                    <a href="{{ route('records.requested-change-forms.create') }}">
                                         <button type="button" class="btn btn-secondary"><i class="fa fa-plus-circle"></i>
                                             Add
                                             New Request</button>
@@ -40,49 +85,45 @@
                                             <th>MOBILE</th>
                                             <th>NATIONAL ID</th>
                                             <th>OUTPOST</th>
+                                            <th>DATE CHANGED</th>
                                             <th>DATE REQUESTED</th>
                                             <th>REQUESTED BY</th>
                                             <th>FORM TYPE</th>
-                                            <th>PRODUCT CODE</th>
-                                            <th>AMOUNT</th>
-                                            <th>DISBURSMENT DATE</th>
                                             <th>ACTIONS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($loanRequests as $loan)
+                                        @foreach ($pendingRequests as $form)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
-                                                    <a href="{{ route('records.requested-forms.show', $loan->request_id) }}"
+                                                    <a href="{{ route('records.requested-change-forms.show', $form->request_id) }}"
                                                         title="Click to view details">
-                                                        {{ $loan->reference }}
+                                                        {{ $form->reference }}
                                                     </a>
                                                 </td>
-                                                <td>{{ $loan->client_name }}</td>
-                                                <td><strong>{{ $loan->bimas_br_id }}</strong></td>
-                                                <td>{{ $loan->client_phone }}</td>
-                                                <td>{{ $loan->national_id }}</td>
-                                                <td>{{ $loan->outpost_name }}</td>
-                                                <td>{{ $loan->date_requested }}</td>
-                                                <td>{{ $loan->name }}</td>
-                                                <td><strong>{{ $loan->is_original ? 'Original copy' : 'Electronic copy' }}</strong>
+                                                <td>{{ $form->client_name }}</td>
+                                                <td><strong>{{ $form->bimas_br_id }}</strong></td>
+                                                <td>{{ $form->client_phone }}</td>
+                                                <td>{{ $form->national_id }}</td>
+                                                <td>{{ $form->outpost_name }}</td>
+                                                <td>{{ $form->date_changed }}</td>
+                                                <td>{{ $form->date_requested }}</td>
+                                                <td>{{ $form->name }}</td>
+                                                <td><strong>{{ $form->form_type }}</strong>
                                                 </td>
-                                                <td>{{ $loan->product_code }}</td>
-                                                <td>{{ $loan->amount }}</td>
-                                                <td>{{ $loan->disbursment_date }}</td>
                                                 <td>
                                                     <div class="margin">
                                                         <div class="btn-group">
                                                             <a
-                                                                href="{{ route('records.requested-forms.edit', $loan->request_id) }}">
+                                                                href="{{ route('records.requested-change-forms.edit', $form->request_id) }}">
                                                                 <button type="button" class="btn btn-xs btn-default"><i
                                                                         class="fa fa-edit"></i>
                                                                     Edit</button>
                                                             </a>
                                                         </div>
                                                         <div class="btn-group">
-                                                            <a href="{{ route('records.requested-forms.show', $loan->request_id) }}"
+                                                            <a href="{{ route('records.requested-change-forms.show', $form->request_id) }}"
                                                                 title="Click to view details">
                                                                 <button type="button" class="btn btn-xs btn-info"><i
                                                                         class="fa fa-eye"></i>
@@ -91,7 +132,7 @@
                                                         </div>
                                                         <div class="btn-group">
                                                             <form
-                                                                action="{{ route('records.requested-forms.destroy', $loan->request_id) }}"
+                                                                action="{{ route('records.requested-change-forms.destroy', $form->request_id) }}"
                                                                 method="post"
                                                                 onclick="return confirm('Do you really want to delete this record?')">
                                                                 @csrf
@@ -121,7 +162,7 @@
                                 <h3 class="card-title"><i class="fa fa-list-alt"></i> Completed Requests</h3>
                             </div>
                             <div class="card-body">
-                                <table width="100%" id="datatable"
+                                <table width="100%" id="table2"
                                     class="table table-sm table-bordered table-striped table-head-fixed ">
                                     <thead>
                                         <tr>
@@ -164,14 +205,10 @@
             $("#datatable").DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('records.get-completed-requests') }}",
+                ajax: "{{ route('records.get-change-forms') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
-                    },
-                    {
-                        data: 'reference',
-                        name: 'reference'
                     },
                     {
                         data: 'client_name',
@@ -190,32 +227,24 @@
                         name: 'national_id'
                     },
                     {
+                        data: 'branch_name',
+                        name: 'branch_name'
+                    },
+                    {
                         data: 'outpost_name',
                         name: 'outpost_name'
                     },
                     {
-                        data: 'date_requested',
-                        name: 'date_requested'
+                        data: 'date_changed',
+                        name: 'date_changed'
                     },
                     {
-                        data: 'form_type',
-                        name: 'form_type'
+                        data: 'filing_number',
+                        name: 'filing_number'
                     },
                     {
                         data: 'name',
                         name: 'name'
-                    },
-                    {
-                        data: 'product_code',
-                        name: 'product_code'
-                    },
-                    {
-                        data: 'amount',
-                        name: 'amount'
-                    },
-                    {
-                        data: 'disbursment_date',
-                        name: 'disbursment_date'
                     },
                     {
                         data: 'action',

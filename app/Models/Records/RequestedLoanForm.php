@@ -28,7 +28,12 @@ class RequestedLoanForm extends Model
                         'product_name',
                         'product_code',
                         'name',
-                 )
+                        DB::raw('(
+                            CASE 
+                              WHEN is_original = "0" THEN "Electronic copy" 
+                              ELSE "Original copy" 
+                            END
+                            ) AS form_type'))
                  ->where('is_completed', $status)
                  ->orderBy('request_id', 'desc')
                  ->get();
@@ -44,12 +49,19 @@ class RequestedLoanForm extends Model
                  ->join('outposts', 'outposts.outpost_id', '=', 'requested_loan_forms.outpost_id')
                  ->select(
                         'requested_loan_forms.*', 
-                        'requested_loan_form_approvals.*',
+                        //'requested_loan_form_approvals.*',
                         'branch_name', 
                         'outpost_name',
                         'product_name',
                         'product_code',
                         'name',
+                        'loan_form_id',
+                        'approved_by',
+                        'approval_status',
+                        'date_approved',
+                        'approval_message',
+                        'is_locked',
+                        'viewable_deadline'
                  )
                  ->where('requested_loan_forms.request_id', $id)
                  ->first();

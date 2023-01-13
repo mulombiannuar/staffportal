@@ -27,9 +27,11 @@ use App\Http\Controllers\Asset\RouterController;
 use App\Http\Controllers\Asset\ScannerController;
 use App\Http\Controllers\Asset\SwitchController;
 use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\Records\ClientChangeFormController;
 use App\Http\Controllers\Records\ClientController;
 use App\Http\Controllers\Records\FilingLabelController;
 use App\Http\Controllers\Records\LoanFormController;
+use App\Http\Controllers\Records\RequestedChangeFormController;
 use App\Http\Controllers\Records\RequestedLoanFormController;
 use App\Http\Controllers\Shop\CategoryController;
 use App\Http\Controllers\Shop\ProductController;
@@ -40,6 +42,7 @@ use App\Http\Controllers\User\FollowupController;
 use App\Http\Controllers\User\GroupVisitationController;
 use App\Http\Controllers\User\LoanRecoveryController;
 use App\Http\Controllers\User\UserExpenseController;
+use App\Models\Records\RequestedChangeForm;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
@@ -237,8 +240,8 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function(){
     
     // loan forms
     Route::get('loan-forms/attachment/{id}', [RequestedLoanFormController::class, 'viewRequestedLoanForm'])->name('loan-forms.attachment');
-    Route::get('loan-forms/{id}', [RequestedLoanFormController::class, 'requestedLoanForm'])->name('loan-forms.requested');
     Route::get('loan-forms/request', [RequestedLoanFormController::class, 'requestLoanForm'])->name('loan-forms.request');
+    Route::get('loan-forms/{id}', [RequestedLoanFormController::class, 'requestedLoanForm'])->name('loan-forms.requested');
     Route::post('loan-forms/request', [RequestedLoanFormController::class, 'store'])->name('loan-forms.request-loan');
     Route::get('loan-forms', [RequestedLoanFormController::class, 'userRequestedLoanForms'])->name('loan-forms.view');
 });
@@ -299,6 +302,7 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
 Route::middleware(['auth', 'role:admin|records'])->prefix('records')->name('records.')->group(function(){
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
     Route::get('clients/request/{id}', [ClientController::class, 'createClientUsingLoanRequest'])->name('clients.loan-request');
+    Route::get('clients/change-request/{id}', [ClientController::class, 'createClientUsingChangeFormRequest'])->name('clients.change-request');
     Route:: resource('clients', ClientController::class);
     
     Route::get('loan-forms/category', [LoanFormController::class, 'loanCategory'])->name('loan-forms.category');
@@ -314,5 +318,10 @@ Route::middleware(['auth', 'role:admin|records'])->prefix('records')->name('reco
     Route::get('get-completed-requests', [RequestedLoanFormController::class, 'getCompletedRequests'])->name('get-completed-requests');
     Route::post('requested-forms/approve', [RequestedLoanFormController::class, 'approveRequest'])->name('requested-forms.approve');
     Route:: resource('requested-forms', RequestedLoanFormController::class);
+
+    Route::get('get-change-forms', [ClientChangeFormController::class, 'getChangeForms'])->name('get-change-forms');
+    Route:: resource('requested-change-forms', RequestedChangeFormController::class)->except('index');
+    Route::get('change-forms/add', [ClientChangeFormController::class, 'createChangeFormUsingOfficerRequest'])->name('change-forms.add-form');
+    Route:: resource('change-forms', ClientChangeFormController::class);
 
 });

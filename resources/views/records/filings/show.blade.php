@@ -25,8 +25,8 @@
                                     <h3 class="card-title"><i class="fa fa-list"></i> File Loan Forms</h3>
                                 </div>
                                 <div class="card-body">
-                                    <table id="table1"
-                                        class="table table-sm table-bordered table-hover table-head-fixed table-responsive">
+                                    <table id="table1" width="100%"
+                                        class="table table-sm table-bordered table-hover table-head-fixed ">
                                         <thead>
                                             <tr>
                                                 <th>S.N</th>
@@ -36,10 +36,15 @@
                                                 <th>NATIONAL ID</th>
                                                 <th>BRANCH</th>
                                                 <th>OUTPOST</th>
-                                                <th>PRODUCT</th>
-                                                <th>AMOUNT</th>
-                                                <th>DISBURSMENT DATE</th>
-                                                <th>VIEW LOAN</th>
+                                                @if ($file->file_type == 7)
+                                                    <th>DATE CHANGED</th>
+                                                    <th>VIEW LOAN</th>
+                                                @else
+                                                    <th>PRODUCT</th>
+                                                    <th>AMOUNT</th>
+                                                    <th>DISBURSMENT DATE</th>
+                                                    <th>VIEW LOAN</th>
+                                                @endif
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -52,19 +57,33 @@
                                                     <td>{{ $form->national_id }}</td>
                                                     <td>{{ $form->branch_name }}</td>
                                                     <td>{{ $form->outpost_name }}</td>
-                                                    <td>{{ $form->product_name }}</td>
-                                                    <td>{{ $form->amount }}</td>
-                                                    <td>{{ $form->disbursment_date }}</td>
-                                                    <td>
-                                                        <div class="btn-group">
-                                                            <a href="{{ route('records.loan-forms.show', $form->form_id) }}"
-                                                                title="Click to view details">
-                                                                <button type="button" class="btn btn-xs btn-info"><i
-                                                                        class="fa fa-eye"></i>
-                                                                    View</button>
-                                                            </a>
-                                                        </div>
-                                                    </td>
+                                                    @if ($file->file_type == 7)
+                                                        <td>{{ $form->date_changed }}</td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <a href="{{ route('records.change-forms.show', $form->form_id) }}"
+                                                                    title="Click to view details">
+                                                                    <button type="button" class="btn btn-xs btn-info"><i
+                                                                            class="fa fa-eye"></i>
+                                                                        View</button>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    @else
+                                                        <td>{{ $form->product_name }}</td>
+                                                        <td>{{ $form->amount }}</td>
+                                                        <td>{{ $form->disbursment_date }}</td>
+                                                        <td>
+                                                            <div class="btn-group">
+                                                                <a href="{{ route('records.loan-forms.show', $form->form_id) }}"
+                                                                    title="Click to view details">
+                                                                    <button type="button" class="btn btn-xs btn-info"><i
+                                                                            class="fa fa-eye"></i>
+                                                                        View</button>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    @endif
                                                 </tr>
                                             @endforeach
                                         </tbody>

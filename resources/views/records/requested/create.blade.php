@@ -124,7 +124,19 @@
                                                         value="{{ old('disbursment_date') }}" required>
                                                 </div>
                                             </div>
-                                            <div class="col-md-8 col-sm-12">
+                                            <div class="col-md-4 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="is_original">Loan Form Type</label>
+                                                    <select name="is_original" id="is_original"
+                                                        class="form-control select2" required>
+                                                        <option class="mb-1" value="">
+                                                            - Select Loan Form Type -</option>
+                                                        <option selected value="0">Electronic Copy</option>
+                                                        <option value="1">Original Copy</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-sm-12">
                                                 <div class="form-group">
                                                     <label for="officer_message">Officer message</label>
                                                     <textarea class="form-control" name="officer_message" id="officer_message" cols="4" rows="2"

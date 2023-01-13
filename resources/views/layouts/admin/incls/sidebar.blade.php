@@ -216,6 +216,12 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a href="{{ route('records.change-forms.index') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Client Change Forms</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="{{ route('records.loan-forms.index') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Loan Forms</p>

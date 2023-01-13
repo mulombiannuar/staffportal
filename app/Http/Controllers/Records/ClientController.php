@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Message;
 use App\Models\Records\Client;
+use App\Models\Records\RequestedChangeForm;
 use App\Models\Records\RequestedLoanForm;
 use App\Models\User;
 use App\Utilities\Buttons;
@@ -66,7 +67,6 @@ class ClientController extends Controller
     {
         $form = new RequestedLoanForm();
         $clientLoanData = $form->getLoanFormRequestById($request_id);
-
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Add New Client',
@@ -74,6 +74,18 @@ class ClientController extends Controller
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
         ];
         return view('records.clients.create_loan_client', $pageData);
+    }
+
+    public function createClientUsingChangeFormRequest($request_id)
+    {
+        $clientChangeData = RequestedChangeForm::getChangeFormRequestById($request_id);
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Add New Client',
+            'client' => $clientChangeData,
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+        ];
+        return view('records.clients.create_change_client', $pageData);
     }
 
     /**

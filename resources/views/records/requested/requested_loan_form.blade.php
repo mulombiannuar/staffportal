@@ -102,7 +102,27 @@
                                                     value="{{ $loanRequest->disbursment_date }}" required>
                                             </div>
                                         </div>
-                                        <div class="col-md-8 col-sm-12">
+                                        <div class="col-md-4 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="form_type">Form Type</label>
+                                                <input type="text" name="form_type" class="form-control"
+                                                    value="{{ $loanRequest->is_original ? 'Original Copy' : 'Electronic Copy' }}"
+                                                    required>
+                                            </div>
+                                        </div>
+                                        @if ($loanRequest->is_original)
+                                            <div class="col-md-4 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="return_date">Expected Return Date</label>
+                                                    <input type="date" name="return_date" class="form-control"
+                                                        id="return_date" placeholder="Return date" autocomplete="off"
+                                                        value="{{ $loanRequest->return_date }}" required>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12">
                                             <div class="form-group">
                                                 <label for="officer_message">Officer message</label>
                                                 <textarea class="form-control" name="officer_message" cols="4" rows="2" required>{{ $loanRequest->officer_message }}</textarea>
@@ -131,6 +151,11 @@
                                                 <tr>
                                                     <th>DATE REQUESTED</th>
                                                     <td>{{ $approvalDetails->date_requested }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>FORM TYPE</th>
+                                                    <td>{{ $approvalDetails->is_original == 1 ? 'Original Copy' : 'Electronic Copy' }}
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <th>OFFICER MESSAGE</th>

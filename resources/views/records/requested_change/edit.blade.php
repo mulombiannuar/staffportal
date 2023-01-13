@@ -6,17 +6,15 @@
         <div class="container-fluid">
             <div class="card card-warning">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-user-plus"></i> {{ $title }}</h3>
+                    <h3 class="card-title"><i class="fa fa-user-edit"></i> {{ $title }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-sm-12">
-                                <form action="{{ route('user.loan-forms.request-loan') }}" method="post">
-                                    <input type="hidden" name="branch" value="{{ $user->branch_id }}">
-                                    <input type="hidden" name="outpost" value="{{ $user->outpost_id }}">
-                                    <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                    <input type="hidden" name="return_date" value="{{ null }}">
+                                <form action="{{ route('records.requested-change-forms.update', $form->request_id) }}"
+                                    method="post">
+                                    @method('put')
                                     @csrf
                                     <div class="modal-body">
                                         <div class="row">
@@ -25,7 +23,7 @@
                                                     <label for="client_name">Client Name</label>
                                                     <input type="text" name="client_name" class="form-control"
                                                         id="name" placeholder="Enter client name" autocomplete="off"
-                                                        value="{{ old('client_name') }}" required>
+                                                        value="{{ $form->client_name }}" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-sm-12">
@@ -33,7 +31,7 @@
                                                     <label for="client_phone">Mobile No.</label>
                                                     <input type="number" name="client_phone" class="form-control"
                                                         id="client_phone" placeholder="Mobile Number e.g 254701111700"
-                                                        value="{{ old('client_phone') }}" autocomplete="off" required
+                                                        value="{{ $form->client_phone }}" autocomplete="off" required
                                                         onKeyPress="if(this.value.length==12) return false;" minlength="12"
                                                         maxlength="12">
                                                 </div>
@@ -43,9 +41,46 @@
                                                     <label for="bimas_br_id">Bimas BR ID</label>
                                                     <input type="number" name="bimas_br_id" class="form-control"
                                                         id="bimas_br_id" placeholder="Enter bimas client ID e.g 0108981"
-                                                        value="{{ old('bimas_br_id') }}" autocomplete="on"
+                                                        value="{{ $form->bimas_br_id }}" autocomplete="on"
                                                         onKeyPress="if(this.value.length==7) return false;" minlength="7"
                                                         maxlength="7" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label for="branch_id">Branch</label>
+                                                    <select name="branch" id="branch" class="form-control select2"
+                                                        id="branch_id" required>
+                                                        <option class="mb-1" value="{{ $form->branch_id }}">
+                                                            {{ $form->branch_name }}</option>
+                                                        @foreach ($branches as $branch)
+                                                            <option value="{{ $branch->branch_id }}">
+                                                                {{ $branch->branch_name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label for="outposts">Outpost</label>
+                                                    <select name="outpost" class="form-control select2" id="outposts"
+                                                        required>
+                                                        <option class="mb-1" value="{{ $form->outpost_id }}">
+                                                            {{ $form->outpost_name }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label for="users">Officers</label>
+                                                    <select name="user_id" id="users" class="form-control select2"
+                                                        id="user_id" required>
+                                                        <option class="mb-1" value="{{ $form->requested_by }}">
+                                                            {{ $form->name }}</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -55,67 +90,54 @@
                                                     <label for="national_id">National ID</label>
                                                     <input type="number" name="national_id" class="form-control"
                                                         id="national_id" placeholder="Enter National ID"
-                                                        value="{{ old('national_id') }}" autocomplete="off" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label for="product">Loan Product</label>
-                                                    <select name="product" id="product" class="form-control select2"
-                                                        id="product" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Loan Product -</option>
-                                                        @foreach ($products as $product)
-                                                            <option value="{{ $product->product_id }}">
-                                                                {{ $product->product_code . ' - ' . $product->product_name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
+                                                        value="{{ $form->national_id }}" autocomplete="off" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-sm-12">
                                                 <div class="form-group">
-                                                    <label for="amount">Loan Amount</label>
-                                                    <input type="number" name="amount" class="form-control" id="amount"
-                                                        placeholder="Loan Amount" value="{{ old('amount') }}"
-                                                        autocomplete="off" required>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-4 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="disbursment_date">Disbursment Date</label>
-                                                    <input type="date" name="disbursment_date" class="form-control"
-                                                        id="name" placeholder="Disbursment date" autocomplete="off"
-                                                        value="{{ old('disbursment_date') }}" required>
+                                                    <label for="date_changed">Date Changed</label>
+                                                    <input type="date" name="date_changed" class="form-control"
+                                                        id="date_changed" placeholder="date changed" autocomplete="off"
+                                                        value="{{ $form->date_changed }}" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-sm-12">
                                                 <div class="form-group">
-                                                    <label for="is_original">Loan Form Type</label>
+                                                    <label for="is_original">Change Form Type</label>
                                                     <select name="is_original" id="is_original"
                                                         class="form-control select2" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Loan Form Type -</option>
+                                                        <option class="mb-1" value="{{ $form->is_original }}">
+                                                            {{ $form->is_original ? 'Original Copy' : 'Electronic Copy' }}
+                                                        </option>
                                                         <option selected value="0">Electronic Copy</option>
                                                         <option value="1">Original Copy</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 col-sm-12">
+                                        </div>
+                                        <div class="row">
+                                            @if ($form->is_original)
+                                                <div class="col-md-4 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="return_date">Expected Return Date</label>
+                                                        <input type="date" name="return_date" class="form-control"
+                                                            id="return_date" placeholder="Return date" autocomplete="off"
+                                                            value="{{ $form->return_date }}" required>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                            <div class="col-sm-8">
                                                 <div class="form-group">
                                                     <label for="officer_message">Officer message</label>
                                                     <textarea class="form-control" name="officer_message" id="officer_message" cols="4" rows="2"
-                                                        placeholder="Enter your message here" autocomplete="on" required></textarea>
+                                                        placeholder="Enter your message here" autocomplete="on" required>{{ $form->officer_message }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer justify-content-between">
-                                        <button type="submit" class="btn btn-primary"> <i class="fa fa-user-plus"></i>
-                                            Request Loan Form</button>
+                                        <button type="submit" class="btn btn-secondary"> <i class="fa fa-user-edit"></i>
+                                            Update Change Form Request</button>
                                     </div>
                                 </form>
                             </div>
