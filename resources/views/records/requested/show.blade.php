@@ -447,76 +447,81 @@
                                             <tr>
                                                 <th>REQUESTED FORM</th>
                                                 <td>
-                                                    <a target="_new"
-                                                        href="{{ route('user.loan-forms.attachment', $approvalDetails->request_id) }}">
-                                                        <button type="button" class="btn btn-sm btn-secondary"><i
-                                                                class="fas fa-external-link-alt"></i>
-                                                            View Loan Form</button>
-                                                    </a>
+                                                    @if ($approvalDetails->is_locked)
+                                                        <button type="button" class="btn btn-sm btn-danger"><i
+                                                                class="fas fa-exclamation-circle"></i>
+                                                            Form Locked</button>
+                                                    @else
+                                                        <a target="_new"
+                                                            href="{{ route('user.loan-forms.attachment', $approvalDetails->request_id) }}">
+                                                            <button type="button" class="btn btn-sm btn-secondary"><i
+                                                                    class="fas fa-external-link-alt"></i>
+                                                                View Loan Form</button>
+                                                        </a>
                                                 </td>
-                                            </tr>
-                                        </table>
-                                    @else
-                                        <table class="table table-sm table-bordered table-striped">
-                                            <tr>
-                                                <th>DATE REQUESTED</th>
-                                                <td>{{ $approvalDetails->date_requested }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>OFFICER MESSAGE</th>
-                                                <td>{{ $approvalDetails->officer_message }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>DATE REJECTED</th>
-                                                <td>{{ $approvalDetails->date_approved }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>REJECTED BY</th>
-                                                <td>{{ $approvalDetails->name . ' - ' . $approvalDetails->email }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>RECORDS COMMENT</th>
-                                                <td>{{ $approvalDetails->approval_message }}</td>
-                                            </tr>
-                                        </table>
                                     @endif
+                                    </tr>
+                                    </table>
                                 @else
-                                    <form action="{{ route('records.requested-forms.approve') }}" method="post">
-                                        <input type="hidden" name="request_id" value="{{ $loanRequest->request_id }}">
-                                        <input type="hidden" name="loan_form_id"
-                                            value="{{ $loan_form ? $loan_form->form_id : null }}">
-                                        @csrf
-                                        <div class="modal-body">
-                                            <div class="row">
-                                                <div class="col-md-4 col-sm-12">
-                                                    <div class="form-group">
-                                                        <label for="approval_status">Approval Status</label>
-                                                        <select name="approval_status" id="approval_status"
-                                                            class="form-control select2" required>
-                                                            <option class="mb-1" value="">
-                                                                - Select Approval Status -</option>
-                                                            @if ($loan_form)
-                                                                <option value="1">Approve Request</option>
-                                                            @endif
-                                                            <option value="0">Reject Request</option>
-                                                        </select>
-                                                    </div>
+                                    <table class="table table-sm table-bordered table-striped">
+                                        <tr>
+                                            <th>DATE REQUESTED</th>
+                                            <td>{{ $approvalDetails->date_requested }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>OFFICER MESSAGE</th>
+                                            <td>{{ $approvalDetails->officer_message }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>DATE REJECTED</th>
+                                            <td>{{ $approvalDetails->date_approved }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>REJECTED BY</th>
+                                            <td>{{ $approvalDetails->name . ' - ' . $approvalDetails->email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>RECORDS COMMENT</th>
+                                            <td>{{ $approvalDetails->approval_message }}</td>
+                                        </tr>
+                                    </table>
+                                @endif
+                            @else
+                                <form action="{{ route('records.requested-forms.approve') }}" method="post">
+                                    <input type="hidden" name="request_id" value="{{ $loanRequest->request_id }}">
+                                    <input type="hidden" name="loan_form_id"
+                                        value="{{ $loan_form ? $loan_form->form_id : null }}">
+                                    @csrf
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-4 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="approval_status">Approval Status</label>
+                                                    <select name="approval_status" id="approval_status"
+                                                        class="form-control select2" required>
+                                                        <option class="mb-1" value="">
+                                                            - Select Approval Status -</option>
+                                                        @if ($loan_form)
+                                                            <option value="1">Approve Request</option>
+                                                        @endif
+                                                        <option value="0">Reject Request</option>
+                                                    </select>
                                                 </div>
-                                                <div class="col-md-8 col-sm-12">
-                                                    <div class="form-group">
-                                                        <label for="approval_message">Approval Message</label>
-                                                        <textarea class="form-control" name="approval_message" id="approval_message" cols="4" rows="2"
-                                                            placeholder="Enter your message here" autocomplete="on" required></textarea>
-                                                    </div>
+                                            </div>
+                                            <div class="col-md-8 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="approval_message">Approval Message</label>
+                                                    <textarea class="form-control" name="approval_message" id="approval_message" cols="4" rows="2"
+                                                        placeholder="Enter your message here" autocomplete="on" required></textarea>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer justify-content-between">
-                                            <button type="submit" class="btn btn-secondary"> <i
-                                                    class="fa fa-user-edit"></i>
-                                                Submit Approval Status</button>
-                                        </div>
-                                    </form>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="submit" class="btn btn-secondary"> <i class="fa fa-user-edit"></i>
+                                            Submit Approval Status</button>
+                                    </div>
+                                </form>
                                 @endif
                             </div>
                             <!-- /.card-body -->

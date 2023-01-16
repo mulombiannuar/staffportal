@@ -118,7 +118,7 @@ class RequestedLoanFormController extends Controller
         $message = new Message();
         $user = User::getUserById(Auth::user()->id);
 
-        $systemMessage = 'you have successfully lodged a new '.$formType.' loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
+        $systemMessage = 'you have successfully lodged a new '.$formType.' loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.'. For further assistance, contact the Records Office';
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
         $message->sendSms($mobileNo, $messageBody);
@@ -143,7 +143,7 @@ class RequestedLoanFormController extends Controller
             $message = new Message();
             $messageBody = $message->getGreetings(strtoupper($admins[$s]['name'])).', '.$adminMessage;
             $mobileNo = $admins[$s]['mobile_no'];
-            //$message->sendSms($mobileNo, $sms);
+            //$message->sendSms($mobileNo, $messageBody);
             $message->sendSms('254703539208', $messageBody);
 
             $message->message_status = 'sent'; 
@@ -355,10 +355,10 @@ class RequestedLoanFormController extends Controller
         $systemMessage = 'you have successfully '.$action.' '.$formType.'  loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
         $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
-        $message->sendSms($mobileNo, $messageBody);
+        //$message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 
-        $message->message_type = 'loan_form_approval'; 
+        $message->message_type = 'loan_form_'.$action; 
         $message->recipient_no = $mobileNo; 
         $message->recipient_name = $user->name; 
         $message->logged_date =  date('D, d M Y H:i:s'); 
@@ -366,8 +366,8 @@ class RequestedLoanFormController extends Controller
         $message->save();
 
         //Save audit trail
-        $activity_type = 'Loan Form Request Approval';
-        $description = 'Approved '.$formType.'  loan form request of reference '. $requestedForm->reference;
+        $activity_type = 'Loan Form Request '.ucwords($action);
+        $description = ucwords($action).' '.$formType.'  loan form request of reference '. $requestedForm->reference;
         User::saveAuditTrail($activity_type, $description);
  
         return redirect(route('records.requested-forms.index'))->with('success', 'You have successfully '.$action.' '.$formType.'  loan form request of reference '. $requestedForm->reference);
@@ -424,7 +424,6 @@ class RequestedLoanFormController extends Controller
             'title' => 'Request Loan Form',
             'products' => Admin::getLoanProducts(),
             'user' => User::getUserById(Auth::user()->id),
-            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
         ];
         return view('records.requested.request_loan_form', $pageData);
     }
@@ -438,7 +437,7 @@ class RequestedLoanFormController extends Controller
         return back()->with('warning', 'You dont have rights to view this loan form request');
         
         //check if viewable deadline has passed
-        $this->checkIfViewableDeadline($loanRequest);
+        //$this->checkIfViewableDeadline($loanRequest);
         
         $pageData = [
 			'page_name' => 'records',
@@ -458,8 +457,8 @@ class RequestedLoanFormController extends Controller
 
         $user = Auth::user();
         if(!$user->hasRole('admin|records')){
-            if($user->id !== $loanRequest->requested_by)
-            return back()->with('warning', 'You dont have rights to view this loan form');
+            if($user->id !== $loanRequest->requested_by || $this->checkIfViewableDeadline($loanRequest))
+            return back()->with('warning', 'You dont have rights to view this loan form or viewable deadline has passed');
         }
 
         $pageData = [

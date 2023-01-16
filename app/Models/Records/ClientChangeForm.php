@@ -82,4 +82,26 @@ class ClientChangeForm extends Model
                  ->first();
     }
 
+    public static function getClientChangeFormsByDateRanges($start_date, $end_date)
+    {
+        return ClientChangeForm::join('users', 'users.id', '=', 'client_change_forms.created_by')
+                    ->join('clients', 'clients.client_id', '=', 'client_change_forms.client_id')
+                    ->join('filing_labels', 'filing_labels.label_id', '=', 'client_change_forms.file_number')
+                    ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
+                    ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
+                    ->select(
+                        'clients.*', 
+                        'client_change_forms.*', 
+                        'branch_name', 
+                        'outpost_name',
+                        'file_label',
+                        'users.name',
+                        'filing_labels.file_number as filing_number',
+                        )
+                    ->where('client_change_forms.created_at', '>=', $start_date)
+                    ->where('client_change_forms.created_at', '<=', $end_date)
+                    ->orderBy('form_id', 'desc')
+                    ->get();
+    }
+
 }

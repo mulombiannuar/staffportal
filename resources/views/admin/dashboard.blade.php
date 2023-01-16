@@ -267,6 +267,34 @@
                                     </div>
                                 </div>
                                 <!-- ./col -->
+                                <div class="col-lg-3 col-6 col-sm-12">
+                                    <!-- small box -->
+                                    <div class="small-box bg-info">
+                                        <div class="inner">
+                                            <p>Loan Forms</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-list-alt"></i>
+                                        </div>
+                                        <a href="{{ route('user.loan-forms.view') }}" class="small-box-footer">More info
+                                            <i class="fas fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+                                <!-- ./col -->
+                                <div class="col-lg-3 col-6 col-sm-12">
+                                    <!-- small box -->
+                                    <div class="small-box bg-danger">
+                                        <div class="inner">
+                                            <p>Change Details Forms</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-users"></i>
+                                        </div>
+                                        <a href="{{ route('user.change-forms.view') }}" class="small-box-footer">More
+                                            info <i class="fas fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+                                <!-- ./col -->
                             </div>
                         @endif
                     </div><!-- /.container-fluid -->

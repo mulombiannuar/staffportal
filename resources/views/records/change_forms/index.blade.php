@@ -163,7 +163,7 @@
                             </div>
                             <div class="card-body">
                                 <table width="100%" id="table2"
-                                    class="table table-sm table-bordered table-striped table-head-fixed ">
+                                    class="table table-sm table-bordered table-striped table-head-fixed table-responsive">
                                     <thead>
                                         <tr>
                                             <th>S.N</th>
@@ -173,17 +173,47 @@
                                             <th>MOBILE</th>
                                             <th>NATIONAL ID</th>
                                             <th>OUTPOST</th>
+                                            <th>DATE CHANGED</th>
                                             <th>DATE REQUESTED</th>
-                                            <th>FORM TYPE</th>
                                             <th>REQUESTED BY</th>
-                                            <th>PRODUCT CODE</th>
-                                            <th>AMOUNT</th>
-                                            <th>DISBURSMENT DATE</th>
+                                            <th>FORM TYPE</th>
                                             <th>ACTIONS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-
+                                        @foreach ($completedRequests as $form)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    <a href="{{ route('records.requested-change-forms.show', $form->request_id) }}"
+                                                        title="Click to view details">
+                                                        {{ $form->reference }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ $form->client_name }}</td>
+                                                <td><strong>{{ $form->bimas_br_id }}</strong></td>
+                                                <td>{{ $form->client_phone }}</td>
+                                                <td>{{ $form->national_id }}</td>
+                                                <td>{{ $form->outpost_name }}</td>
+                                                <td>{{ $form->date_changed }}</td>
+                                                <td>{{ $form->date_requested }}</td>
+                                                <td>{{ $form->name }}</td>
+                                                <td><strong>{{ $form->form_type }}</strong>
+                                                </td>
+                                                <td>
+                                                    <div class="margin">
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('records.requested-change-forms.show', $form->request_id) }}"
+                                                                title="Click to view details">
+                                                                <button type="button" class="btn btn-xs btn-info"><i
+                                                                        class="fa fa-eye"></i>
+                                                                    View</button>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>

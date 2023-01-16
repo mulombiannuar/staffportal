@@ -8,7 +8,7 @@
                 <ul class="nav nav-pills">
                     <li class="nav-item"><a class="nav-link active" href="#details" data-toggle="tab"><i
                                 class="fa fa-list-alt"></i>
-                            Loan Form Details</a></li>
+                            Change Form Details</a></li>
                     <li class="nav-item"><a class="nav-link" href="#client" data-toggle="tab"><i class="fa fa-user"></i>
                             Client Availability</a></li>
 
@@ -333,58 +333,64 @@
 
                     <div class="tab-pane" id="approval">
                         <!--  Loan Form Details -->
-                        {{-- <div class="card card-warning">
+                        <div class="card card-warning">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fa fa-user-edit"></i> Request Approval :
-                                    {{ $loanRequest->reference }}</h3>
+                                    {{ $form->reference }}</h3>
                             </div>
                             <div class="card-body">
-                                @if ($approvalDetails)
-                                    @if ($approvalDetails->approval_status == 1)
+                                @if ($form->is_approved)
+                                    @if ($form->is_approved == 1)
                                         <table class="table table-sm table-bordered table-striped">
                                             <tr>
                                                 <th>DATE REQUESTED</th>
-                                                <td>{{ $approvalDetails->date_requested }}</td>
+                                                <td>{{ $form->date_requested }}</td>
                                             </tr>
                                             <tr>
                                                 <th>FORM TYPE</th>
-                                                <td>{{ $loanRequest->is_original == 1 ? 'Original Copy' : 'Electronic Copy' }}
+                                                <td>{{ $form->is_original == 1 ? 'Original Copy' : 'Electronic Copy' }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th>OFFICER MESSAGE</th>
-                                                <td>{{ $approvalDetails->officer_message }}</td>
+                                                <td>{{ $form->officer_message }}</td>
                                             </tr>
                                             <tr>
                                                 <th>DATE APPROVED</th>
-                                                <td>{{ $approvalDetails->date_approved }}</td>
+                                                <td>{{ $form->date_approved }}</td>
                                             </tr>
                                             <tr>
                                                 <th>APPROVED BY</th>
-                                                <td>{{ $approvalDetails->name . ' - ' . $approvalDetails->email }}</td>
+                                                <td>{{ $form->name . ' - ' . $form->email }}</td>
                                             </tr>
                                             <tr>
                                                 <th>RECORDS COMMENT</th>
-                                                <td>{{ $approvalDetails->approval_message }}</td>
+                                                <td>{{ $form->approval_message }}</td>
                                             </tr>
                                             <tr>
                                                 <th>VIEWABLE DEADLINE</th>
-                                                <td>{{ $approvalDetails->viewable_deadline }}</td>
+                                                <td>{{ $form->viewable_deadline }}</td>
                                             </tr>
                                             <tr>
                                                 <th>IS FILE LOCKED?</th>
-                                                <td>{{ $approvalDetails->is_locked ? 'Loan Form locked' : 'Loan form viewable' }}
+                                                <td>{{ $form->is_locked ? 'Loan Form locked' : 'Loan form viewable' }}
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th>REQUESTED FORM</th>
                                                 <td>
-                                                    <a target="_new"
-                                                        href="{{ route('user.loan-forms.attachment', $approvalDetails->request_id) }}">
-                                                        <button type="button" class="btn btn-sm btn-secondary"><i
-                                                                class="fas fa-external-link-alt"></i>
-                                                            View Loan Form</button>
-                                                    </a>
+                                                    @if ($form->is_locked)
+                                                        <button type="button" class="btn btn-sm btn-danger"><i
+                                                                class="fas fa-exclamation-circle"></i>
+                                                            Form Locked</button>
+                                                    @else
+                                                        <a target="_new"
+                                                            href="{{ route('user.change-forms.attachment', $form->request_id) }}">
+                                                            <button type="button" class="btn btn-sm btn-secondary"><i
+                                                                    class="fas fa-external-link-alt"></i>
+                                                                View Change Form</button>
+                                                        </a>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         </table>
@@ -392,31 +398,31 @@
                                         <table class="table table-sm table-bordered table-striped">
                                             <tr>
                                                 <th>DATE REQUESTED</th>
-                                                <td>{{ $approvalDetails->date_requested }}</td>
+                                                <td>{{ $form->date_requested }}</td>
                                             </tr>
                                             <tr>
                                                 <th>OFFICER MESSAGE</th>
-                                                <td>{{ $approvalDetails->officer_message }}</td>
+                                                <td>{{ $form->officer_message }}</td>
                                             </tr>
                                             <tr>
                                                 <th>DATE REJECTED</th>
-                                                <td>{{ $approvalDetails->date_approved }}</td>
+                                                <td>{{ $form->date_approved }}</td>
                                             </tr>
                                             <tr>
                                                 <th>REJECTED BY</th>
-                                                <td>{{ $approvalDetails->name . ' - ' . $approvalDetails->email }}</td>
+                                                <td>{{ $form->name . ' - ' . $form->email }}</td>
                                             </tr>
                                             <tr>
                                                 <th>RECORDS COMMENT</th>
-                                                <td>{{ $approvalDetails->approval_message }}</td>
+                                                <td>{{ $form->approval_message }}</td>
                                             </tr>
                                         </table>
                                     @endif
                                 @else
-                                    <form action="{{ route('records.requested-forms.approve') }}" method="post">
-                                        <input type="hidden" name="request_id" value="{{ $loanRequest->request_id }}">
-                                        <input type="hidden" name="loan_form_id"
-                                            value="{{ $loan_form ? $loan_form->form_id : null }}">
+                                    <form action="{{ route('records.requested-change-forms.approve') }}" method="post">
+                                        <input type="hidden" name="request_id" value="{{ $form->request_id }}">
+                                        <input type="hidden" name="change_form_id"
+                                            value="{{ $requested_form ? $requested_form->form_id : null }}">
                                         @csrf
                                         <div class="modal-body">
                                             <div class="row">
@@ -427,7 +433,7 @@
                                                             class="form-control select2" required>
                                                             <option class="mb-1" value="">
                                                                 - Select Approval Status -</option>
-                                                            @if ($loan_form)
+                                                            @if ($requested_form)
                                                                 <option value="1">Approve Request</option>
                                                             @endif
                                                             <option value="0">Reject Request</option>
@@ -452,7 +458,7 @@
                                 @endif
                             </div>
                             <!-- /.card-body -->
-                        </div> --}}
+                        </div>
                         <!-- /. Loan Form Details -->
                     </div>
                     <!-- /.tab-pane -->

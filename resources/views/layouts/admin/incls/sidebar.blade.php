@@ -218,7 +218,7 @@
                             <li class="nav-item">
                                 <a href="{{ route('records.change-forms.index') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>Client Change Forms</p>
+                                    <p>Change Forms</p>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -245,6 +245,12 @@
                                     <p>Loan Products</p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('records.reports.index') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Record Reports</p>
+                                </a>
+                            </li>
                         @else
                             <li class="nav-item">
                                 <a href="{{ route('user.loan-forms.view') }}" class="nav-link">
@@ -253,9 +259,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{ route('user.change-forms.view') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
-                                    <p>Client Change Forms</p>
+                                    <p>Change Forms</p>
                                 </a>
                             </li>
                         @endif

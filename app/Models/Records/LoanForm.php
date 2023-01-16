@@ -45,7 +45,7 @@ class LoanForm extends Model
                         'type_name',
                         'filing_labels.file_number as filing_number',
                         )
-                    ->orderBy('bimas_br_id', 'asc')
+                    ->orderBy('form_id', 'desc')
                     ->get();
     }
 
@@ -109,5 +109,55 @@ class LoanForm extends Model
                             'disbursment_date' => $date
                         ])
                        ->first();
+    }
+
+    public function getRequestedReport($category, $filing_type,   $start_date, $end_date)
+    {
+        //  1. Loan Forms 2. Change Forms 3. Requested Loan Forms 4. Requested Change Forms
+        $data = [];
+
+        //Loan Forms
+        if($category == 1)
+        $data = $this->getLoanFormsByTypeAndCreationDate($filing_type, $start_date, $end_date);
+
+        //Change Forms
+        if($category == 2)
+        $data = ClientChangeForm::getClientChangeFormsByDateRanges($start_date, $end_date);
+
+        //Requested Loan Forms
+        if($category == 3)
+        $data = RequestedLoanForm::getRequestedLoanFormsByDateRanges($filing_type, $start_date, $end_date);
+
+        if($category == 4)
+        $data = RequestedChangeForm::getRequestedChangeFormsByDateRanges($start_date, $end_date);
+        
+        return $data;
+    }
+
+    private static function getLoanFormsByTypeAndCreationDate($filing_type, $start_date, $end_date)
+    {
+        return LoanForm::join('users', 'users.id', '=', 'loan_forms.created_by')
+                    ->join('clients', 'clients.client_id', '=', 'loan_forms.client_id')
+                    ->join('loan_products', 'loan_products.product_id', '=', 'loan_forms.product_id')
+                    ->join('filing_labels', 'filing_labels.label_id', '=', 'loan_forms.file_number')
+                    ->join('filing_types', 'filing_types.type_id', '=', 'loan_forms.filing_type_id')
+                    ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
+                    ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
+                    ->select(
+                        'clients.*', 
+                        'loan_forms.*', 
+                        'branch_name', 
+                        'outpost_name',
+                        'product_name',
+                        'product_code',
+                        'file_label',
+                        'type_name',
+                        'filing_labels.file_number as filing_number',
+                    )
+                    ->where('filing_type_id', $filing_type)
+                    ->where('loan_forms.created_at', '>=', $start_date)
+                    ->where('loan_forms.created_at', '<=', $end_date)
+                    ->orderBy('bimas_br_id', 'asc')
+                    ->get();
     }
 }

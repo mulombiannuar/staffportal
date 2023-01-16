@@ -238,7 +238,13 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function(){
     Route::get('motor-logs/book/asset_id={asset_id}&service=maintenance', [MotorMaintenanceController::class, 'book'])->name('motor-logs.book');
     Route:: resource('motor-logs', MotorMaintenanceController::class, ['except' => ['create']]);
     
-    // loan forms
+    // records forms
+    Route::get('change-forms/attachment/{id}', [RequestedChangeFormController::class, 'viewRequestedChangeForm'])->name('change-forms.attachment');
+    Route::get('change-forms/request', [RequestedChangeFormController::class, 'requestChangeForm'])->name('change-forms.request');
+    Route::post('change-forms/request', [RequestedChangeFormController::class, 'store'])->name('change-forms.request-change');
+    Route::get('change-forms/{id}', [RequestedChangeFormController::class, 'requestedChangeForm'])->name('change-forms.requested');
+    Route::get('change-forms', [RequestedChangeFormController::class, 'userRequestedChangeForms'])->name('change-forms.view');
+   
     Route::get('loan-forms/attachment/{id}', [RequestedLoanFormController::class, 'viewRequestedLoanForm'])->name('loan-forms.attachment');
     Route::get('loan-forms/request', [RequestedLoanFormController::class, 'requestLoanForm'])->name('loan-forms.request');
     Route::get('loan-forms/{id}', [RequestedLoanFormController::class, 'requestedLoanForm'])->name('loan-forms.requested');
@@ -320,8 +326,11 @@ Route::middleware(['auth', 'role:admin|records'])->prefix('records')->name('reco
     Route:: resource('requested-forms', RequestedLoanFormController::class);
 
     Route::get('get-change-forms', [ClientChangeFormController::class, 'getChangeForms'])->name('get-change-forms');
+    Route::post('requested-change-forms/approve', [RequestedChangeFormController::class, 'approveRequest'])->name('requested-change-forms.approve');
     Route:: resource('requested-change-forms', RequestedChangeFormController::class)->except('index');
     Route::get('change-forms/add', [ClientChangeFormController::class, 'createChangeFormUsingOfficerRequest'])->name('change-forms.add-form');
     Route:: resource('change-forms', ClientChangeFormController::class);
 
+    Route::get('reports', [LoanFormController::class, 'recordsReports'])->name('reports.index');
+    Route::get('reports/type', [LoanFormController::class, 'reportType'])->name('reports.type');
 });

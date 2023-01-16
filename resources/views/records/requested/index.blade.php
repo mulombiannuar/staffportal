@@ -138,6 +138,7 @@
                                             <th>PRODUCT CODE</th>
                                             <th>AMOUNT</th>
                                             <th>DISBURSMENT DATE</th>
+                                            <th>APPROVAL STATUS</th>
                                             <th>ACTIONS</th>
                                         </tr>
                                     </thead>
@@ -216,6 +217,10 @@
                     {
                         data: 'disbursment_date',
                         name: 'disbursment_date'
+                    },
+                    {
+                        data: 'approval_status',
+                        name: 'approval_status'
                     },
                     {
                         data: 'action',

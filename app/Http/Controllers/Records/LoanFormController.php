@@ -8,6 +8,7 @@ use App\Models\Records\Client;
 use App\Models\Records\FilingLabel;
 use App\Models\Records\LoanForm;
 use App\Models\Records\RequestedLoanForm;
+use App\Models\Records\RequestedLoanFormApproval;
 use App\Models\User;
 use App\Utilities\Buttons;
 use Illuminate\Http\Request;
@@ -53,6 +54,10 @@ class LoanFormController extends Controller
     public function loanCategory(Request $request)
     {
         $request->validate(['category' => 'required|integer']);
+
+        if ($request->category == 7) 
+        return redirect(route('records.change-forms.index'))->with('success', 'These are the clients change forms available');
+
         $filing_type = DB::table('filing_types')->where('type_id', $request->category)->first();
         $pageData = [
 			'page_name' => 'records',
@@ -293,6 +298,9 @@ class LoanFormController extends Controller
         Storage::delete('public/assets/loans/'.$form->file_name);
         $form->delete();
 
+        RequestedLoanForm::where('request_loan_id', $id)->delete();
+        RequestedLoanFormApproval::where('loan_form_id', $id)->delete();
+
         //Save audit trail
         $activity_type = 'Loan Form Deletion';
         $description = 'Successfully deleted loan with id '. $id;
@@ -359,5 +367,74 @@ class LoanFormController extends Controller
                       '-'.ucwords($filingType->type_name).
                       '-'.strtoupper($fileLabel->file_label.$fileLabel->file_number).
                       '-'.time();
+    }
+
+    //// Records Reports
+    public function recordsReports()
+    {
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Records Reports',
+            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+        ];
+        return view('records.reports.index', $pageData);
+    }
+
+    public function reportType(Request $request)
+    {
+        $request->validate([
+            'category' => 'required|integer',
+            'filing_type' => 'required|integer',
+            'start_date' => 'required|date|before_or_equal:end_date',
+            'end_date' => 'required|date|after_or_equal:start_date'
+        ]);
+
+        $category = $request->category;
+        $filing_type = $request->filing_type;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        $data = $this->getReportData($category);
+        $loanForm = new LoanForm();
+        
+        $reportData = $loanForm->getRequestedReport($category, $filing_type, $start_date, $end_date);
+
+        $pageData = [
+            'data' => $reportData,
+			'page_name' => 'records',
+            'title' => $data['title'],
+        ];
+        return view('records.reports.'.$data['view'], $pageData);
+    }
+
+    private function getReportData($category)
+    {
+        switch ($category) 
+        {
+            case 1:
+                $title = 'Clients Loan Forms';
+                $reportView = 'client-loan-forms';
+                break;
+            case 2:
+                $title = 'Clients Change Forms';
+                $reportView = 'client-change-forms';
+                break;
+            case 3:
+                $title = 'Requested Loan Forms';
+                $reportView = 'requested-loan-forms';
+                break;
+            case 4:
+                $title = 'Requested Change Forms';
+                $reportView = 'requested-change-forms';
+                break;  
+            default:
+                $title = 'Clients Loan Forms';
+                $reportView = 'client-loan-forms';
+                break;
+        }
+        return [
+            'view' => $reportView,
+            'title' => $title
+        ];
     }
 }
