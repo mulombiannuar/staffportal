@@ -268,7 +268,7 @@ class CustomerController extends Controller
         $systemMessage = 'thank you for contacting BIMAS concerning our products and services. Our officer at '.$outpost->outpost_name.'-'.$outpost->office_number.' will get in touch with you concerning your issue. In case your issue is not resolved, you can contact our customer care line on 0110408032. For self service dial *645*300#. BIMAS';
         $message = new Message();
         $messageBody = $message->getGreetings(strtoupper($customer->customer_name)).', '.$systemMessage;
-        $mobileNo = '2547'.substr(trim( $customer->customer_phone), 2);
+        $mobileNo = '254'.substr(trim( $customer->customer_phone), 1);
     
         //$message->sendSms($mobileNo, $messageBody);
         $message->sendSms('254703539208', $messageBody);

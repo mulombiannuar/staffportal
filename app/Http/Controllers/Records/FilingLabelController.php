@@ -8,6 +8,8 @@ use App\Models\Records\FilingLabel;
 use App\Models\Records\LoanForm;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FilingLabelController extends Controller
@@ -193,5 +195,42 @@ class FilingLabelController extends Controller
     private function formatFileNumber($number)
     {
         return str_pad($number, 3, '0', STR_PAD_LEFT);
+    }
+
+    public function fileSticker($id)
+    {
+        $file = FilingLabel::getLabelById($id);
+        $pageData = [
+            'user' => Auth::user(),
+            'page_name' => 'records',
+            'file' => FilingLabel::getLabelById($id),
+            'title' => $file->type_name.' - '.$file->file_label.$file->file_number
+        ];
+        $html = view('records.filings.sticker', $pageData);
+        //$html = view('pdfs.cvp_data', $pageData);
+        $pdf = App::make('dompdf.wrapper');
+        $pdf->loadHTML($html);
+        $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+        $pdf->setPaper('A4','landscape');
+        return $pdf->stream('Filing-Sticker-'.$file->file_label.$file->file_number.'-'.time().'.pdf', array('Attachment' => 0));
+    }
+
+    public function fileStickers($type_id)
+    {
+        $type = DB::table('filing_types')->where('type_id', $type_id)->first();
+        $pageData = [
+            'type' => $type,
+            'user' => Auth::user(),
+            'page_name' => 'records',
+            'title' => $type->type_name,
+            'files' => FilingLabel::getFilesByType($type_id),
+        ];
+        $html = view('records.filings.stickers', $pageData);
+        //$html = view('pdfs.cvp_data', $pageData);
+        $pdf = App::make('dompdf.wrapper');
+        $pdf->loadHTML($html);
+        $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+        $pdf->setPaper('A4','landscape');
+        return $pdf->stream('Filing-Stickers-'.$type->type_name.'-'.time().'.pdf', array('Attachment' => 0));
     }
 }

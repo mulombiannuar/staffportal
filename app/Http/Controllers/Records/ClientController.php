@@ -24,6 +24,48 @@ class ClientController extends Controller
      */
     public function index()
     {
+        //return $this->getClients();
+        //$data = LoanFormController::getCSVFileArrayValues('members.csv')['rows'];
+        //return count($data);
+        // for ($s=0; $s <count($data) ; $s++) { 
+        //     if ($data[$s][2] != 'Agency Branch') 
+        //     {
+        //         DB::table('clients')->insert([
+        //             'bimas_br_id' => $data[$s][0],
+        //             'client_name' => ucwords($data[$s][3]),
+        //             'client_phone' => $data[$s][5],
+        //             'national_id' => $data[$s][6],
+        //             'branch_id' => $data[$s][1],
+        //             'outpost_id' => $data[$s][4],
+        //             'created_by' => Auth::user()->id,
+        //             'created_at' => now(),
+        //             'updated_at' => now()
+        //         ]);
+        //     }
+        // } 
+
+        // $clients = DB::table('clients')->where('outpost_client', 1)->get();
+        // //return count($clients);
+        // for ($s=0; $s <count($clients) ; $s++) 
+        // { 
+        //     $branch = 1;
+        //     $outpost = 1;
+        //     $outpostData = Admin::getOutpostByName(ucwords($clients[$s]->outpost_id));
+        //     if (!is_null($outpostData)) {
+        //         $outpost = $outpostData->outpost_id;
+        //         $branch = $outpostData->outpost_branch_id;
+        //     }
+
+        //     // $branchData = Admin::getBranchByCode(ucwords($clients[$s]->branch_id));
+        //     // if (!is_null($branchData)) {
+        //     //     $branch = $branchData->branch_id;
+        //     // }
+        //     DB::table('clients')->where('client_id', $clients[$s]->client_id)->update([
+        //         'branch_id' => $branch,
+        //         'outpost_id' => $outpost
+        //     ]);
+        // }
+
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Clients Management',
@@ -37,14 +79,10 @@ class ClientController extends Controller
         $clients = Client::getClients();
         return Datatables::of($clients)
                         ->addIndexColumn()
-                        ->addColumn('action', function ($client) {
-                            return Buttons::dataTableButtons(
-                                route('records.clients.show', $client->client_id),
-                                route('records.clients.edit', $client->client_id),
-                                route('records.clients.destroy', $client->client_id),
-                            );
+                        ->addColumn('name', function ($client) {
+                            return Buttons::dataTableClientNameLink($client->client_id, $client->client_name);
                         })
-                        ->rawColumns(['action'])
+                        ->rawColumns(['name'])
                         ->make(true);
     }
 
@@ -150,12 +188,13 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::getClientById($id);
+       // return $loan_forms = RequestedLoanForm::getRequestedLoanFormsByClientID($id);
         $pageData = [
 			'page_name' => 'records',
             'client' => $client,
-            'loan-forms' => [],
+            'loan_forms' => RequestedLoanForm::getRequestedLoanFormsByClientID($id),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
-            'title' => ucwords($client->client_name.' - '.$client->client_phone.'/'.$client->bimas_br_id),
+            'title' => ucwords($client->client_name.' - '.$client->bimas_br_id),
         ];
         return view('records.clients.show', $pageData);
     }

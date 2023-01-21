@@ -10,7 +10,7 @@
                             Client Details</a></li>
                     <li class="nav-item"><a class="nav-link" href="#loan-forms" data-toggle="tab"><i
                                 class="fa fa-list-alt"></i>
-                            Loan Forms</a></li>
+                            Loan Forms ({{ count($loan_forms) }})</a></li>
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
@@ -111,7 +111,69 @@
                                 <h3 class="card-title"><i class="fa fa-list-alt"></i> Loan Forms</h3>
                             </div>
                             <div class="card-body">
-                                Loan Forms
+                                <table width="100%" id="table2"
+                                    class="table table-sm table-bordered table-striped table-head-fixed table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>S.N</th>
+                                            <th>REFERENCE</th>
+                                            <th>NAMES</th>
+                                            <th>BR ID</th>
+                                            <th>MOBILE</th>
+                                            <th>NATIONAL ID</th>
+                                            <th>OUTPOST</th>
+                                            <th>DATE REQUESTED</th>
+                                            <th>FORM TYPE</th>
+                                            <th>DATE APPROVED</th>
+                                            <th>STATUS</th>
+                                            <th>PRODUCT CODE</th>
+                                            <th>AMOUNT</th>
+                                            <th>DISBURSMENT DATE</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($loan_forms as $loan)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $loan->reference }}</td>
+                                                <td>{{ $loan->client_name }}</td>
+                                                <td>{{ $loan->bimas_br_id }}</td>
+                                                <td>{{ $loan->client_phone }}</td>
+                                                <td>{{ $loan->national_id }}</td>
+                                                <td>{{ $loan->outpost_name }}</td>
+                                                <td>{{ $loan->date_requested }}</td>
+                                                <td><strong>{{ $loan->is_original ? 'Original copy' : 'Electronic copy' }}</strong>
+                                                </td>
+                                                <td>{{ $loan->date_approved }}</td>
+                                                <td><strong>{{ $loan->is_approved ? 'Approved' : 'Rejected' }}</strong>
+                                                </td>
+                                                <td>{{ $loan->product_code }}</td>
+                                                <td>{{ $loan->amount }}</td>
+                                                <td>{{ $loan->disbursment_date }}</td>
+                                                <td>
+                                                    <div class="margin">
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('user.loan-forms.requested', $loan->request_id) }}"
+                                                                title="Click to view request details">
+                                                                <button type="button" class="btn btn-xs btn-secondary"><i
+                                                                        class="fa fa-bars"></i>
+                                                                </button>
+                                                            </a>
+                                                        </div>
+                                                        <div class="btn-group">
+                                                            <a class="btn btn-xs btn-primary" target="_new"
+                                                                href="{{ route('user.loan-forms.attachment', $loan->request_id) }}"
+                                                                title="Click to view requested loan form">
+                                                                <i class="fa fa-external-link-alt"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <!-- /.card-body -->
                         </div>

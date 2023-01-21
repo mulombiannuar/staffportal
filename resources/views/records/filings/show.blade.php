@@ -14,6 +14,10 @@
                                     class="fa fa-edit"></i>
                                 Update File Details</a></li>
 
+                        <li class="nav-item"><a class="nav-link" target="_blank"
+                                href="{{ route('records.filing-labels.sticker', $file->label_id) }}"><i
+                                    class="fa fa-print"></i>
+                                Print File Sticker</a></li>
                     </ul>
                 </div><!-- /.card-header -->
                 <div class="card-body">

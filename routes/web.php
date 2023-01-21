@@ -306,6 +306,8 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
 });
 
 Route::middleware(['auth', 'role:admin|records'])->prefix('records')->name('records.')->group(function(){
+    Route::get('dashboard', [LoanFormController::class, 'dashboard'])->name('index');
+    
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
     Route::get('clients/request/{id}', [ClientController::class, 'createClientUsingLoanRequest'])->name('clients.loan-request');
     Route::get('clients/change-request/{id}', [ClientController::class, 'createClientUsingChangeFormRequest'])->name('clients.change-request');
@@ -318,6 +320,8 @@ Route::middleware(['auth', 'role:admin|records'])->prefix('records')->name('reco
     Route::get('loan-forms/add', [LoanFormController::class, 'createLoanFormUsingLoanRequest'])->name('loan-forms.add-form');
     Route:: resource('loan-forms', LoanFormController::class);
 
+    Route::get('filing-labels/sticker/{id}', [FilingLabelController::class, 'fileSticker'])->name('filing-labels.sticker');
+    Route::get('filing-labels/stickers/{type}', [FilingLabelController::class, 'fileStickers'])->name('filing-labels.stickers');
     Route:: resource('filing-labels', FilingLabelController::class)->except('edit');
    
     Route::get('get-outpost-requests', [RequestedLoanFormController::class, 'fetchOutpostRequests'])->name('get-outpost-requests');

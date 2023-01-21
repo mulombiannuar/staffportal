@@ -89,6 +89,11 @@ class Buttons
                </div>';
     }
 
+    public static function dataTableClientNameLink($id, $name)
+    {
+        return '<a href="/records/clients/'.$id.'">'.$name.'</a>';
+    }
+
     public static function dataTableEditButton($viewRoute, $editRoute, $deleteRoute)
     {
         return '

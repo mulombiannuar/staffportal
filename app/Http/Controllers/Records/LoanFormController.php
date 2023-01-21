@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Records;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Records\Client;
+use App\Models\Records\ClientChangeForm;
 use App\Models\Records\FilingLabel;
 use App\Models\Records\LoanForm;
+use App\Models\Records\RequestedChangeForm;
 use App\Models\Records\RequestedLoanForm;
 use App\Models\Records\RequestedLoanFormApproval;
 use App\Models\User;
@@ -24,6 +26,24 @@ class LoanFormController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function dashboard()
+     {
+         $pageData = [
+             'page_name' => 'records',
+             'title' => 'Records Management Dashboard',
+             'clients' => Client::count(),
+             'loan_forms' => LoanForm::count(),
+             'filing_labels' => FilingLabel::count(),
+             'change_forms' => ClientChangeForm::count(),
+             'requested_loan' => RequestedLoanForm::count(),
+             'requested_change' => RequestedChangeForm::count(),
+             'products' => DB::table('loan_products')->count()
+         ];
+         return view('records.dashboard', $pageData);
+     }
+
+     
     public function index()
     {
        //return $this->getLoanForms();
@@ -331,7 +351,7 @@ class LoanFormController extends Controller
         return view('records.clients.loan_products', $pageData);
     }
 
-    private function getCSVFileArrayValues($fileName)
+    public static function getCSVFileArrayValues($fileName)
     {
         $file = asset('assets/docs/'.$fileName);
         $csvData = file_get_contents($file);

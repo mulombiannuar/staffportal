@@ -31,9 +31,20 @@ class Admin extends Model
         return  DB::table('branches')->where('branch_id', $id)->first();
     }
 
+    public static function getBranchByCode($code)
+    {
+        return  DB::table('branches')->where('branch_code', $code)->first();
+    }
+
+
     public static function getOutpostById($id)
     {
         return  DB::table('outposts')->where('outpost_id', $id)->first();
+    }
+
+    public static function getOutpostByName($name)
+    {
+        return  DB::table('outposts')->where('outpost_name', $name)->first();
     }
 
     public static function getCvpProducts()
@@ -175,6 +186,11 @@ class Admin extends Model
     public static function getLoanProductById($id)
     {
         return DB::table('loan_products')->where('product_id', $id)->first();
+    }
+
+    public static function formatMobileNumber($mobile_no)
+    {
+        return '254'.substr(trim($mobile_no), 1);
     }
    
 }

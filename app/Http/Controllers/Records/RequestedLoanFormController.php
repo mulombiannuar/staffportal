@@ -120,7 +120,7 @@ class RequestedLoanFormController extends Controller
 
         $systemMessage = 'you have successfully lodged a new '.$formType.' loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.'. For further assistance, contact the Records Office';
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
-        $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
+        $mobileNo = Admin::formatMobileNumber($user->mobile_no);
         $message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 
@@ -143,8 +143,8 @@ class RequestedLoanFormController extends Controller
             $message = new Message();
             $messageBody = $message->getGreetings(strtoupper($admins[$s]['name'])).', '.$adminMessage;
             $mobileNo = $admins[$s]['mobile_no'];
-            //$message->sendSms($mobileNo, $messageBody);
-            $message->sendSms('254703539208', $messageBody);
+            $message->sendSms($mobileNo, $messageBody);
+            //$message->sendSms('254703539208', $messageBody);
 
             $message->message_status = 'sent'; 
             $message->message_type = 'records_admin'; 
@@ -331,9 +331,9 @@ class RequestedLoanFormController extends Controller
         //send requester sms notification and email
         $requester = User::getUserById($requestedForm->requested_by);
         $message = new Message();
-        $approvalMessage = 'your '.$formType.' loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. For assistance, contact the Records Department.';
+        $approvalMessage = 'your '.$formType.' loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. You can log in to the Staffportal to view. For assistance, contact the Records Department.';
         $messageBody = $message->getGreetings(strtoupper($requester->name)).', '.$approvalMessage;
-        $mobileNo = '2547'.substr(trim($requester->mobile_no), 2);
+        $mobileNo = Admin::formatMobileNumber($requester->mobile_no);
         $message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 
@@ -354,8 +354,8 @@ class RequestedLoanFormController extends Controller
 
         $systemMessage = 'you have successfully '.$action.' '.$formType.'  loan form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
-        $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
-        //$message->sendSms($mobileNo, $messageBody);
+        $mobileNo = Admin::formatMobileNumber($user->mobile_no);
+        $message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 
         $message->message_type = 'loan_form_'.$action; 
@@ -383,6 +383,7 @@ class RequestedLoanFormController extends Controller
         return [
             ['name' => 'Anuary Mulombi', 'mobile_no' => '254703539208'],
             ['name' => 'Ibrahim Adan', 'mobile_no' => '254716183666'],
+            ['name' => 'Victoria Wairimu', 'mobile_no' => '254112160112'],
         ];
     }
 

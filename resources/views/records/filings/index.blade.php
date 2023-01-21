@@ -21,11 +21,17 @@
                             <div class="card card-warning">
                                 <div class="card-header">
                                     <h3 class="card-title"><i class="fa fa-list-alt"></i> {{ $type->type_name }} Files</h3>
-                                    <div class="text-right">
+                                    <div class="margin text-right">
                                         <button type="button" data-toggle="modal"
-                                            data-target="#modalAddLabels-{{ $type->type_id }}"
-                                            class="btn btn-sm btn-secondary"><i class="fa fa-plus-circle"></i> Add New
+                                            data-target="#modalAddLabels-{{ $type->type_id }}" class="btn btn-secondary"><i
+                                                class="fa fa-plus-circle"></i> Add New
                                             Record File</button>
+
+                                        <a target="_blank"
+                                            href="{{ route('records.filing-labels.stickers', $type->type_id) }}">
+                                            <button type="button" class="btn btn-default"><i class="fa fa-print"></i>
+                                                Print File Stickers</button>
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="card-body">

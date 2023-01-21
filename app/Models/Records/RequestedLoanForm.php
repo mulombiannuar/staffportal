@@ -155,4 +155,33 @@ class RequestedLoanForm extends Model
                  ->get();
     }
 
+    public static function getRequestedLoanFormsByClientID($client_id)
+    {
+        return DB::table('requested_loan_forms')
+                 ->join('users', 'users.id', '=', 'requested_loan_forms.requested_by')
+                 ->leftJoin('requested_loan_form_approvals', 'requested_loan_form_approvals.request_id', '=', 'requested_loan_forms.request_id')
+                 ->leftJoin('loan_forms', 'loan_forms.form_id', '=', 'requested_loan_forms.request_loan_id')
+                 ->join('loan_products', 'loan_products.product_id', '=', 'requested_loan_forms.product_id')
+                 ->join('branches', 'branches.branch_id', '=', 'requested_loan_forms.branch_id')
+                 ->join('outposts', 'outposts.outpost_id', '=', 'requested_loan_forms.outpost_id')
+                 ->join('filing_labels', 'filing_labels.label_id', '=', 'loan_forms.file_number')
+                 ->join('filing_types', 'filing_types.type_id', '=', 'loan_forms.filing_type_id')
+                 ->select(
+                        'requested_loan_form_approvals.*',
+                        'requested_loan_forms.*', 
+                        'branch_name', 
+                        'outpost_name',
+                        'product_name',
+                        'product_code',
+                        'filing_type_id',
+                        'name', 
+                        'type_name', 
+                        'file_label',
+                        'filing_labels.file_number as filing_number'
+                 )
+                 ->where('client_id', $client_id)
+                 ->orderBy('requested_loan_forms.request_id', 'desc')
+                 ->get();
+    }
+
 }

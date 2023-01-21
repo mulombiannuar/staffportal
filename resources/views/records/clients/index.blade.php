@@ -4,20 +4,20 @@
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <div class="margin mb-2 text-right">
-                <a href="{{ route('records.clients.create') }}">
-                    <button type="button" class="btn btn-primary"><i class="fa fa-plus"></i> Add New
-                        Records Client</button>
-                </a>
-            </div>
+
             <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-users"></i> {{ $title }}</h3>
+                    <div class="margin text-right">
+                        <a href="{{ route('records.clients.create') }}">
+                            <button type="button" class="btn btn-secondary"><i class="fa fa-plus"></i> Add New
+                                Records Client</button>
+                        </a>
+                    </div>
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <table width="100%" id="datatable"
-                        class="table table-sm table-bordered table-striped table-head-fixed">
+                    <table width="100%" id="datatable" class="table table-sm table-bordered table-hover table-head-fixed">
                         <thead>
                             <tr>
                                 <th>S.N</th>
@@ -27,8 +27,7 @@
                                 <th>NATIONAL ID</th>
                                 <th>BRANCH</th>
                                 <th>OUTPOST</th>
-                                <th>CREATED BY</th>
-                                <th>ACTIONS</th>
+                                {{-- <th>ACTIONS</th> --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -56,8 +55,8 @@
                         name: 'DT_RowIndex'
                     },
                     {
-                        data: 'client_name',
-                        name: 'client_name'
+                        data: 'name',
+                        name: 'name',
                     },
                     {
                         data: 'bimas_br_id',
@@ -79,16 +78,12 @@
                         data: 'outpost_name',
                         name: 'outpost_name'
                     },
-                    {
-                        data: 'created_by',
-                        name: 'created_by'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'action',
+                    //     name: 'action',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
                 ]
             });
         });

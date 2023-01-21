@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Records;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Message;
 use App\Models\Records\Client;
 use App\Models\Records\ClientChangeForm;
@@ -84,7 +85,7 @@ class RequestedChangeFormController extends Controller
 
         $systemMessage = 'you have successfully lodged a new '.$formType.' client details change form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.'. For further assistance, contact the Records Office';
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
-        $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
+        $mobileNo = Admin::formatMobileNumber($user->mobile_no);
         $message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 
@@ -107,8 +108,8 @@ class RequestedChangeFormController extends Controller
             $message = new Message();
             $messageBody = $message->getGreetings(strtoupper($admins[$s]['name'])).', '.$adminMessage;
             $mobileNo = $admins[$s]['mobile_no'];
-            //$message->sendSms($mobileNo, $sms);
-            $message->sendSms('254703539208', $messageBody);
+            $message->sendSms($mobileNo, $messageBody);
+           // $message->sendSms('254703539208', $messageBody);
 
             $message->message_status = 'sent'; 
             $message->message_type = 'records_admin'; 
@@ -284,9 +285,9 @@ class RequestedChangeFormController extends Controller
         //send requester sms notification and email
         $requester = User::getUserById($requestedForm->requested_by);
         $message = new Message();
-        $approvalMessage = 'your '.$formType.' change form form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. For assistance, contact the Records Department.';
+        $approvalMessage = 'your '.$formType.' change form form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. You can login to the Staffportal to view. For assistance, contact the Records Department.';
         $messageBody = $message->getGreetings(strtoupper($requester->name)).', '.$approvalMessage;
-        $mobileNo = '2547'.substr(trim($requester->mobile_no), 2);
+        $mobileNo = Admin::formatMobileNumber($requester->mobile_no);
         $message->sendSms($mobileNo, $messageBody);
       
         $message->message_status = 'sent'; 
@@ -307,7 +308,7 @@ class RequestedChangeFormController extends Controller
 
         $systemMessage = 'you have successfully '.$action.' '.$formType.'  change form request with reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id;
         $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
-        $mobileNo = '2547'.substr(trim($user->mobile_no), 2);
+        $mobileNo = Admin::formatMobileNumber($user->mobile_no);
         $message->sendSms($mobileNo, $messageBody);
 
         $message->message_status = 'sent'; 

@@ -19,7 +19,7 @@ class Client extends Model
                 ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
                 ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
                 ->select('clients.*', 'users.name as created_by', 'branch_name', 'outpost_name')
-                ->where(['client_id'=> $client_id])
+                ->where(['client_id'=> $client_id, 'outpost_client' => 1])
                 ->first();
     }
 
@@ -28,6 +28,7 @@ class Client extends Model
         return Client::join('users', 'users.id', '=', 'clients.created_by')
                 ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
                 ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
+                ->where('outpost_client', 1)
                 ->select('clients.*', 'branch_name', 'outpost_name')
                 ->where(['bimas_br_id'=> $client_id])
                 ->first();
@@ -35,21 +36,37 @@ class Client extends Model
 
     public static function getClients()
     {
-        return Client::join('users', 'users.id', '=', 'clients.created_by')
-                     ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
+        return Client::join('branches', 'branches.branch_id', '=', 'clients.branch_id')
                      ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
-                     ->select('clients.*', 'users.name as created_by', 'branch_name', 'outpost_name')
+                     ->select(
+                        'client_id',
+                        'bimas_br_id',
+                        'client_name',
+                        'client_phone',
+                        'national_id',
+                        'branch_name', 
+                        'outpost_name'
+                        )
+                     ->where('outpost_client', 1)
                      ->orderBy('bimas_br_id', 'asc')
                      ->get();
     }
 
     public static function getClientsByOutpost($outpost_id)
     {
-        return Client::where('outpost_id', $outpost_id)->orderBy('bimas_br_id', 'asc')->get();
+        return Client::where(['outpost_id' => $outpost_id, 'outpost_client' => 1])
+                    ->select(
+                        'client_id',
+                        'bimas_br_id',
+                        'client_name',
+                        'client_phone',
+                        )
+                    ->orderBy('bimas_br_id', 'asc')
+                    ->get();
     }
 
     public static function getClientsByBranch($branch_id)
     {
-        return Client::where('branch_id', $branch_id)->orderBy('bimas_br_id', 'asc')->get();
+        return Client::where(['branch_id' => $branch_id, 'outpost_client' => 1])->orderBy('bimas_br_id', 'asc')->get();
     }
 }

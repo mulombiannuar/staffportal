@@ -91,7 +91,7 @@ class AdminController extends Controller
       $message = new Message();
       $systemMessage = 'Your Access Token code is '.session('access_token');
       $messageBody = $message->getGreetings(strtoupper($user->name)).' '.$systemMessage;
-      $mobileNo = '2547'.substr(trim($mobile_no), 2);
+      $mobileNo = Admin::formatMobileNumber($mobile_no);
       
       //$message->sendSms($mobileNo, $systemMessage);
       //$message->sendSms('254703539208', $systemMessage);
