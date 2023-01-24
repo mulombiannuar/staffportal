@@ -94,6 +94,11 @@ class Buttons
         return '<a href="/records/clients/'.$id.'">'.$name.'</a>';
     }
 
+    public static function dataTableClientLoanLink($id, $name)
+    {
+        return '<a href="/records/loan/'.$id.'">'.$name.'</a>';
+    }
+
     public static function dataTableEditButton($viewRoute, $editRoute, $deleteRoute)
     {
         return '

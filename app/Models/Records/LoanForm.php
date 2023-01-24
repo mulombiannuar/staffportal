@@ -15,18 +15,22 @@ class LoanForm extends Model
 
     public static function getClientLoans()
     {
+        return DB::table('client_loans')->orderBy('application_date', 'desc')->get();
+    }
+
+    public static function getClientLoanAccount($id)
+    {
         return DB::table('client_loans')
-                 ->join('clients', 'clients.bimas_br_id', '=', 'client_loans.client_id')
-                 ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
-                 ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
-                 ->select(
-                    'client_loans.*',
-                    'branch_name',
-                    'outpost_name',
-                    'client_NAME',
-                    'client_phone',
-                    )
-                 ->get();
+                 ->join('loan_products', 'loan_products.product_code', '=', 'client_loans.product_id')
+                 ->select('client_loans.*', 'loan_products.product_id as pro_id')
+                 ->where('id', $id)
+                 ->first();
+    }
+
+    public static function getClientLoanAccounts($client_id)
+    {
+        $client = DB::table('clients')->where('client_id', $client_id)->first();
+        return DB::table('client_loans')->where('client_id', $client->bimas_br_id)->orderBy('application_date', 'desc')->get();
     }
 
     public static function getFilingTypesByClass($class)

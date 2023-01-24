@@ -86,6 +86,8 @@ Route::get('get-users', [AdminController::class, 'fetchBranchUsers'])->name('get
 Route::get('get-ousers', [AdminController::class, 'fetchOutpostUsers'])->name('get.ousers');
 Route::get('get-oclients', [AdminController::class, 'fetchOutpostClients'])->name('get.oclients');
 Route::get('get-filing-files', [LoanFormController::class, 'fetchFilingLabelsByType'])->name('get.filing-files');
+Route::get('get-client-accounts', [LoanFormController::class, 'fetchClientAccounts'])->name('get.client-accounts');
+Route::get('get-account-details', [LoanFormController::class, 'getAccountDetails'])->name('get.account-details');
 Route::get('get-phoneusers', [AdminController::class, 'fetchOutpostPhones'])->name('get.phoneusers');
 Route::get('get-modemusers', [AdminController::class, 'fetchOutpostModems'])->name('get.modemusers');
 
@@ -307,6 +309,7 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
 
 Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')->name('records.')->group(function(){
     Route::get('dashboard', [LoanFormController::class, 'dashboard'])->name('index');
+    Route::get('get-client-loans', [LoanFormController::class, 'getLoanClientLoans'])->name('get-client-loans');
     Route::get('client-loans', [LoanFormController::class, 'clientLoans'])->name('client-loans');
     
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');

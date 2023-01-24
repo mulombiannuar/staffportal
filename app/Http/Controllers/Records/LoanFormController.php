@@ -39,6 +39,7 @@ class LoanFormController extends Controller
              'requested_loan' => RequestedLoanForm::count(),
              'requested_change' => RequestedChangeForm::count(),
              'products' => DB::table('loan_products')->count(),
+             'loans' => DB::table('client_loans')->count(),
 
              'loan_forms' => $this->getRecordStats()['loan_forms'],
              'filing_labels' => $this->getRecordStats()['filing_labels'],
@@ -67,7 +68,7 @@ class LoanFormController extends Controller
        
         //return 'Process completed successfully';
 
-        return $this->getLoanClientLoans();
+        //return $this->getLoanClientLoans();
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Active Client Loans',
@@ -81,7 +82,7 @@ class LoanFormController extends Controller
         return Datatables::of($loans)
                         ->addIndexColumn()
                         ->addColumn('application', function ($loan) {
-                            return Buttons::dataTableClientNameLink($loan->id, $loan->application_id);
+                            return Buttons::dataTableClientLoanLink($loan->id, $loan->application_id);
                         })
                         ->rawColumns(['application'])
                         ->make(true);
@@ -162,7 +163,7 @@ class LoanFormController extends Controller
         $filingClass = FilingLabel::getUserFilingClass(); 
         $pageData = [
 			'page_name' => 'records',
-            'title' => 'Add New Loan Form',
+            'title' => 'Upload New Loan Form',
             'products' => Admin::getLoanProducts(),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
             'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
@@ -383,17 +384,18 @@ class LoanFormController extends Controller
 
     public function loanProducts()
     {
-        // $data = $this->getCSVFileArrayValues('products.csv')['rows'];
-        // for ($s=0; $s <count($data) ; $s++) { 
-        //     DB::table('loan_products')->insert([
-        //         'product_code' => $data[$s][0],
-        //         'product_name' => $data[$s][1],
-        //         'product_class_id' => $data[$s][2],
-        //         'created_by' => Auth::user()->id,
-        //         'created_at' => now(),
-        //         'updated_at' => now()
-        //     ]);
-        // } 
+    //    $data = $this->getCSVFileArrayValues('products.csv')['rows'];
+    //     for ($s=0; $s <count($data) ; $s++) { 
+    //         DB::table('loan_products')->insert([
+    //             'product_code' => $data[$s][1],
+    //             'product_name' => $data[$s][0],
+    //             'product_class_id' => $data[$s][2],
+    //             'created_by' => Auth::user()->id,
+    //             'created_at' => now(),
+    //             'updated_at' => now()
+    //         ]);
+    //     } 
+    //     return 'Process completed successfully';
 
         $pageData = [
 			'page_name' => 'records',
@@ -536,5 +538,27 @@ class LoanFormController extends Controller
                 //'requested_loan' => RequestedLoanForm::count(),
             ];
         }
+    }
+
+    public function fetchClientAccounts(Request $request)
+    {
+       $accounts = LoanForm::getClientLoanAccounts($request->client);
+       $output = '';
+       if (count($accounts) == 0) {
+         $output .= '<option value="">- No Clients Accounts found -</option>';
+       }else{
+          $output .= '<option value="">- Select Loan Account -</option>';
+          foreach ($accounts as $account) 
+          {
+            $output .= '<option value="'.$account->id.'">'.$account->product_id.' - '.$account->account_id.'</option>';
+          }
+       }
+       return $output;
+    }
+
+    public function getAccountDetails(Request $request)
+    {
+        $data = LoanForm::getClientLoanAccount($request->account);
+        return response()->json($data);
     }
 }

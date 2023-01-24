@@ -13,20 +13,6 @@
                 <div class="card-body">
                     <div class="container-fluid">
                         <div class="row">
-                            {{-- <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box mb-3">
-                                    <span class="info-box-icon bg-secondary elevation-1"><i class="fas fa-users"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Active Clients Lans</span>
-                                        <span class="info-box-number">{{ '0' }}</span>
-                                        <a href="{{ route('records.client-loans') }}" class="small-box-footer">More
-                                            info <i class="fas fa-arrow-circle-right"></i></a>
-                                    </div>
-                                    <!-- /.info-box-content -->
-                                </div>
-                                <!-- /.info-box -->
-                            </div> --}}
-                            <!-- /.col -->
                             <div class="col-12 col-sm-6 col-md-3">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-primary elevation-1"><i class="fa fa-users"></i></span>
@@ -37,6 +23,20 @@
                                             {{ $clients }}
                                         </span>
                                         <a href="{{ route('records.clients.index') }}" class="small-box-footer">More
+                                            info <i class="fas fa-arrow-circle-right"></i></a>
+                                    </div>
+                                    <!-- /.info-box-content -->
+                                </div>
+                                <!-- /.info-box -->
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-secondary elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Active Clients Loans</span>
+                                        <span class="info-box-number">{{ $loans }}</span>
+                                        <a href="{{ route('records.client-loans') }}" class="small-box-footer">More
                                             info <i class="fas fa-arrow-circle-right"></i></a>
                                     </div>
                                     <!-- /.info-box-content -->
@@ -109,7 +109,8 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Requested Loan Forms</span>
                                         <span class="info-box-number">{{ $requested_loan }}</span>
-                                        <a href="{{ route('records.requested-forms.index') }}" class="small-box-footer">More
+                                        <a href="{{ route('records.requested-forms.index') }}"
+                                            class="small-box-footer">More
                                             info <i class="fas fa-arrow-circle-right"></i></a>
                                     </div>
                                     <!-- /.info-box-content -->

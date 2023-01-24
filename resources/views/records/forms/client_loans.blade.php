@@ -16,14 +16,10 @@
                             <tr>
                                 <th>S.N</th>
                                 <th>APPLICATION ID</th>
-                                <th>NAMES</th>
                                 <th>CLIENT ID</th>
-                                <th>MOBILE</th>
-                                <th>BRANCH</th>
-                                <th>OUTPOST</th>
+                                <th>LOAN ACCOUNT</th>
                                 <th>CODE</th>
                                 <th>APPLICATION DATE</th>
-                                <th>LOAN ACCOUNT</th>
                                 <th>AMOUNT</th>
                                 <th>DISBURSMENT DATE</th>
                             </tr>
@@ -47,34 +43,22 @@
             $("#datatable").DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('records.loan-forms.get-loan-forms') }}",
+                ajax: "{{ route('records.get-client-loans') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
                     },
                     {
-                        data: 'application',
-                        name: 'application'
-                    },
-                    {
-                        data: 'client_name',
-                        name: 'client_name'
+                        data: 'application_id',
+                        name: 'application_id'
                     },
                     {
                         data: 'client_id',
                         name: 'client_id'
                     },
                     {
-                        data: 'client_phone',
-                        name: 'client_phone'
-                    },
-                    {
-                        data: 'branch_name',
-                        name: 'branch_name'
-                    },
-                    {
-                        data: 'outpost_name',
-                        name: 'outpost_name'
+                        data: 'account_id',
+                        name: 'account_id'
                     },
                     {
                         data: 'product_id',
@@ -84,10 +68,7 @@
                         data: 'application_date',
                         name: 'application_date'
                     },
-                    {
-                        data: 'account_id',
-                        name: 'account_id'
-                    },
+
                     {
                         data: 'loan_amount',
                         name: 'loan_amount'
