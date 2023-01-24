@@ -47,7 +47,8 @@
         </section>
         <div class="footer-text">
             <small>Bimas Microfinance Kenya Limited &copy;
-                <?php echo date('Y'); ?> | Filing label printed on {{ date('F d, Y h:i:sa') }} by {{ ucwords($user->name) }}
+                <?php echo date('Y'); ?> | Filing label for {{ $file->type_name }} printed on {{ date('F d, Y h:i:sa') }} by
+                {{ ucwords($user->name) }}
             </small>
         </div>
     </main>

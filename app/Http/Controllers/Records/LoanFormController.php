@@ -27,37 +27,84 @@ class LoanFormController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function dashboard()
-     {
-         $pageData = [
+    public function dashboard()
+    {
+        $filingClass = FilingLabel::getUserFilingClass(); 
+        //return $this->getRecordStats();
+        $pageData = [
              'page_name' => 'records',
-             'title' => 'Records Management Dashboard',
+             'title' => $filingClass['title'],
              'clients' => Client::count(),
-             'loan_forms' => LoanForm::count(),
-             'filing_labels' => FilingLabel::count(),
              'change_forms' => ClientChangeForm::count(),
              'requested_loan' => RequestedLoanForm::count(),
              'requested_change' => RequestedChangeForm::count(),
-             'products' => DB::table('loan_products')->count()
+             'products' => DB::table('loan_products')->count(),
+
+             'loan_forms' => $this->getRecordStats()['loan_forms'],
+             'filing_labels' => $this->getRecordStats()['filing_labels'],
          ];
          return view('records.dashboard', $pageData);
-     }
+    }
+
+    public function clientLoans()
+    {
+        $data = LoanFormController::getCSVFileArrayValues('activeloans.csv')['rows'];
+        //return count($data);
+        // for ($s=0; $s <count($data) ; $s++) { 
+        //     DB::table('client_loans')->insert([
+        //         'client_id' => $data[$s][0],
+        //         'account_id' => $data[$s][1],
+        //         'product_id' => $data[$s][2],
+        //         'application_id' => $data[$s][3],
+        //         'loan_amount' => $data[$s][4],
+        //         'loan_series' => $data[$s][5],
+        //         'application_date' => $data[$s][7],
+        //         'disbursment_date' => $data[$s][6],
+        //         'created_at' => now(),
+        //         'updated_at' => now()
+        //     ]);
+        // } 
+       
+        //return 'Process completed successfully';
+
+        return $this->getLoanClientLoans();
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Active Client Loans',
+        ];
+        return view('records.forms.client_loans', $pageData);
+    }
+
+    public function getLoanClientLoans()
+    {
+        $loans = LoanForm::getClientLoans();
+        return Datatables::of($loans)
+                        ->addIndexColumn()
+                        ->addColumn('application', function ($loan) {
+                            return Buttons::dataTableClientNameLink($loan->id, $loan->application_id);
+                        })
+                        ->rawColumns(['application'])
+                        ->make(true);
+    }
 
      
     public function index()
     {
        //return $this->getLoanForms();
+       $filingClass = FilingLabel::getUserFilingClass();
+       //return LoanForm::getFilingTypesByClass($filingClass['class']); 
         $pageData = [
 			'page_name' => 'records',
-            'title' => 'Records Loan Forms ('.LoanForm::count().')',
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'title' => 'Loan Forms Management',
+            'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
         ];
         return view('records.forms.index', $pageData);
     }
 
     public function getLoanForms()
     {
-        $forms = LoanForm::getLoanForms();
+        $filingClass = FilingLabel::getUserFilingClass();
+        $forms = LoanForm::getLoanForms($filingClass['class']);
         return DataTables::of($forms)
                         ->addIndexColumn()
                         ->addColumn('action', function ($form) {
@@ -73,6 +120,7 @@ class LoanFormController extends Controller
 
     public function loanCategory(Request $request)
     {
+        $filingClass = FilingLabel::getUserFilingClass(); 
         $request->validate(['category' => 'required|integer']);
 
         if ($request->category == 7) 
@@ -83,7 +131,7 @@ class LoanFormController extends Controller
 			'page_name' => 'records',
             'filing_type' => $filing_type,
             'title' => $filing_type->type_name. ' Forms',
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
         ];
         return view('records.forms.category', $pageData);
     }
@@ -111,12 +159,13 @@ class LoanFormController extends Controller
      */
     public function create()
     {
+        $filingClass = FilingLabel::getUserFilingClass(); 
         $pageData = [
 			'page_name' => 'records',
-            'title' => 'Add Loan Forms',
+            'title' => 'Add New Loan Form',
             'products' => Admin::getLoanProducts(),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
         ];
         return view('records.forms.create', $pageData);
     }
@@ -129,6 +178,7 @@ class LoanFormController extends Controller
         ]);
 
         $form = new RequestedLoanForm();
+        $filingClass = FilingLabel::getUserFilingClass();
         $clientLoanData = $form->getLoanFormRequestById($request->request_id);
 
         $pageData = [
@@ -138,7 +188,7 @@ class LoanFormController extends Controller
             'loan_form' => $clientLoanData,
             'client' => Client::getClientBRId($request->client_id),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
         ];
         return view('records.forms.create_loan_request', $pageData);
     }
@@ -211,6 +261,7 @@ class LoanFormController extends Controller
     public function show($id)
     {
         $form = new RequestedLoanForm();
+        $filingClass = FilingLabel::getUserFilingClass();
         //return LoanForm::getLoanFormById($id);
         $pageData = [
 			'page_name' => 'records',
@@ -219,7 +270,7 @@ class LoanFormController extends Controller
             'loan_form' => LoanForm::getLoanFormById($id),
             'loan_forms' => $form->getLoanFormRequestByFormId($id),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
         ];
         return view('records.forms.show', $pageData);
     }
@@ -233,13 +284,14 @@ class LoanFormController extends Controller
     public function edit($id)
     {
         //return LoanForm::getLoanFormById($id);
+        $filingClass = FilingLabel::getUserFilingClass();
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Update Loan Form',
             'products' => Admin::getLoanProducts(),
             'loan_form' => LoanForm::getLoanFormById($id),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
         ];
         return view('records.forms.edit', $pageData);
     }
@@ -392,10 +444,11 @@ class LoanFormController extends Controller
     //// Records Reports
     public function recordsReports()
     {
+        $filingClass = FilingLabel::getUserFilingClass();
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Records Reports',
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'filing_types' => LoanForm::getFilingTypesByClass($filingClass['class'])
         ];
         return view('records.reports.index', $pageData);
     }
@@ -432,6 +485,10 @@ class LoanFormController extends Controller
         switch ($category) 
         {
             case 1:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
                 $title = 'Clients Loan Forms';
                 $reportView = 'client-loan-forms';
                 break;
@@ -440,6 +497,10 @@ class LoanFormController extends Controller
                 $reportView = 'client-change-forms';
                 break;
             case 3:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
                 $title = 'Requested Loan Forms';
                 $reportView = 'requested-loan-forms';
                 break;
@@ -456,5 +517,24 @@ class LoanFormController extends Controller
             'view' => $reportView,
             'title' => $title
         ];
+    }
+
+    private function getRecordStats()
+    {
+        $filingClass = FilingLabel::getUserFilingClass(); 
+        if(Auth::user()->hasRole('admin'))
+        {
+            return  [
+                'loan_forms' => LoanForm::count(),
+                'filing_labels' => FilingLabel::count(),
+                //'requested_loan' => RequestedLoanForm::count(),
+            ];
+        }else{
+            return [
+                'loan_forms' => count(LoanForm::getLoanForms($filingClass['class'])),
+                'filing_labels' => count(FilingLabel::getFilesByTypeAndClass($filingClass['class'])),
+                //'requested_loan' => RequestedLoanForm::count(),
+            ];
+        }
     }
 }

@@ -48,7 +48,7 @@ class Client extends Model
                         'outpost_name'
                         )
                      ->where('outpost_client', 1)
-                     ->orderBy('bimas_br_id', 'asc')
+                     ->orderBy('client_name', 'asc')
                      ->get();
     }
 

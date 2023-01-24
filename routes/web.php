@@ -305,8 +305,9 @@ Route::middleware(['auth'])->prefix('customers')->name('customers.')->group(func
 
 });
 
-Route::middleware(['auth', 'role:admin|records'])->prefix('records')->name('records.')->group(function(){
+Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')->name('records.')->group(function(){
     Route::get('dashboard', [LoanFormController::class, 'dashboard'])->name('index');
+    Route::get('client-loans', [LoanFormController::class, 'clientLoans'])->name('client-loans');
     
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
     Route::get('clients/request/{id}', [ClientController::class, 'createClientUsingLoanRequest'])->name('clients.loan-request');

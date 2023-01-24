@@ -13,6 +13,20 @@
                 <div class="card-body">
                     <div class="container-fluid">
                         <div class="row">
+                            {{-- <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-secondary elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Active Clients Lans</span>
+                                        <span class="info-box-number">{{ '0' }}</span>
+                                        <a href="{{ route('records.client-loans') }}" class="small-box-footer">More
+                                            info <i class="fas fa-arrow-circle-right"></i></a>
+                                    </div>
+                                    <!-- /.info-box-content -->
+                                </div>
+                                <!-- /.info-box -->
+                            </div> --}}
+                            <!-- /.col -->
                             <div class="col-12 col-sm-6 col-md-3">
                                 <div class="info-box">
                                     <span class="info-box-icon bg-primary elevation-1"><i class="fa fa-users"></i></span>
@@ -30,21 +44,25 @@
                                 <!-- /.info-box -->
                             </div>
                             <!-- /.col -->
-                            <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box mb-3">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-calendar"></i></span>
+                            @if (Auth::user()->hasRole('admin|records'))
+                                <div class="col-12 col-sm-6 col-md-3">
+                                    <div class="info-box mb-3">
+                                        <span class="info-box-icon bg-danger elevation-1"><i
+                                                class="fas fa-calendar"></i></span>
 
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Clients Change Forms</span>
-                                        <span class="info-box-number">{{ $change_forms }}</span>
-                                        <a href="{{ route('records.change-forms.index') }}" class="small-box-footer">More
-                                            info <i class="fas fa-arrow-circle-right"></i></a>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Clients Change Forms</span>
+                                            <span class="info-box-number">{{ $change_forms }}</span>
+                                            <a href="{{ route('records.change-forms.index') }}"
+                                                class="small-box-footer">More
+                                                info <i class="fas fa-arrow-circle-right"></i></a>
+                                        </div>
+                                        <!-- /.info-box-content -->
                                     </div>
-                                    <!-- /.info-box-content -->
+                                    <!-- /.info-box -->
                                 </div>
-                                <!-- /.info-box -->
-                            </div>
-                            <!-- /.col -->
+                                <!-- /.col -->
+                            @endif
 
                             <div class="col-12 col-sm-6 col-md-3">
                                 <div class="info-box mb-3">
@@ -67,7 +85,13 @@
                                     <span class="info-box-icon bg-success elevation-1"><i
                                             class="fas fa-briefcase"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Records Files</span>
+                                        <span class="info-box-text">
+                                            @if (Auth::user()->hasRole('admin|records'))
+                                                Records Files
+                                            @else
+                                                Records Batches
+                                            @endif
+                                        </span>
                                         <span class="info-box-number">{{ $filing_labels }}</span>
                                         <a href="{{ route('records.filing-labels.index') }}" class="small-box-footer">More
                                             info <i class="fas fa-arrow-circle-right"></i></a>
@@ -93,22 +117,25 @@
                                 <!-- /.info-box -->
                             </div>
                             <!-- /.col -->
-                            <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box mb-3">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-book"></i></span>
+                            @if (Auth::user()->hasRole('admin|records'))
+                                <div class="col-12 col-sm-6 col-md-3">
+                                    <div class="info-box mb-3">
+                                        <span class="info-box-icon bg-warning elevation-1"><i
+                                                class="fas fa-book"></i></span>
 
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Requested Change Forms</span>
-                                        <span class="info-box-number">{{ $requested_change }}</span>
-                                        <a href="{{ route('records.change-forms.index') }}#new-requests"
-                                            class="small-box-footer">More
-                                            info
-                                            <i class="fas fa-arrow-circle-right"></i></a>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Requested Change Forms</span>
+                                            <span class="info-box-number">{{ $requested_change }}</span>
+                                            <a href="{{ route('records.change-forms.index') }}#new-requests"
+                                                class="small-box-footer">More
+                                                info
+                                                <i class="fas fa-arrow-circle-right"></i></a>
+                                        </div>
+                                        <!-- /.info-box-content -->
                                     </div>
-                                    <!-- /.info-box-content -->
+                                    <!-- /.info-box -->
                                 </div>
-                                <!-- /.info-box -->
-                            </div>
+                            @endif
                             <!-- /.col -->
                             <div class="col-12 col-sm-6 col-md-3">
                                 <div class="info-box mb-3">

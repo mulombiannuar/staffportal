@@ -199,7 +199,7 @@
                 <!--END : Admin,Communication-->
 
                 <!--BEGINNING : Records Management-->
-                @if (Auth::user()->hasRole('admin|records'))
+                @if (Auth::user()->hasRole('admin|records|operations'))
                     <li class="nav-item">
                         <a href="{{ route('records.index') }}"
                             class="nav-link {{ $page_name == 'records' ? 'active' : '' }}">

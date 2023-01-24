@@ -5,6 +5,7 @@ namespace App\Models\Records;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FilingLabel extends Model
@@ -13,9 +14,9 @@ class FilingLabel extends Model
     protected $table = 'filing_labels';
     protected $primaryKey = 'label_id';
     
-    public static function getFilingTypes()
+    public static function getFilingTypes($class)
     {
-        $files = DB::table('filing_types')->orderBy('type_name', 'asc')->get();
+        $files = LoanForm::getFilingTypesByClass($class);
         for ($s=0; $s <count($files) ; $s++) { 
             $files[$s]->labels = FilingLabel::getFilesByFilingType($files[$s]->type_id);
             $files[$s]->count =  count($files[$s]->labels) == 0 ? '0' : count($files[$s]->labels); //get nu
@@ -47,6 +48,27 @@ class FilingLabel extends Model
     public static function getFilesByType($type)
     {
         return DB::table('filing_labels')->where('deleted_at', null)->select('label_id', 'file_type', 'file_label','file_number')->where('file_type', $type)->orderBy('file_number', 'asc')->get();
+    }
+
+    public static function getFilesByTypeAndClass($class)
+    {
+        return DB::table('filing_labels')
+                 ->join('filing_types', 'filing_types.type_id', '=', 'filing_labels.file_type')
+                 ->where(['deleted_at'=> null, 'class' => $class])
+                 ->select('label_id', 'file_type', 'file_label','file_number', 'class')
+                 ->orderBy('file_number', 'asc')
+                 ->get();
+    }
+
+    public static function getUserFilingClass()
+    {
+        if(Auth::user()->hasRole('records')) 
+        return ['class' => 'R', 'title' => 'Registry Records Dashboard'];
+
+        if(Auth::user()->hasRole('operations')) 
+        return ['class' => 'O', 'title' => 'Operations Records Dashboard'];
+        
+        return ['class' => null, 'title' => 'Records Management Dashboard'];;
     }
 
 }

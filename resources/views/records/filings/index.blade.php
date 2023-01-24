@@ -25,7 +25,12 @@
                                         <button type="button" data-toggle="modal"
                                             data-target="#modalAddLabels-{{ $type->type_id }}" class="btn btn-secondary"><i
                                                 class="fa fa-plus-circle"></i> Add New
-                                            Record File</button>
+                                            @if (Auth::user()->hasRole('admin|records'))
+                                                Records File
+                                            @else
+                                                Records Batch
+                                            @endif
+                                        </button>
 
                                         <a target="_blank"
                                             href="{{ route('records.filing-labels.stickers', $type->type_id) }}">
@@ -51,7 +56,7 @@
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ strtoupper($type->type_name) }}</td>
-                                                    <td><strong>{{ $label->file_label . $label->file_number }}</strong>
+                                                    <td><strong>{{ $label->file_label . ' - ' . $label->file_number }}</strong>
                                                     </td>
                                                     <td>{{ $label->count }}</td>
                                                     <td>
@@ -105,19 +110,24 @@
                                                 <div class="row">
                                                     <div class="col-sm-6">
                                                         <div class="form-group">
-                                                            <label for="start_date">File Label</label>
+                                                            <label
+                                                                for="start_date">{{ Auth::user()->hasRole('admin|records') ? 'File ' : 'Batch' }}
+                                                                Label</label>
                                                             <input type="hidden" name="file_type"
                                                                 value="{{ $type->type_id }}">
                                                             <input type="text" name="label" class="form-control"
-                                                                id="label" placeholder="File label e.g CASH"
+                                                                id="label"
+                                                                placeholder="{{ Auth::user()->hasRole('admin|records') ? 'File ' : 'Batch' }} label e.g CASH"
                                                                 autocomplete="on" required>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="form-group">
-                                                            <label for="start_date">Number of Files</label>
+                                                            <label for="start_date">Number of
+                                                                {{ Auth::user()->hasRole('admin|records') ? 'Files ' : 'Batches' }}</label>
                                                             <input type="number" name="number" class="form-control"
-                                                                id="number" placeholder="Number of files e.g 30"
+                                                                id="number"
+                                                                placeholder="Number of {{ Auth::user()->hasRole('admin|records') ? 'Files ' : 'Batches' }} e.g 30"
                                                                 autocomplete="on" required>
                                                         </div>
                                                     </div>

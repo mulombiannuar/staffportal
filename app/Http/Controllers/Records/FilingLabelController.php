@@ -21,11 +21,12 @@ class FilingLabelController extends Controller
      */
     public function index()
     {
-        //return FilingLabel::getFilingTypes();
+        $filingClass = FilingLabel::getUserFilingClass(); 
+
         $pageData = [
 			'page_name' => 'records',
-            'title' => 'Records Files Management',
-            'filing_types' => FilingLabel::getFilingTypes()
+            'title' => $filingClass['title'],
+            'filing_types' => FilingLabel::getFilingTypes($filingClass['class'])
         ];
         return view('records.filings.index', $pageData);
     }
@@ -43,6 +44,7 @@ class FilingLabelController extends Controller
             'label' => 'required|string'
         ]);
 
+       
         $number = $request->number;
 
         if ($number < 1) 
@@ -50,6 +52,7 @@ class FilingLabelController extends Controller
         
         $file_type = $request->file_type;
         $label = $request->label;
+        $filingClass = FilingLabel::getUserFilingClass(); 
         $filingType = DB::table('filing_types')->where('type_id', $file_type)->first();
         
         $beginningNumber = 1;
@@ -66,7 +69,7 @@ class FilingLabelController extends Controller
             'filingType' => $filingType,
             'beginningNumber' => $beginningNumber,
             'title' => $filingType->type_name.' Files Management',
-            'filing_types' => FilingLabel::getFilingTypes()
+            'filing_types' => FilingLabel::getFilingTypes($filingClass['class'])
         ];
         return view('records.filings.create', $pageData);
     }

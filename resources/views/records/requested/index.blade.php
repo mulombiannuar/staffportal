@@ -35,6 +35,8 @@
                                         <tr>
                                             <th>S.N</th>
                                             <th>REFERENCE</th>
+                                            <th>PRODUCT CODE</th>
+                                            <th>AMOUNT</th>
                                             <th>NAMES</th>
                                             <th>BR ID</th>
                                             <th>MOBILE</th>
@@ -43,8 +45,6 @@
                                             <th>DATE REQUESTED</th>
                                             <th>REQUESTED BY</th>
                                             <th>FORM TYPE</th>
-                                            <th>PRODUCT CODE</th>
-                                            <th>AMOUNT</th>
                                             <th>DISBURSMENT DATE</th>
                                             <th>ACTIONS</th>
                                         </tr>
@@ -59,6 +59,8 @@
                                                         {{ $loan->reference }}
                                                     </a>
                                                 </td>
+                                                <td>{{ $loan->product_code }}</td>
+                                                <td>{{ $loan->amount }}</td>
                                                 <td>{{ $loan->client_name }}</td>
                                                 <td><strong>{{ $loan->bimas_br_id }}</strong></td>
                                                 <td>{{ $loan->client_phone }}</td>
@@ -68,8 +70,6 @@
                                                 <td>{{ $loan->name }}</td>
                                                 <td><strong>{{ $loan->is_original ? 'Original copy' : 'Electronic copy' }}</strong>
                                                 </td>
-                                                <td>{{ $loan->product_code }}</td>
-                                                <td>{{ $loan->amount }}</td>
                                                 <td>{{ $loan->disbursment_date }}</td>
                                                 <td>
                                                     <div class="margin">

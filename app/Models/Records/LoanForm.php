@@ -4,6 +4,7 @@ namespace App\Models\Records;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class LoanForm extends Model
@@ -11,6 +12,28 @@ class LoanForm extends Model
     use HasFactory;
     protected $table = 'loan_forms';
     protected $primaryKey = 'form_id';
+
+    public static function getClientLoans()
+    {
+        return DB::table('client_loans')
+                 ->join('clients', 'clients.bimas_br_id', '=', 'client_loans.client_id')
+                 ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
+                 ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
+                 ->select(
+                    'client_loans.*',
+                    'branch_name',
+                    'outpost_name',
+                    'client_NAME',
+                    'client_phone',
+                    )
+                 ->get();
+    }
+
+    public static function getFilingTypesByClass($class)
+    {
+        if(is_null($class) || Auth::user()->hasRole('admin')) return DB::table('filing_types')->orderBy('type_name', 'asc')->get();
+        return DB::table('filing_types')->where('class', $class)->orderBy('type_name', 'asc')->get();
+    }
 
     public static function getLoanFormById($form_id)
     {
@@ -25,7 +48,34 @@ class LoanForm extends Model
                        ->first();
     }
 
-    public static function getLoanForms()
+    public static function getLoanForms($class)
+    {
+        if(Auth::user()->hasRole('admin')) return LoanForm::getAllLoanForms();
+
+        return LoanForm::join('users', 'users.id', '=', 'loan_forms.created_by')
+                    ->join('clients', 'clients.client_id', '=', 'loan_forms.client_id')
+                    ->join('loan_products', 'loan_products.product_id', '=', 'loan_forms.product_id')
+                    ->join('filing_labels', 'filing_labels.label_id', '=', 'loan_forms.file_number')
+                    ->join('filing_types', 'filing_types.type_id', '=', 'loan_forms.filing_type_id')
+                    ->join('branches', 'branches.branch_id', '=', 'clients.branch_id')
+                    ->join('outposts', 'outposts.outpost_id', '=', 'clients.outpost_id')
+                    ->select(
+                        'clients.*', 
+                        'loan_forms.*', 
+                        'branch_name', 
+                        'outpost_name',
+                        'product_name',
+                        'product_code',
+                        'file_label',
+                        'type_name',
+                        'filing_labels.file_number as filing_number',
+                        )
+                    ->where('filing_types.class', $class)
+                    ->orderBy('form_id', 'desc')
+                    ->get();
+    }
+
+    public static function getAllLoanForms()
     {
         return LoanForm::join('users', 'users.id', '=', 'loan_forms.created_by')
                     ->join('clients', 'clients.client_id', '=', 'loan_forms.client_id')
@@ -117,7 +167,7 @@ class LoanForm extends Model
         $data = [];
 
         //Loan Forms
-        if($category == 1)
+        if($category == 1 || $category == 8 || $category == 9 ||$category == 10 || $category == 11)
         $data = $this->getLoanFormsByTypeAndCreationDate($filing_type, $start_date, $end_date);
 
         //Change Forms
@@ -125,7 +175,7 @@ class LoanForm extends Model
         $data = ClientChangeForm::getClientChangeFormsByDateRanges($start_date, $end_date);
 
         //Requested Loan Forms
-        if($category == 3)
+        if($category == 3 || $category == 8 || $category == 9 ||$category == 10 || $category == 11)
         $data = RequestedLoanForm::getRequestedLoanFormsByDateRanges($filing_type, $start_date, $end_date);
 
         if($category == 4)

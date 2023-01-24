@@ -24,9 +24,9 @@ class ClientController extends Controller
      */
     public function index()
     {
+        //$data = LoanFormController::getCSVFileArrayValues('updatedmembers.csv')['rows'];
         //return $this->getClients();
-        //$data = LoanFormController::getCSVFileArrayValues('members.csv')['rows'];
-        //return count($data);
+        // return count($data);
         // for ($s=0; $s <count($data) ; $s++) { 
         //     if ($data[$s][2] != 'Agency Branch') 
         //     {
@@ -65,6 +65,8 @@ class ClientController extends Controller
         //         'outpost_id' => $outpost
         //     ]);
         // }
+
+        // return 'Process completed successfully';
 
         $pageData = [
 			'page_name' => 'records',

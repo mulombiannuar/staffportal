@@ -66,7 +66,7 @@ class RequestedLoanFormController extends Controller
             'title' => 'Add Loan Form Request',
             'products' => Admin::getLoanProducts(),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
-            'filing_types' => DB::table('filing_types')->orderBy('type_name', 'asc')->get()
+            'filing_types' => LoanForm::getFilingTypesByClass('R')
         ];
         return view('records.requested.create', $pageData);
     }
@@ -383,7 +383,8 @@ class RequestedLoanFormController extends Controller
         return [
             ['name' => 'Anuary Mulombi', 'mobile_no' => '254703539208'],
             ['name' => 'Ibrahim Adan', 'mobile_no' => '254716183666'],
-            ['name' => 'Victoria Wairimu', 'mobile_no' => '254112160112'],
+            ['name' => 'Christine Mwangi', 'mobile_no' => '254114474033'],
+            //['name' => 'Victoria Wairimu', 'mobile_no' => '254112160112'],
         ];
     }
 

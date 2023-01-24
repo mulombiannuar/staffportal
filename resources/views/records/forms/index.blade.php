@@ -7,7 +7,7 @@
 
             <div class="card card-warning">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-list"></i> Manage Records Loan Forms</h3>
+                    <h3 class="card-title"><i class="fa fa-list"></i> {{ $title }}</h3>
                     <div class="text-right">
                         <a href="{{ route('records.loan-forms.create') }}">
                             <button type="button" class="btn btn-secondary"><i class="fa fa-plus-circle"></i> Add New
