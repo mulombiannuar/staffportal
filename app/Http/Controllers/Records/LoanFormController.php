@@ -202,7 +202,7 @@ class LoanFormController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+         $request->validate([
             'branch' => 'required|integer',
             'outpost_id' => 'required|integer',
             'clients' => 'required|integer',
@@ -212,7 +212,7 @@ class LoanFormController extends Controller
             'amount' => 'required|string|max:255',
             'disbursment_date' => 'required|string|max:255',
             'loan_form' => "required|mimes:pdf",
-        ]);
+         ]);
 
          $client = Client::find($request->clients);
          $product = Admin::getLoanProductById($request->product);

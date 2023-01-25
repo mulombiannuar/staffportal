@@ -21,8 +21,14 @@ class LoanForm extends Model
     public static function getClientLoanAccount($id)
     {
         return DB::table('client_loans')
+                 ->leftJoin('clients', 'clients.bimas_br_id', '=', 'client_loans.client_id')
                  ->join('loan_products', 'loan_products.product_code', '=', 'client_loans.product_id')
-                 ->select('client_loans.*', 'loan_products.product_id as pro_id')
+                 ->select(
+                    'client_loans.*', 
+                    'client_name',
+                    'client_phone',
+                    'national_id',
+                    'loan_products.product_id as pro_id')
                  ->where('id', $id)
                  ->first();
     }

@@ -83,7 +83,8 @@
                                                     <label for="client_name">Disbursment Date</label>
                                                     <input type="date" name="disbursment_date" class="form-control"
                                                         id="name" placeholder="Disbursment date" autocomplete="off"
-                                                        value="{{ $loan_form->disbursment_date }}" required>
+                                                        value="{{ date_format(date_create($loan_form->disbursment_date), 'Y-m-d') }}"
+                                                        required>
                                                 </div>
                                             </div>
                                         </div>

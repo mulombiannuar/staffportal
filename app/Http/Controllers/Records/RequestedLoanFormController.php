@@ -79,6 +79,7 @@ class RequestedLoanFormController extends Controller
      */
     public function store(Request $request)
     {
+        //return $request;
         $request->validate([
             'bimas_br_id' => 'required|string|digits:7|max:7|min:7',
             'client_phone' => 'required|digits:12|max:12|min:12',
@@ -421,11 +422,13 @@ class RequestedLoanFormController extends Controller
 
     public function requestLoanForm()
     {
+        $user = User::getUserById(Auth::user()->id);
         $pageData = [
+            'user' => $user,
 			'page_name' => 'records',
             'title' => 'Request Loan Form',
             'products' => Admin::getLoanProducts(),
-            'user' => User::getUserById(Auth::user()->id),
+            'clients' => Client::getClientsByOutpost($user->outpost_id),
         ];
         return view('records.requested.request_loan_form', $pageData);
     }

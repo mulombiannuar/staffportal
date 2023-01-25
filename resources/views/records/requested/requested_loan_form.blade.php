@@ -99,7 +99,8 @@
                                             <div class="form-group">
                                                 <label for="disbursment_date">Disbursment Date</label>
                                                 <input type="date" name="disbursment_date" class="form-control"
-                                                    value="{{ $loanRequest->disbursment_date }}" required>
+                                                    value="{{ date_format(date_create($loanRequest->disbursment_date), 'Y-m-d') }}"
+                                                    required>
                                             </div>
                                         </div>
                                         <div class="col-md-4 col-sm-12">

@@ -227,7 +227,7 @@
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="product">Loan Product</label>
-                                                        <input type="hidden" name="product_id" id="product_id">
+                                                        <input type="hidden" name="product" id="product_id">
                                                         <input type="text" class="form-control" id="prod"
                                                             placeholder="Loan product" autocomplete="off"
                                                             value="{{ old('product') }}" readonly required>
@@ -258,7 +258,7 @@
                                                     <div class="form-group">
                                                         <label for="filing_type">Filing Type</label>
                                                         <select name="filing_type" class="form-control select2"
-                                                            id="types" required>
+                                                            id="types2" required>
                                                             <option class="mb-1" value="">
                                                                 - Select Filing Type -</option>
                                                             @foreach ($filing_types as $type)
@@ -273,7 +273,7 @@
                                                     <div class="form-group">
                                                         <label for="file_label">File Labels</label>
                                                         <select name="file_label" class="form-control select2"
-                                                            id="labels" required>
+                                                            id="labels2" required>
                                                             <option class="mb-1" value="">
                                                                 - Select Filing Type First -</option>
                                                         </select>

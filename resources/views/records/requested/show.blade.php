@@ -142,7 +142,8 @@
                                                     <label for="disbursment_date">Disbursment Date</label>
                                                     <input type="date" name="disbursment_date" class="form-control"
                                                         id="name" placeholder="Disbursment date" autocomplete="off"
-                                                        value="{{ $loanRequest->disbursment_date }}" required>
+                                                        value="{{ date_format(date_create($loanRequest->disbursment_date), 'Y-m-d') }}"
+                                                        required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-sm-12">
@@ -331,7 +332,8 @@
                                         <div class="form-group">
                                             <label for="disbursment_date">Disbursment Date</label>
                                             <input type="date" class="form-control"
-                                                value="{{ $loanRequest->disbursment_date }}" disabled>
+                                                value="{{ date_format(date_create($loanRequest->disbursment_date), 'Y-m-d') }}"
+                                                disabled>
                                         </div>
                                     </div>
                                 </div>
@@ -372,7 +374,8 @@
                                             <div class="form-group">
                                                 <label for="disbursment_date">Disbursment Date</label>
                                                 <input type="date" class="form-control"
-                                                    value="{{ $loan_form->disbursment_date }}" disabled>
+                                                    value="{{ date_format(date_create($loan_form->disbursment_date), 'Y-m-d') }}"
+                                                    disabled>
                                             </div>
                                         </div>
                                     </div>
