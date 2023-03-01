@@ -241,6 +241,58 @@ class User extends Authenticatable
         ];
     }
 
+    public static function getTotalUserAssignedDevices($user_id)
+    {
+        $devices = [];
+        $phones = Phone::getUserPhones($user_id)->count();
+        $laptops = Laptop::getUserLaptops($user_id)->count();
+        $motors = Motor::getUserMotors($user_id)->count();
+        $desktops = Desktop::getUserDesktops($user_id)->count();
+        $printers = Printer::where('assigned_to', $user_id)->get()->count();
+        $routers = Router::where('assigned_to', $user_id)->get()->count();
+        $scanners = Scanner::where('assigned_to', $user_id)->get()->count();
+        $switches = Swittch::where('assigned_to', $user_id)->get()->count();
+        $ups = PowerSupply::where('assigned_to', $user_id)->get()->count();
+
+        if ($phones > 0) {
+            array_push($devices, $phones.' phone');
+        }
+
+        if ($laptops > 0) {
+            array_push($devices, $laptops.' laptop');
+        }
+
+        if ($motors > 0) {
+            array_push($devices, $motors.' motor');
+        }
+
+        if ($desktops > 0) {
+            array_push($devices, $desktops.' desktop');
+        }
+
+        if ($printers > 0) {
+            array_push($devices, $printers.' printer');
+        }
+
+        if ($routers > 0) {
+            array_push($devices, $routers.' router');
+        }
+
+        if ($scanners > 0) {
+            array_push($devices, $scanners.' scanner');
+        }
+
+        if ($switches > 0) {
+            array_push($devices, $switches.' switch');
+        }
+
+        if ($ups > 0) {
+            array_push($devices, $ups.' power supply');
+        }
+        
+        return $devices;
+    }
+
     public static function getBranchDevices($branch_id)
     {
         $phone = new Phone();

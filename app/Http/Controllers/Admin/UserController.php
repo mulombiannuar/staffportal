@@ -164,6 +164,7 @@ class UserController extends Controller
     public function show($id)
     {
         ///return User::getUserById($id)->phone;
+        
         $pageData = [
 			'page_name' => 'users',
             'title' => 'User Information',
@@ -241,6 +242,16 @@ class UserController extends Controller
         $user->save();
 
         $uProf = Profile::getProfileByUserId($id);
+        $outpost_id = $request->input('outpost_id');
+
+        if ($outpost_id !== $uProf->outpost) 
+        {
+            $userDevices = User::getTotalUserAssignedDevices($id);
+            $gender = $uProf->gender == 'male' ? 'him' : 'her';
+            
+            if (count($userDevices) != 0) 
+            return back()->with('warning', 'This staff '.$user->name.' cannot be transferred to the new branch you have selected because '.implode(', ', $userDevices).' are assigned to '. $gender. '. Kindly re-assign the device (s) to another staff first');
+        }
         
         $profile = Profile::find($uProf->profile_id);
         $profile->gender = $request->input('gender');

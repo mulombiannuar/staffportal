@@ -185,9 +185,10 @@ class RequestedLoanFormController extends Controller
                 $client->client_id, 
                 $loanRequest->product_id, 
                 $loanRequest->amount, 
-                $loanRequest->disbursment_date);
+                date_format(date_create($loanRequest->disbursment_date), 'Y-m-d')
+            );
         }
-        
+
         //return RequestedLoanFormApproval::getRequestApprovalDetails($id);
         $pageData = [
             'client' => $client,
@@ -333,6 +334,8 @@ class RequestedLoanFormController extends Controller
         $requester = User::getUserById($requestedForm->requested_by);
         $message = new Message();
         $approvalMessage = 'your '.$formType.' loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. You can log in to the Staffportal to view. For assistance, contact the Records Department.';
+        $approvalEmailMessage = 'your '.$formType.' loan form request of reference '. $requestedForm->reference.' for '.$requestedForm->client_name. '-'.$requestedForm->bimas_br_id.' was '.$action.' on '.$approvalDate.'. Click this link '.route('user.loan-forms.attachment', $request->request_id).' to view the loan form through the Staffportal. For assistance, contact the Records Department.';
+        $messageEmailBody = $message->getGreetings(strtoupper($requester->name)).', '.$approvalEmailMessage;
         $messageBody = $message->getGreetings(strtoupper($requester->name)).', '.$approvalMessage;
         $mobileNo = Admin::formatMobileNumber($requester->mobile_no);
         $message->sendSms($mobileNo, $messageBody);
@@ -342,12 +345,12 @@ class RequestedLoanFormController extends Controller
         $message->recipient_no = $mobileNo; 
         $message->recipient_name = $requester->name; 
         $message->logged_date =  date('D, d M Y H:i:s'); 
-        $message->message_body = $messageBody;
+        $message->message_body = $messageEmailBody;
         $message->save();
 
         //send email
         $mailSubject = ucwords($formType). ' Loan form request of reference '.$requestedForm->reference;
-        $message->SendSystemEmail(ucwords($requester->name), $requester->email, $messageBody, strtoupper($mailSubject));
+        $message->SendSystemEmail(ucwords($requester->name), $requester->email, $messageEmailBody, strtoupper($mailSubject));
         
         //send user notification
         $message = new Message();

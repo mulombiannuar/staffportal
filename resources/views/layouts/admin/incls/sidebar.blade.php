@@ -50,6 +50,19 @@
                     </a>
                 </li>
 
+                <!-- BEGINNING : Admin | Communication -->
+                @if (Auth::user()->hasRole('admin|communication'))
+                    <li class="nav-item">
+                        <a href="{{ route('admin.branches.index') }}"
+                            class="nav-link {{ $page_name == 'branches' ? 'active' : '' }}">
+                            <i class="fa fa-building nav-icon"></i>
+                            <p>
+                                Branch Offices
+                            </p>
+                        </a>
+                    </li>
+                @endif
+
                 <!-- BEGINNING : Admin Menus -->
                 @if (Auth::user()->hasRole('admin|motor maintenance'))
                     <li class="nav-item">

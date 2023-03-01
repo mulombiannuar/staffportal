@@ -163,8 +163,8 @@ class LoanForm extends Model
                        ->join('loan_products', 'loan_products.product_id', '=', 'loan_forms.product_id')
                        //->select('clients.*', 'users.name as created_by', 'branch_name', 'outpost_name')
                        ->where([
-                            'amount' => $amount,
                             'loan_forms.client_id'=> $client_id,
+                            'amount' => $amount,
                             'loan_forms.product_id' => $product_id,
                             'disbursment_date' => $date
                         ])

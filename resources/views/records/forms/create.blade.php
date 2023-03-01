@@ -339,7 +339,7 @@
                             branch_id: branch_id
                         },
                         success: function(data) {
-                            console.log(data);
+                            //console.log(data);
                             $('#outposts').html(data);
                         },
                         error: function(xhr, desc, err) {
@@ -365,7 +365,7 @@
                             outpost: outpost
                         },
                         success: function(data) {
-                            console.log(data);
+                            //console.log(data);
                             $('#users').html(data);
                         },
                         error: function(xhr, desc, err) {
@@ -420,7 +420,7 @@
                             branch_id: branch_id
                         },
                         success: function(data) {
-                            console.log(data);
+                            // console.log(data);
                             $('#outposts2').html(data);
                         },
                         error: function(xhr, desc, err) {
@@ -446,7 +446,7 @@
                             outpost: outpost
                         },
                         success: function(data) {
-                            console.log(data);
+                            // console.log(data);
                             $('#users2').html(data);
                         },
                         error: function(xhr, desc, err) {
@@ -472,7 +472,7 @@
                             type: type
                         },
                         success: function(data) {
-                            console.log(data);
+                            //console.log(data);
                             $('#labels2').html(data);
                         },
                         error: function(xhr, desc, err) {
@@ -501,7 +501,7 @@
                             client: client
                         },
                         success: function(data) {
-                            console.log(data);
+                            // console.log(data);
                             $('#accounts').html(data);
                         },
                         error: function(xhr, desc, err) {
@@ -528,7 +528,7 @@
                         },
                         dataType: 'json',
                         success: function(data) {
-                            console.log(data);
+                            //console.log(data);
                             if (data != null) {
                                 $('#amount2').val(data.loan_amount);
                                 $('#date2').val(data.disbursment_date);

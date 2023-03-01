@@ -58,6 +58,36 @@ class AdminController extends Controller
       return view('admin.trails', $pageData);
   }
 
+  public function branches()
+  {
+    $pageData = [
+        'title' => 'Branch Offices',
+        'page_name' => 'branches',
+        'branches' => Admin::getOutposts()
+      ];
+      return view('admin.branches', $pageData);
+  }
+
+  public function updateBranch(Request $request, $id)
+  {
+      $request->validate([
+        'office_number' => 'required|digits:10|max:10|min:10',
+        'physical_location' => 'required|string'
+      ]);
+
+      DB::table('outposts')->where('outpost_id', $id)->update([
+          'office_number' => $request->input('office_number'),
+          'physical_location' => $request->input('physical_location'),
+      ]);
+
+        //Save audit trail
+        $activity_type = 'Oupost Office Updation';
+        $description = 'Successfully updated outpost of id  '.$id;
+        User::saveAuditTrail($activity_type, $description);
+
+      return back()->with('success', 'Outpost data updated successfully');
+  }
+
 
   /**
      * Send access token

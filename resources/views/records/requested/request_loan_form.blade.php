@@ -422,7 +422,7 @@
                         },
                         dataType: 'json',
                         success: function(data) {
-                            console.log(data);
+                            //console.log(data);
                             if (data != null) {
                                 $('#amount2').val(data.loan_amount);
                                 $('#date2').val(data.disbursment_date);

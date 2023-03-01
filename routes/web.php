@@ -95,6 +95,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function(){
     Route::get('test', [TestController::class, 'index'])->middleware(['role:admin']);
     Route::get('messages', [MessageController::class, 'index'])->name('messages.index')->middleware(['role:admin']);
     Route::get('audit-trails', [AdminController::class, 'auditTrail'])->name('audit.index')->middleware(['role:admin']);
+    Route::get('branches', [AdminController::class, 'branches'])->name('branches.index')->middleware(['role:admin|communication']);
+    Route::put('branches/{id}', [AdminController::class, 'updateBranch'])->name('branches.update')->middleware(['role:admin|communication']);
    
 
     /// Users management

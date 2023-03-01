@@ -42,6 +42,15 @@ class Admin extends Model
         return  DB::table('outposts')->where('outpost_id', $id)->first();
     }
 
+    public static function getOutposts()
+    {
+        return  DB::table('outposts')
+                  ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+                  ->select('outposts.*', 'branches.branch_name')
+                  ->orderBy('outpost_name', 'ASC')
+                  ->get();
+    }
+
     public static function getOutpostByName($name)
     {
         return  DB::table('outposts')->where('outpost_name', $name)->first();

@@ -24,7 +24,7 @@ class ClientController extends Controller
      */
     public function index()
     {
-        //$data = LoanFormController::getCSVFileArrayValues('updatedmembers.csv')['rows'];
+        //$data = LoanFormController::getCSVFileArrayValues('loitoktok.csv')['rows'];
         //return $this->getClients();
         // return count($data);
         // for ($s=0; $s <count($data) ; $s++) { 
