@@ -208,6 +208,53 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link {{ $page_name == 'crm' ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>
+                                CRM Module
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Tickets</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Customers</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Survey Responses</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Tickets Categories</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Tickets Sources</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('crm.workflows.index') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Workflow Users</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 @endif
                 <!--END : Admin,Communication-->
 

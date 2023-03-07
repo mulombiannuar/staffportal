@@ -47,7 +47,7 @@ class Admin extends Model
         return  DB::table('outposts')
                   ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
                   ->select('outposts.*', 'branches.branch_name')
-                  ->orderBy('outpost_name', 'ASC')
+                  ->orderBy('outpost_branch_id', 'ASC')
                   ->get();
     }
 
@@ -200,6 +200,32 @@ class Admin extends Model
     public static function formatMobileNumber($mobile_no)
     {
         return '254'.substr(trim($mobile_no), 1);
+    }
+
+    public static function getCRMWorkflows()
+    {
+        return  DB::table('crm_workflows')->get();
+    }
+
+    public static function getCRMWorkflowUsers()
+    {
+        return  DB::table('crm_workflow_users')
+                   ->join('crm_workflows', 'crm_workflows.workflow_id', 'crm_workflow_users.workflow_id')
+                   ->select(
+                    'crm_workflows.*',
+                    'workflow_user_name'
+                    )
+                    ->orderBy('workflow_id', 'asc')
+                   ->get();
+    }
+
+    public static function getWorkFlowUsers($worklow_id)
+    {
+        return  DB::table('crm_workflow_users')
+                  ->select('workflow_user_name')
+                  ->where('workflow_id', $worklow_id)
+                  ->orderBy('workflow_user_name', 'asc')
+                  ->get();
     }
    
 }

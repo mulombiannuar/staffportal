@@ -26,6 +26,7 @@ use App\Http\Controllers\Asset\PrinterController;
 use App\Http\Controllers\Asset\RouterController;
 use App\Http\Controllers\Asset\ScannerController;
 use App\Http\Controllers\Asset\SwitchController;
+use App\Http\Controllers\CRM\CRMCustomerController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Records\ClientChangeFormController;
 use App\Http\Controllers\Records\ClientController;
@@ -343,4 +344,11 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
 
     Route::get('reports', [LoanFormController::class, 'recordsReports'])->name('reports.index');
     Route::get('reports/type', [LoanFormController::class, 'reportType'])->name('reports.type');
+});
+
+Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
+    Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:admin|communication']);
+    Route:: resource('customers', CRMCustomerController::class)->middleware(['role:admin|communication']);
+
+   
 });
