@@ -236,13 +236,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{route('crm.ticket-categories.index')}}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Tickets Categories</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <a href="{{route('crm.ticket-sources.index')}}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Tickets Sources</p>
                                 </a>

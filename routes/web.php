@@ -27,6 +27,8 @@ use App\Http\Controllers\Asset\RouterController;
 use App\Http\Controllers\Asset\ScannerController;
 use App\Http\Controllers\Asset\SwitchController;
 use App\Http\Controllers\CRM\CRMCustomerController;
+use App\Http\Controllers\CRM\TicketCategoryController;
+use App\Http\Controllers\CRM\TicketSourceController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Records\ClientChangeFormController;
 use App\Http\Controllers\Records\ClientController;
@@ -349,6 +351,7 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
 Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
     Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:admin|communication']);
     Route:: resource('customers', CRMCustomerController::class)->middleware(['role:admin|communication']);
-
+    Route:: resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
+    Route:: resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
    
 });
