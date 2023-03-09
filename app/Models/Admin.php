@@ -197,6 +197,11 @@ class Admin extends Model
         return DB::table('loan_products')->where('product_id', $id)->first();
     }
 
+    public static function getLoanProductByCode($product_code)
+    {
+        return DB::table('loan_products')->where('product_code', $product_code)->first();
+    }
+
     public static function formatMobileNumber($mobile_no)
     {
         return '254'.substr(trim($mobile_no), 1);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Message;
 use App\Models\Records\Client;
+use App\Models\Records\LoanForm;
 use App\Models\Records\RequestedChangeForm;
 use App\Models\Records\RequestedLoanForm;
 use App\Models\User;
@@ -190,13 +191,14 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::getClientById($id);
-       // return $loan_forms = RequestedLoanForm::getRequestedLoanFormsByClientID($id);
+       // return LoanForm::getClientLoansByClientID($client->bimas_br_id);
         $pageData = [
 			'page_name' => 'records',
             'client' => $client,
+            'title' => ucwords($client->client_name.' - '.$client->bimas_br_id),
             'loan_forms' => RequestedLoanForm::getRequestedLoanFormsByClientID($id),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
-            'title' => ucwords($client->client_name.' - '.$client->bimas_br_id),
+            'client_loans' => LoanForm::getClientLoansByClientID($client->bimas_br_id),
         ];
         return view('records.clients.show', $pageData);
     }

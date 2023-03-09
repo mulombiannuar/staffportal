@@ -2,6 +2,7 @@
 
 namespace App\Models\Records;
 
+use App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,20 @@ class LoanForm extends Model
     public static function getClientLoans()
     {
         return DB::table('client_loans')->orderBy('application_date', 'desc')->get();
+    }
+
+    public static function getClientLoansByClientID($client_id)
+    {
+        $loans = DB::table('client_loans')->where('client_id', $client_id)->orderBy('application_date', 'desc')->get();
+        
+        for ($s=0; $s <count($loans) ; $s++) 
+        {
+            $client = Client::getClientBRId($client_id);
+            $product_id = Admin::getLoanProductByCode($loans[$s]->product_id)->product_id;
+            $loan_form = LoanForm::getRequestedLoanForm($client->client_id, $product_id, $loans[$s]->loan_amount, $loans[$s]->disbursment_date);
+            $loans[$s]->loan_form_id = $loan_form ? $loan_form->form_id : null  ;
+        }
+        return $loans;
     }
 
     public static function getClientLoanAccount($id)

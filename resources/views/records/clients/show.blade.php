@@ -1,4 +1,4 @@
-@extends('layouts.admin.form')
+@extends('layouts.admin.table')
 
 @section('content')
     <!-- Main content -->
@@ -8,9 +8,12 @@
                 <ul class="nav nav-pills">
                     <li class="nav-item"><a class="nav-link active" href="#details" data-toggle="tab"><i class="fa fa-user"></i>
                             Client Details</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#loan-forms" data-toggle="tab"><i
+                    <li class="nav-item"><a class="nav-link" href="#client-loans" data-toggle="tab"><i
+                                class="fa fa-list"></i>
+                            Client Loans ({{ count($client_loans) }})</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#requested-loan-forms" data-toggle="tab"><i
                                 class="fa fa-list-alt"></i>
-                            Loan Forms ({{ count($loan_forms) }})</a></li>
+                            Requested Loan Forms ({{ count($loan_forms) }})</a></li>
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
@@ -104,7 +107,68 @@
                     </div>
                     <!-- /.tab-pane -->
 
-                    <div class="tab-pane" id="loan-forms">
+                    <div class="tab-pane" id="client-loans">
+                        <!-- documents -->
+                        <div class="card card-warning">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa fa-list"></i> Client Loans</h3>
+                            </div>
+                            <div class="card-body">
+                                <table width="100%" id="table1"
+                                    class="table table-sm table-bordered table-striped table-head-fixe">
+                                    <thead>
+                                        <tr>
+                                            <th>S.N</th>
+                                            <th>APPLICATION ID</th>
+                                            <th>BR ID</th>
+                                            <th>LOAN ACCOUNT</th>
+                                            <th>CODE</th>
+                                            <th>APPLICATION DATE</th>
+                                            <th>AMOUNT</th>
+                                            <th>DISBURSMENT DATE</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($client_loans as $loan)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $loan->application_id }}</td>
+                                                <td>{{ $loan->client_id }}</td>
+                                                <td>{{ $loan->account_id }}</td>
+                                                <td>{{ $loan->product_id }}</td>
+                                                <td>{{ $loan->application_date }}</td>
+                                                <td>{{ $loan->loan_amount }}</td>
+                                                <td>{{ $loan->disbursment_date }}</td>
+                                                <td>
+                                                    <div class="margin">
+                                                        <div class="btn-group">
+                                                            @if (is_null($loan->loan_form_id))
+                                                                <button type="button" class="btn btn-xs btn-secondary"><i
+                                                                        class="fa fa-exclamation-circle"></i>
+                                                                    Not Available</button>
+                                                            @else
+                                                                <a class="btn btn-xs btn-primary" target="_new"
+                                                                    href="{{ route('records.loan-forms.show', $loan->loan_form_id) }}"
+                                                                    title="Click to view requested loan form">
+                                                                    <i class="fa fa-external-link-alt"></i> View Loan Form
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- documents -->
+                    </div>
+                    <!-- /.tab-pane -->
+
+                    <div class="tab-pane" id="requested-loan-forms">
                         <!-- documents -->
                         <div class="card card-warning">
                             <div class="card-header">

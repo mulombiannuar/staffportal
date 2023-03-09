@@ -135,11 +135,12 @@ class UserController extends Controller
 
         //Send account details to user
         $message = new Message();
-        $systemMessage = 'Your new created account password is '.$password;
-        $messageBody = $message->getGreetings(strtoupper($user->name)).' '.$systemMessage;
-        $mobileNo = '2547'.substr(trim($request->input('mobile_no')), 2);
+        $systemMessage = 'your new created Staffportal account password is '.$password. '. You can proceed to login here '.route('home');
+        $messageBody = $message->getGreetings(strtoupper($user->name)).', '.$systemMessage;
+        //$mobileNo = '2547'.substr(trim($request->input('mobile_no')), 2);
+        $mobileNo = Admin::formatMobileNumber($request->input('mobile_no'));
 
-        //$message->sendSms($mobileNo, $systemMessage);
+        //$message->sendSms($mobileNo, $messageBody);
 
         /// Send OTP mail
         $message->SendAccountDetails(ucwords($user->name), $user->email, $password);

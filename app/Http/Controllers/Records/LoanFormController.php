@@ -16,6 +16,7 @@ use App\Utilities\Buttons;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -43,6 +44,7 @@ class LoanFormController extends Controller
 
              'loan_forms' => $this->getRecordStats()['loan_forms'],
              'filing_labels' => $this->getRecordStats()['filing_labels'],
+             'loan_files' => count($this->getFilesData( 'public/assets/loans'))
          ];
          return view('records.dashboard', $pageData);
     }
@@ -403,6 +405,30 @@ class LoanFormController extends Controller
             'products' => Admin::getLoanProducts()
         ];
         return view('records.clients.loan_products', $pageData);
+    }
+
+    public function uploadedLoanForms()
+    {
+        $path = 'public/assets/loans';
+        //return $this->getFilesData($files, $path);
+        $pageData = [
+			'page_name' => 'records',
+            'title' => 'Uploaded Loan Files',
+            'files' => $this->getFilesData($path)
+        ];
+        return view('records.uploaded_loans', $pageData);
+    }
+
+    private function getFilesData($path)
+    {
+        $loanFiles = [];
+        $files = Storage::disk('local')->allFiles($path);
+
+        for ($i=0; $i <count($files) ; $i++) { 
+            $loanFile = mb_substr($files[$i], strlen($path) + 1);
+            array_push($loanFiles, $loanFile);
+        }
+        return $loanFiles;
     }
 
     public static function getCSVFileArrayValues($fileName)

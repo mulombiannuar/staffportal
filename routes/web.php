@@ -316,7 +316,8 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
     Route::get('dashboard', [LoanFormController::class, 'dashboard'])->name('index');
     Route::get('get-client-loans', [LoanFormController::class, 'getLoanClientLoans'])->name('get-client-loans');
     Route::get('client-loans', [LoanFormController::class, 'clientLoans'])->name('client-loans');
-    
+    Route::get('uploaded-forms', [LoanFormController::class, 'uploadedLoanForms'])->name('uploaded.loan-forms');
+
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
     Route::get('clients/request/{id}', [ClientController::class, 'createClientUsingLoanRequest'])->name('clients.loan-request');
     Route::get('clients/change-request/{id}', [ClientController::class, 'createClientUsingChangeFormRequest'])->name('clients.change-request');
