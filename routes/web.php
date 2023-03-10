@@ -27,6 +27,7 @@ use App\Http\Controllers\Asset\RouterController;
 use App\Http\Controllers\Asset\ScannerController;
 use App\Http\Controllers\Asset\SwitchController;
 use App\Http\Controllers\CRM\CRMCustomerController;
+use App\Http\Controllers\CRM\CustomerTicketController;
 use App\Http\Controllers\CRM\TicketCategoryController;
 use App\Http\Controllers\CRM\TicketSourceController;
 use App\Http\Controllers\Customer\CustomerController;
@@ -93,6 +94,7 @@ Route::get('get-client-accounts', [LoanFormController::class, 'fetchClientAccoun
 Route::get('get-account-details', [LoanFormController::class, 'getAccountDetails'])->name('get.account-details');
 Route::get('get-phoneusers', [AdminController::class, 'fetchOutpostPhones'])->name('get.phoneusers');
 Route::get('get-modemusers', [AdminController::class, 'fetchOutpostModems'])->name('get.modemusers');
+Route::get('get-workflowusers', [CustomerTicketController::class, 'fetchWorkflowUsers'])->name('get.workflowusers');
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function(){
     Route::get('test', [TestController::class, 'index'])->middleware(['role:admin']);
@@ -354,5 +356,6 @@ Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
     Route:: resource('customers', CRMCustomerController::class)->middleware(['role:admin|communication']);
     Route:: resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
     Route:: resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
+    Route:: resource('tickets', CustomerTicketController::class)->middleware(['role:admin|communication']);
    
 });

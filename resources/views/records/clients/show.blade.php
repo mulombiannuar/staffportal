@@ -126,7 +126,7 @@
                                             <th>APPLICATION DATE</th>
                                             <th>AMOUNT</th>
                                             <th>DISBURSMENT DATE</th>
-                                            <th>ACTIONS</th>
+                                            <th>LOAN FORM</th>
                                         </tr>
                                     </thead>
                                     <tbody>

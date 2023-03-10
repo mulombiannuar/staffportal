@@ -36,7 +36,11 @@ License URL: http://www.bimaskenya.com
         @include('layouts.admin.incls.navbar')
         @include('layouts.admin.incls.sidebar')
         <div class="content-wrapper" style="min-height: 1203.6px;">
-            @include('layouts.admin.incls.page-header')
+            @if (isset($page_title))
+                <br>
+            @else
+                @include('layouts.admin.incls.page-header')
+            @endif
             @include('layouts.admin.incls.alerts')
             @yield('content')
         </div>

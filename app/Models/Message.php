@@ -35,6 +35,23 @@ class Message extends Model
         return $greetings;
     } 
 
+    public function saveSystemMessage($message_type, $mobile_no, $name, $message, $send_sms)
+    {
+        $message_body = $this->getGreetings(strtoupper($name)).', '.$message;
+        
+        $message = new Message();
+        $message->message_status = 'sent'; 
+        $message->message_type = $message_type; 
+        $message->recipient_no = $mobile_no; 
+        $message->recipient_name = $name; 
+        $message->message_body = $message_body;
+        $message->logged_date =  date('D, d M Y H:i:s'); 
+        $message->save();
+
+        if($send_sms) $this->sendSms($mobile_no, $message_body);
+        return true;
+    }
+
     public function sendSms($mobileno, $message_body)
     {       
         $sender = 'BIMAS';
