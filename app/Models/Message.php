@@ -48,7 +48,8 @@ class Message extends Model
         $message->logged_date =  date('D, d M Y H:i:s'); 
         $message->save();
 
-        if($send_sms) $this->sendSms($mobile_no, $message_body);
+        //if($send_sms) $this->sendSms($mobile_no, $message_body);
+        if($send_sms) $this->sendSms('254703539208', $message_body);
         return true;
     }
 

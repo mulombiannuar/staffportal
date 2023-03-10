@@ -17,6 +17,7 @@
                                 <th>BRANCH NAME</th>
                                 <th>OUPOST NAME</th>
                                 <th>OFFICE NUMBER</th>
+                                <th>OFFICE EMAIL</th>
                                 <th>LOCATION ADDRESS</th>
                                 <th>ACTION</th>
                             </tr>
@@ -28,6 +29,7 @@
                                     <td><strong>{{ strtoupper($branch->branch_name) }}</strong></td>
                                     <td>{{ $branch->outpost_name }}</td>
                                     <td>{{ $branch->office_number }}</td>
+                                    <td><strong>{{ $branch->outpost_email }}</strong></td>
                                     <td>{{ $branch->physical_location }}</td>
                                     <td>
                                         <div class="margin">
@@ -57,7 +59,7 @@
                                                     @method('PUT')
                                                     <div class="modal-body">
                                                         <div class="row">
-                                                            <div class="col-sm-6">
+                                                            <div class="col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="exampleInputText1">Branch Name</label>
                                                                     <input type="text" class="form-control"
@@ -66,13 +68,22 @@
                                                                         required>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-sm-6">
+                                                            <div class="col-sm-4">
                                                                 <div class="form-group">
                                                                     <label for="office_number">Office Number</label>
                                                                     <input type="text" class="form-control"
                                                                         id="office_number" name="office_number"
                                                                         autocomplete="on"
                                                                         value="{{ $branch->office_number }}" required>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label for="outpost_email">Office Email</label>
+                                                                    <input type="email" class="form-control"
+                                                                        id="outpost_email" name="outpost_email"
+                                                                        autocomplete="on"
+                                                                        value="{{ $branch->outpost_email }}" required>
                                                                 </div>
                                                             </div>
                                                         </div>

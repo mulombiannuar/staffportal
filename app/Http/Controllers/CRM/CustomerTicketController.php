@@ -8,6 +8,7 @@ use App\Models\CRM\CustomerTicket;
 use App\Models\CRM\TicketCategory;
 use App\Models\CRM\TicketSource;
 use App\Models\CRM\TicketWorkflow;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -133,7 +134,15 @@ class CustomerTicketController extends Controller
         $workflow->workflow_id = $workflow_user_id;
         $workflow->save();
 
+        //Save audit trail
+        $activity_type = 'Customer Ticket Creation';
+        $description = 'Successfully created new customer ticket '.$ticket->ticket_uuid.' for '. $customerData->customer_name;
+        User::saveAuditTrail($activity_type, $description);
+
+
         //SMS Notification sending
+
+        //Send email to outpost email
 
         return redirect(route('crm.tickets.index'))->with('success', 'Successfully created new customer customer for '.$customerData->customer_name. '. Notifications sent to customer and relevant officer');
     }

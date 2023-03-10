@@ -72,10 +72,12 @@ class AdminController extends Controller
   {
       $request->validate([
         'office_number' => 'required|digits:10|max:10|min:10',
+        'outpost_email' => 'required|email',
         'physical_location' => 'required|string'
       ]);
 
       DB::table('outposts')->where('outpost_id', $id)->update([
+          'outpost_email' => $request->input('outpost_email'),
           'office_number' => $request->input('office_number'),
           'physical_location' => $request->input('physical_location'),
       ]);
