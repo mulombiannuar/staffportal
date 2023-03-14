@@ -51,7 +51,7 @@ class LoanFormController extends Controller
 
     public function clientLoans()
     {
-        $data = LoanFormController::getCSVFileArrayValues('activeloans.csv')['rows'];
+        $data = LoanFormController::getCSVFileArrayValues('activeLoans-2023-03-09.csv')['rows'];
         //return count($data);
         // for ($s=0; $s <count($data) ; $s++) { 
         //     DB::table('client_loans')->insert([

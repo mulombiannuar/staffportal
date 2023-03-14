@@ -25,8 +25,8 @@
                                 <th>NAMES</th>
                                 <th>MOBILE</th>
                                 <th>RESIDENCE</th>
-                                <th>BUSINESS</th>
-                                <th>MESSAGE</th>
+                                {{-- <th>BUSINESS</th> --}}
+                                <th>TICKET CONTENT</th>
                                 <th>DATE</th>
                                 <th>BRANCH</th>
                                 <th>OFFICER</th>
@@ -35,39 +35,40 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @foreach ($customers as $customer)
+                            @foreach ($tickets as $ticket)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ strtoupper($customer->customer_name) }}</td>
-                                    <td>{{ $customer->customer_phone }}</td>
-                                    <td>{{ $customer->residence }}</td>
-                                    <td>{{ $customer->business }}</td>
-                                    <td>{{ $customer->customer_message }}</td>
-                                    <td>{{ $customer->created_at }}</td>
-                                    <td>{{ $customer->branch_name }}</td>
-                                    <td>{{ $customer->officer_name }}</td>
+                                    <td>{{ $ticket->ticket_uuid }}</td>
+                                    <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                    <td>{{ $ticket->customer_phone }}</td>
+                                    <td>{{ $ticket->residence }}</td>
+                                    {{-- <td>{{ $ticket->business }}</td> --}}
+                                    <td>{{ $ticket->message }}</td>
+                                    <td>{{ $ticket->date_raised }}</td>
+                                    <td>{{ $ticket->outpost_name }}</td>
+                                    <td>{{ $ticket->officer_name }}</td>
+                                    <td>Finance manager</td>
                                     <td>
                                         <div class="margin">
                                             <div class="btn-group">
-                                                <a href="{{ route('customers.edit_customer', $customer->customer_id) }}">
+                                                <a href="{{ route('crm.tickets.edit', $ticket->ticket_id) }}">
                                                     <button type="button" class="btn btn-xs btn-default"><i
                                                             class="fa fa-edit"></i>
                                                         Edit</button>
                                                 </a>
                                             </div>
                                             <div class="btn-group">
-                                                <a href="{{ route('customers.show_customer', $customer->customer_id) }}"
-                                                    title="Click to view customer details">
+                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                    title="Click to view ticket details">
                                                     <button type="button" class="btn btn-xs btn-info"><i
                                                             class="fa fa-eye"></i>
                                                         View</button>
                                                 </a>
                                             </div>
                                             <div class="btn-group">
-                                                <form
-                                                    action="{{ route('customers.delete_customer', $customer->customer_id) }}"
+                                                <form action="{{ route('crm.tickets.destroy', $ticket->ticket_id) }}"
                                                     method="post"
-                                                    onclick="return confirm('Do you really want to delete this customer?')">
+                                                    onclick="return confirm('Do you really want to delete this ticket?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-xs btn-danger"><i
@@ -78,7 +79,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                            @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

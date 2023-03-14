@@ -176,6 +176,8 @@ class Message extends Model
 
      public function SendSystemEmail($name, $recipient, $message, $subject)
      {
+         $this->saveSystemMessage('email', $recipient, $name, $message, false);
+         
          $details = ['name' => $name, 'email' => $recipient, 'message' => $message, 'subject' => $subject];
          return Mail::to($recipient)->send(new SendSystemEmail($details));
      }
