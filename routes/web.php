@@ -353,7 +353,7 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
 
 Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
     Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:admin|communication']);
-    Route:: resource('customers', CRMCustomerController::class)->middleware(['role:admin|communication']);
+    Route:: resource('customers', CRMCustomerController::class, ['except' => ['create', 'store']])->middleware(['role:admin|communication']);
     Route:: resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
     Route:: resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
     Route:: resource('tickets', CustomerTicketController::class)->middleware(['role:admin|communication']);

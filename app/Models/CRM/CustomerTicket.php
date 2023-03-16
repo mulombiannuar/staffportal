@@ -36,6 +36,7 @@ class CustomerTicket extends Model
                     'outpost_name',
                     'users.name as officer_name'
                     )
+                 //->where('crm_customers.deleted_at', '!=', null)
                  ->orderBy('ticket_id', 'desc')
                  ->get();
     }
@@ -74,6 +75,34 @@ class CustomerTicket extends Model
                     )
                  ->where('customer_tickets.ticket_id', $ticket_id)
                  ->first();
+    }
+
+    public static function getCustomerTicketsById($customer_id)
+    {
+        return DB::table('customer_tickets')
+                 ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+                 ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
+                 ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+                 ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+                 ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+                 ->select(
+                    'customer_tickets.*', 
+                    'customer_name',
+                    'customer_phone',
+                    'residence',
+                    'business',
+                    //'branch_id',
+                    'crm_customers.outpost_id',
+                    'bimas_br_id',
+                    // 'created_by',
+                    'category_name',
+                    'source_name',
+                    'outpost_name',
+                    'users.name as officer_name'
+                    )
+                 ->where('crm_customers.customer_id', $customer_id)
+                 ->orderBy('ticket_id', 'desc')
+                 ->get();
     }
 
     public static function saveCustomerTicket($message, $user_id, $source, $category, $date_raised, $customer_id)

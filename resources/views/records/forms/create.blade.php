@@ -88,6 +88,18 @@
                                                         autocomplete="off" required>
                                                 </div>
                                             </div>
+
+                                            <div class="col-md-4 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="application_id">Application ID</label>
+                                                    <input type="number" name="application_id" class="form-control"
+                                                        id="payee" placeholder="Enter loan application ID"
+                                                        autocomplete="on" value="{{ old('application_id') }}" required>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
                                             <div class="col-sm-4">
                                                 <div class="form-group">
                                                     <label for="filing_type">Filing Type</label>
@@ -103,8 +115,6 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
                                             <div class="col-sm-4">
                                                 <div class="form-group">
                                                     <label for="file_label">File Labels</label>
@@ -123,6 +133,9 @@
                                                         value="{{ old('disbursment_date') }}" required>
                                                 </div>
                                             </div>
+
+                                        </div>
+                                        <div class="row">
                                             <div class="col-md-4 col-sm-12">
                                                 <div class="form-group">
                                                     <label for="loan_form">Loan Form (PDF Only)</label>
@@ -254,6 +267,15 @@
 
                                             </div>
                                             <div class="row">
+                                                <div class="col-md-4 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="application_id">Application ID</label>
+                                                        <input type="number" name="application_id" class="form-control"
+                                                            id="application_id" placeholder="Enter loan application ID"
+                                                            autocomplete="on" value="{{ old('application_id') }}"
+                                                            required readonly>
+                                                    </div>
+                                                </div>
                                                 <div class="col-sm-4">
                                                     <div class="form-group">
                                                         <label for="filing_type">Filing Type</label>
@@ -279,7 +301,8 @@
                                                         </select>
                                                     </div>
                                                 </div>
-
+                                            </div>
+                                            <div class="row">
                                                 <div class="col-md-4 col-sm-12">
                                                     <div class="form-group">
                                                         <label for="loan_form">Loan Form (PDF Only)</label>
@@ -287,8 +310,6 @@
                                                             class="form-control" required>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
                                                 <div class="col-md-4 col-sm-12">
                                                     <div class="form-group">
                                                         <label for="client_name">Payee</label>
@@ -528,12 +549,13 @@
                         },
                         dataType: 'json',
                         success: function(data) {
-                            //console.log(data);
+                            console.log(data);
                             if (data != null) {
                                 $('#amount2').val(data.loan_amount);
                                 $('#date2').val(data.disbursment_date);
                                 $('#prod').val(data.product_id);
                                 $('#product_id').val(data.pro_id);
+                                $('#application_id').val(data.application_id);
                             }
                         },
                         error: function(xhr, desc, err) {

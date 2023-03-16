@@ -25,49 +25,8 @@ class ClientController extends Controller
      */
     public function index()
     {
-        //$data = LoanFormController::getCSVFileArrayValues('loitoktok.csv')['rows'];
-        //return $this->getClients();
-        // return count($data);
-        // for ($s=0; $s <count($data) ; $s++) { 
-        //     if ($data[$s][2] != 'Agency Branch') 
-        //     {
-        //         DB::table('clients')->insert([
-        //             'bimas_br_id' => $data[$s][0],
-        //             'client_name' => ucwords($data[$s][3]),
-        //             'client_phone' => $data[$s][5],
-        //             'national_id' => $data[$s][6],
-        //             'branch_id' => $data[$s][1],
-        //             'outpost_id' => $data[$s][4],
-        //             'created_by' => Auth::user()->id,
-        //             'created_at' => now(),
-        //             'updated_at' => now()
-        //         ]);
-        //     }
-        // } 
-
-        // $clients = DB::table('clients')->where('outpost_client', 1)->get();
-        // //return count($clients);
-        // for ($s=0; $s <count($clients) ; $s++) 
-        // { 
-        //     $branch = 1;
-        //     $outpost = 1;
-        //     $outpostData = Admin::getOutpostByName(ucwords($clients[$s]->outpost_id));
-        //     if (!is_null($outpostData)) {
-        //         $outpost = $outpostData->outpost_id;
-        //         $branch = $outpostData->outpost_branch_id;
-        //     }
-
-        //     // $branchData = Admin::getBranchByCode(ucwords($clients[$s]->branch_id));
-        //     // if (!is_null($branchData)) {
-        //     //     $branch = $branchData->branch_id;
-        //     // }
-        //     DB::table('clients')->where('client_id', $clients[$s]->client_id)->update([
-        //         'branch_id' => $branch,
-        //         'outpost_id' => $outpost
-        //     ]);
-        // }
-
-        // return 'Process completed successfully';
+        //return $this->saveCSVFileRawData('clients-15-03-2023.csv');
+        //return $this->updateCSVRawData(); 
 
         $pageData = [
 			'page_name' => 'records',
@@ -271,5 +230,50 @@ class ClientController extends Controller
         User::saveAuditTrail($activity_type, $description);
 
         return back()->with('success', 'Deleted Records client successfully');
+    }
+
+    // function to save raw data from csv file to database
+    public function saveCSVFileRawData($file_name)
+    {
+        $data = LoanFormController::getCSVFileArrayValues($file_name)['rows'];
+        for ($s=0; $s <count($data) ; $s++) { 
+            DB::table('clients2')->insert([
+                'bimas_br_id' => $data[$s][0],
+                'client_name' => ucwords($data[$s][3]),
+                'client_phone' => $data[$s][5],
+                'national_id' => $data[$s][6],
+                'branch_id' => $data[$s][1],
+                'outpost_id' => $data[$s][4],
+                'created_by' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        } 
+
+        return 'Data import completed successfully. '.count($data). ' records affected.';
+    }
+
+    // function to update raw data
+    public function updateCSVRawData()
+    {
+        $clients = DB::table('clients3')->where('outpost_client', 1)->get();
+        //return count($clients);
+        for ($s=0; $s <count($clients) ; $s++) 
+        { 
+            $branch = 1;
+            $outpost = 1;
+            $outpostData = Admin::getOutpostByName(ucwords($clients[$s]->outpost_id));
+            if (!is_null($outpostData)) {
+                $outpost = $outpostData->outpost_id;
+                $branch = $outpostData->outpost_branch_id;
+            }
+           
+            DB::table('clients3')->where('client_id', $clients[$s]->client_id)->update([
+                'branch_id' => $branch,
+                'outpost_id' => $outpost
+            ]);
+        }
+
+        return 'Data update completed successfully. '.count($clients). ' records affected.';
     }
 }

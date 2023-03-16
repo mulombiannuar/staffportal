@@ -34,6 +34,7 @@
                                 <th>PRODUCT</th>
                                 <th>CODE</th>
                                 <th>AMOUNT</th>
+                                <th>APPLICATION ID</th>
                                 <th>DISBURSMENT DATE</th>
                                 <th>FILE NUMBER</th>
                                 <th>ACTIONS</th>
@@ -145,6 +146,10 @@
                     {
                         data: 'amount',
                         name: 'amount'
+                    },
+                    {
+                        data: 'application_id',
+                        name: 'application_id'
                     },
                     {
                         data: 'disbursment_date',

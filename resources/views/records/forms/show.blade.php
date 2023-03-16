@@ -81,14 +81,24 @@
                                                 autocomplete="off" required>
                                         </div>
                                     </div>
+
+                                    <div class="col-md-4 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="amount">Application ID</label>
+                                            <input type="number" name="application_id" class="form-control"
+                                                id="application_id" placeholder="Loan application_id"
+                                                value="{{ $loan_form->application_id }}" autocomplete="off" required>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="filing_type">Filing Type</label>
                                             <input type="text" class="form-control" value="{{ $loan_form->type_name }}">
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="file_label">File Labels</label>

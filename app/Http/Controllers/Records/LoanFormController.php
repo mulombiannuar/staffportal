@@ -51,25 +51,8 @@ class LoanFormController extends Controller
 
     public function clientLoans()
     {
-        $data = LoanFormController::getCSVFileArrayValues('activeLoans-2023-03-09.csv')['rows'];
-        //return count($data);
-        // for ($s=0; $s <count($data) ; $s++) { 
-        //     DB::table('client_loans')->insert([
-        //         'client_id' => $data[$s][0],
-        //         'account_id' => $data[$s][1],
-        //         'product_id' => $data[$s][2],
-        //         'application_id' => $data[$s][3],
-        //         'loan_amount' => $data[$s][4],
-        //         'loan_series' => $data[$s][5],
-        //         'application_date' => $data[$s][7],
-        //         'disbursment_date' => $data[$s][6],
-        //         'created_at' => now(),
-        //         'updated_at' => now()
-        //     ]);
-        // } 
-       
-        //return 'Process completed successfully';
-
+        //return $this->saveCSVFileLoansRawData('activeLoans-2023-03-15.csv');
+        
         //return $this->getLoanClientLoans();
         $pageData = [
 			'page_name' => 'records',
@@ -213,16 +196,18 @@ class LoanFormController extends Controller
             'product' => 'required|integer',
             'amount' => 'required|string|max:255',
             'disbursment_date' => 'required|string|max:255',
+            'application_id' => 'required|string|unique:loan_forms',
             'loan_form' => "required|mimes:pdf",
          ]);
 
          $client = Client::find($request->clients);
+         $application_id = $request->application_id;
          $product = Admin::getLoanProductById($request->product);
          $fileLabel = FilingLabel::find($request->file_label);
          $filingType = DB::table('filing_types')->where('type_id', $request->filing_type)->first();
 
          //client-0108981-wf04-cash loan-cash001-1673348015
-         $loanFormName = $this->getFormName($client, $product, $filingType, $fileLabel); 
+         $loanFormName = $this->getFormName($client, $product, $filingType, $fileLabel, $application_id); 
 
          $loanFormDocName = 'nopdf.pdf';
          if($request->hasFile('loan_form')) 
@@ -240,6 +225,7 @@ class LoanFormController extends Controller
          $form->filing_type_id = $request->filing_type;
          $form->file_number = $request->file_label;
          $form->amount = $request->amount;
+         $form->application_id = $request->application_id;
          $form->disbursment_date = $request->disbursment_date;
          $form->payee = $request->payee;
          $form->cheque_no = $request->cheque_no;
@@ -252,7 +238,7 @@ class LoanFormController extends Controller
          $description = 'Successfully uploaded new loan form for '. $client->client_name;
          User::saveAuditTrail($activity_type, $description);
 
-         return redirect(route('records.loan-forms.index'))->with('success', 'Successfully upladed new loan form for'.$client->client_name);
+         return redirect(route('records.loan-forms.index'))->with('success', 'Successfully uploaded new loan form for'.$client->client_name);
     }
 
     /**
@@ -317,16 +303,18 @@ class LoanFormController extends Controller
             'product' => 'required|integer',
             'amount' => 'required|string|max:255',
             'disbursment_date' => 'required|string|max:255',
+            'application_id' => 'required|string',
             'loan_form' => "mimes:pdf",
         ]);
 
          $client = Client::find($request->clients);
+         $application_id = $request->application_id;
          $product = Admin::getLoanProductById($request->product);
          $fileLabel = FilingLabel::find($request->file_label);
          $filingType = DB::table('filing_types')->where('type_id', $request->filing_type)->first();
 
          //client-0108981-wf04-cash loan-cash001-1673348015
-         $loanFormName = $this->getFormName($client, $product, $filingType, $fileLabel); 
+         $loanFormName = $this->getFormName($client, $product, $filingType, $fileLabel, $application_id); 
 
          $form = LoanForm::find($id);
          $loanFormDocName = $form->file_name;
@@ -347,6 +335,7 @@ class LoanFormController extends Controller
          $form->filing_type_id = $request->filing_type;
          $form->file_number = $request->file_label;
          $form->amount = $request->amount;
+         $form->application_id = $request->application_id;
          $form->disbursment_date = $request->disbursment_date;
          $form->payee = $request->payee;
          $form->cheque_no = $request->cheque_no;
@@ -460,13 +449,14 @@ class LoanFormController extends Controller
        return $output;
     }
 
-    private function getFormName($client, $product, $filingType, $fileLabel)
+    private function getFormName($client, $product, $filingType, $fileLabel, $application_id)
     {
-        return 'client-'.$client->bimas_br_id.
-                      '-'.strtoupper($product->product_code).
-                      '-'.ucwords($filingType->type_name).
-                      '-'.strtoupper($fileLabel->file_label.$fileLabel->file_number).
-                      '-'.time();
+       return   $client->bimas_br_id.
+                '-'.$application_id.
+                '-'.strtoupper($product->product_code).
+                '-'.ucwords($filingType->type_name).
+                '-'.strtoupper($fileLabel->file_label.$fileLabel->file_number).
+                '-'.time();
     }
 
     //// Records Reports
@@ -586,5 +576,27 @@ class LoanFormController extends Controller
     {
         $data = LoanForm::getClientLoanAccount($request->account);
         return response()->json($data);
+    }
+
+    public function saveCSVFileLoansRawData($file_name)
+    {
+        $data = LoanFormController::getCSVFileArrayValues($file_name)['rows'];
+       // return count($data);
+        for ($s=0; $s <count($data) ; $s++) { 
+            DB::table('client_loans')->insert([
+                'client_id' => $data[$s][0],
+                'account_id' => $data[$s][1],
+                'product_id' => $data[$s][2],
+                'application_id' => $data[$s][3],
+                'loan_amount' => round($data[$s][4]),
+                'loan_series' => $data[$s][5],
+                'application_date' => $data[$s][7],
+                'disbursment_date' => $data[$s][6],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        } 
+
+        return 'Data import completed successfully. '.count($data). ' records affected.';
     }
 }

@@ -139,20 +139,20 @@ class CustomerTicketController extends Controller
 
         //Send Customer customized sms notification
         $customer_message = $this->setCustomerMessage($outpost, $ticketCategory->message_template, $ticket->ticket_uuid);
-        $messageModel->saveSystemMessage($ticketCategory->category_name, $customer_phone, $customer_name,  $customer_message, true);
+        $messageModel->saveSystemMessage($ticketCategory->category_name, $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
 
         //Send sms notification to the office
         $user = User::getUserById($ticket->officer_id);
-        $officer_ticket_message = 'you have a new client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customer_name).' generated at the Staffportal. Login at the portal to view details. ';
+        $officer_ticket_message = 'you have a new client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' generated at the Staffportal. Login at the portal to view details. ';
         $messageModel->saveSystemMessage($ticketCategory->category_name, $user->mobile_no, $user->name,  $officer_ticket_message, true);
         
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
-        $loggedInUserMessage = 'you have successfully registered new client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customer_name).' for '.$outpost->outpost_name. ' branch';
+        $loggedInUserMessage = 'you have successfully registered new client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' for '.$outpost->outpost_name. ' branch';
         $messageModel->saveSystemMessage($ticketCategory->category_name, $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
 
         //Send email to outpost email
-        $emailSubject = 'New Customer Ticket for '.strtoupper($customer_name).'-'.$customer_phone. ' raised on Staffportal';
+        $emailSubject = 'New Customer Ticket for '.strtoupper($customerData->customer_name).'-'.$customerData->customer_phone. ' raised on Staffportal';
         $emailMessage = $this->setOfficerMessage($ticket->message, $officer_ticket_message);
         $customerCareEmail = 'customercare@bimaskenya.com';
         $branchEmail = $outpost->outpost_email;

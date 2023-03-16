@@ -116,6 +116,15 @@
                                             </div>
                                             <div class="col-md-4 col-sm-12">
                                                 <div class="form-group">
+                                                    <label for="application_id">Application ID</label>
+                                                    <input type="number" name="application_id" class="form-control"
+                                                        id="application_id" placeholder="Enter loan application ID"
+                                                        autocomplete="on" value="{{ $loan_form->application_id }}"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-sm-12">
+                                                <div class="form-group">
                                                     <label for="loan_form">Loan Form (PDF Only)</label>
                                                     <input type="file" name="loan_form" accept=".pdf"
                                                         class="form-control">

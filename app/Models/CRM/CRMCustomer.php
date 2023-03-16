@@ -24,4 +24,21 @@ class CRMCustomer extends Model
         return DB::table('clients')->where(['client_phone'=> $client_phone, 'outpost_client' => 1])->first();
     }
 
+    public static function getCustomers()
+    {
+        return CRMCustomer::join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+        ->select('crm_customers.*', 'outpost_name')
+        ->orderBy('customer_id', 'desc')
+        ->get();
+    }
+
+    public static function getCustomerById($customer_id)
+    {
+        return CRMCustomer::join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+        ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+        ->select('crm_customers.*', 'outpost_name', 'branch_name')
+        ->where('customer_id', $customer_id)
+        ->first();
+    }
+
 }
