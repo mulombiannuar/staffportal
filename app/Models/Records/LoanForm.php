@@ -14,6 +14,15 @@ class LoanForm extends Model
     protected $table = 'loan_forms';
     protected $primaryKey = 'form_id';
 
+    public static function getUploadedExcels($type)
+    {
+        return DB::table('uploaded_excel_data')
+                 ->join('users', 'users.id', '=', 'uploaded_excel_data.uploaded_by')
+                 ->select('name', 'uploaded_excel_data.*')
+                 ->where('upload_type', $type)
+                 ->orderBy('uploaded_excel_data.id', 'desc')->get();
+    }
+
     public static function getClientLoans()
     {
         return DB::table('client_loans')->orderBy('application_date', 'desc')->get();

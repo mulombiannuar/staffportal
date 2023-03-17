@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Records;
 
 use App\Http\Controllers\Controller;
+use App\Imports\ClientLoansImport;
 use App\Models\Admin;
 use App\Models\Records\Client;
 use App\Models\Records\ClientChangeForm;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class LoanFormController extends Controller
@@ -51,12 +53,13 @@ class LoanFormController extends Controller
 
     public function clientLoans()
     {
+        //return $this->getCSVFileArrayValues('upload_test.csv');
         //return $this->saveCSVFileLoansRawData('activeLoans-2023-03-15.csv');
-        
         //return $this->getLoanClientLoans();
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Active Client Loans',
+            'excels' => LoanForm::getUploadedExcels('loans')
         ];
         return view('records.forms.client_loans', $pageData);
     }
@@ -598,5 +601,43 @@ class LoanFormController extends Controller
         } 
 
         return 'Data import completed successfully. '.count($data). ' records affected.';
+    }
+
+    public function importExcelLoans(Request $request)
+    {
+        $request->validate([
+            'excel_file' => "required|mimes:xls,xlsx,csv", 
+            'disbursment_date' => 'required|date'           
+        ]);
+
+       // return date_format(date_create($request->disbursment_date), 'Y-m-d h:m:s');
+
+        //Backup database first
+
+        Excel::import(new ClientLoansImport, $request->excel_file);
+
+        //Save excel file
+        $excelFileName = 'client-loans-'.$request->disbursment_date;
+
+        if($request->hasFile('excel_file')) 
+        {
+            $extension = $request->file('excel_file')->getClientOriginalExtension();
+            
+            $newExcelFileName = $excelFileName.'.'.$extension;
+
+            $request->file('excel_file')->storeAs('public/assets/excels', $newExcelFileName);
+        }
+
+        // Save import data
+        DB::table('uploaded_excel_data')->insert([
+            'disbursment_date' => $request->disbursment_date,
+            'excel_file_name' => $newExcelFileName,
+            'uploaded_by' => Auth::user()->id,            
+            'records_affected' => 0,
+            'upload_type' => 'loans',
+            'created_at' => now()
+        ]);
+        
+        return back()->with('success', 'Excel data imported successfully');
     }
 }

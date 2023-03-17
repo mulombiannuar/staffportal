@@ -264,7 +264,6 @@
                                                             value="{{ old('disbursment_date') }}" required>
                                                     </div>
                                                 </div>
-
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4 col-sm-12">

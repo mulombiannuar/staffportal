@@ -330,6 +330,7 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
     Route::get('loan-forms/get-loan-forms', [LoanFormController::class, 'getLoanForms'])->name('loan-forms.get-loan-forms');
     Route::get('loan-forms/filing-type/{id}', [LoanFormController::class, 'getLoanFormsByFilingType'])->name('loan-forms.filing-type');
     Route::get('loan-forms/add', [LoanFormController::class, 'createLoanFormUsingLoanRequest'])->name('loan-forms.add-form');
+    Route::post('loan-forms/import-excel', [LoanFormController::class, 'importExcelLoans'])->name('loan-forms.import-excel');
     Route:: resource('loan-forms', LoanFormController::class);
 
     Route::get('filing-labels/sticker/{id}', [FilingLabelController::class, 'fileSticker'])->name('filing-labels.sticker');
