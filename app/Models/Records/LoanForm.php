@@ -14,6 +14,24 @@ class LoanForm extends Model
     protected $table = 'loan_forms';
     protected $primaryKey = 'form_id';
 
+    public static function saveUploadedExcelData($disbursment_date, $file_name, $affected_rows, $upload_type)
+    {
+       if ($upload_type == 'loans') 
+       DB::table('client_loans')->where(['disbursment_date' => $disbursment_date])->delete();
+
+       if ($upload_type == 'clients') 
+       DB::table('clients2')->where(['registration_date' => $disbursment_date])->delete();
+        
+        return DB::table('uploaded_excel_data')->insert([
+            'disbursment_date' => $disbursment_date,
+            'records_affected' => $affected_rows,
+            'uploaded_by' => Auth::user()->id,            
+            'excel_file_name' => $file_name,
+            'upload_type' => $upload_type,
+            'created_at' => now()
+        ]);       
+    }
+
     public static function getUploadedExcels($type)
     {
         return DB::table('uploaded_excel_data')
@@ -22,7 +40,7 @@ class LoanForm extends Model
                  ->where('upload_type', $type)
                  ->orderBy('uploaded_excel_data.id', 'desc')->get();
     }
-
+  
     public static function getClientLoans()
     {
         return DB::table('client_loans')->orderBy('application_date', 'desc')->get();

@@ -52,10 +52,18 @@
                         <div class="card card-warning">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fa fa-list-alt"></i> Uploaded Excel Data</h3>
-                                <div class="text-right">
-                                    <button type="button" data-toggle="modal" data-target="#modalUpload"
-                                        class="btn btn-secondary"><i class="fa fa-upload"></i> Upload Excel File</button>
-                                </div>
+                                @if (Auth::user()->hasRole('admin'))
+                                    <div class="text-right">
+                                        <a href="{{ asset('storage/assets/excels/client-loans-templates.xlsx') }}">
+                                            <button type="button" class="btn btn-default"><i class="fa fa-download"></i>
+                                                Download Excel
+                                                Template</button>
+                                        </a>
+                                        <button type="button" data-toggle="modal" data-target="#modalUpload"
+                                            class="btn btn-secondary"><i class="fa fa-upload"></i> Upload Excel
+                                            File</button>
+                                    </div>
+                                @endif
                             </div>
                             <div class="card-body">
                                 <table id="table1" width="100%"
@@ -64,6 +72,7 @@
                                         <tr>
                                             <th>S.N</th>
                                             <th>DATE UPLOADED</th>
+                                            <th>RECORDS</th>
                                             <th>UPLOADED BY</th>
                                             <th>EXCEL FILE</th>
                                             <th>DISBURSMENT DATE</th>
@@ -75,6 +84,7 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $excel->created_at }}</td>
+                                                <td>{{ $excel->records_affected }}</td>
                                                 <td>{{ $excel->name }}</td>
                                                 <td>
                                                     <a

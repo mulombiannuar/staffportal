@@ -23,4 +23,10 @@ class Utilities
     {
         return round($number, $decimal);
     }
+
+    // Format date to given format
+    public static function formatDate($date, $format)
+    {
+        return date_format(date_create($date), $format);
+    }
 }

@@ -323,6 +323,7 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
     Route::get('clients/get-clients', [ClientController::class, 'getClients'])->name('clients.get-clients');
     Route::get('clients/request/{id}', [ClientController::class, 'createClientUsingLoanRequest'])->name('clients.loan-request');
     Route::get('clients/change-request/{id}', [ClientController::class, 'createClientUsingChangeFormRequest'])->name('clients.change-request');
+    Route::post('clients/import-excel', [ClientController::class, 'importExcelClients'])->name('clients.import-excel');
     Route:: resource('clients', ClientController::class);
     
     Route::get('loan-forms/category', [LoanFormController::class, 'loanCategory'])->name('loan-forms.category');

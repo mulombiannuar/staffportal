@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Records;
 
 use App\Http\Controllers\Controller;
+use App\Imports\ClientsDataImport;
 use App\Models\Admin;
 use App\Models\Message;
 use App\Models\Records\Client;
@@ -11,9 +12,11 @@ use App\Models\Records\RequestedChangeForm;
 use App\Models\Records\RequestedLoanForm;
 use App\Models\User;
 use App\Utilities\Buttons;
+use App\Utilities\Utilities;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class ClientController extends Controller
@@ -31,7 +34,8 @@ class ClientController extends Controller
         $pageData = [
 			'page_name' => 'records',
             'title' => 'Clients Management',
-            'clients' => []
+            'clients' => [],
+            'excels' => LoanForm::getUploadedExcels('clients')
         ];
         return view('records.clients.index', $pageData);
     }
@@ -275,5 +279,59 @@ class ClientController extends Controller
         }
 
         return 'Data update completed successfully. '.count($clients). ' records affected.';
+    }
+
+    //function to import clients from excel file
+    public function importExcelClients(Request $request)
+    {
+        $request->validate([
+            'excel_file' => "required|mimes:xls,xlsx,csv", 
+            'registration_date' => 'required|date'           
+        ]);
+
+        //Backup database first
+
+         //Save excel file
+         $excelFileName = 'clients-data-'.$request->registration_date.'-'.time();
+
+         if($request->hasFile('excel_file')) 
+         {
+             $extension = $request->file('excel_file')->getClientOriginalExtension();
+             
+             $newExcelFileName = $excelFileName.'.'.$extension;
+ 
+             $request->file('excel_file')->storeAs('public/assets/excels', $newExcelFileName);
+         }
+
+         try{
+            // Get affected rows
+            $excelData = (new ClientsDataImport)->toArray($request->excel_file);
+            $affectedRows = count($excelData[0]);
+
+            // Save import data
+            $formattedDate = Utilities::formatDate($request->registration_date, 'Y-m-d'). ' 00:00:00';
+            LoanForm::saveUploadedExcelData($formattedDate, $newExcelFileName, $affectedRows, 'clients');
+        
+            Excel::import(new ClientsDataImport, $request->excel_file);
+
+            //Save audit trail
+            $activity_type = 'Clients Data File Upload';
+            $description = 'Successfully imported clients excel data for registration dated '. $request->registration_date;
+            User::saveAuditTrail($activity_type, $description);
+
+            return back()->with('success', 'Excel data imported successfully. '.$affectedRows.' rows affected');
+        }
+        catch(\Throwable $th){
+           
+            DB::rollback();
+             
+            // Save import data
+            $affectedRows = 0;
+            $formattedDate = Utilities::formatDate($request->registration_date, 'Y-m-d'). ' 00:00:00';
+            LoanForm::saveUploadedExcelData($formattedDate, $newExcelFileName, $affectedRows, 'loans');
+
+            return back()->with('danger', 'Excel data could not be imported successfully. '.$th->getMessage());
+        }
+
     }
 }

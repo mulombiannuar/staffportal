@@ -14,6 +14,7 @@ use App\Models\Records\RequestedLoanForm;
 use App\Models\Records\RequestedLoanFormApproval;
 use App\Models\User;
 use App\Utilities\Buttons;
+use App\Utilities\Utilities;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -610,14 +611,11 @@ class LoanFormController extends Controller
             'disbursment_date' => 'required|date'           
         ]);
 
-       // return date_format(date_create($request->disbursment_date), 'Y-m-d h:m:s');
-
         //Backup database first
 
-        Excel::import(new ClientLoansImport, $request->excel_file);
-
+       
         //Save excel file
-        $excelFileName = 'client-loans-'.$request->disbursment_date;
+        $excelFileName = 'client-loans-'.$request->disbursment_date.'-'.time();
 
         if($request->hasFile('excel_file')) 
         {
@@ -627,17 +625,36 @@ class LoanFormController extends Controller
 
             $request->file('excel_file')->storeAs('public/assets/excels', $newExcelFileName);
         }
-
-        // Save import data
-        DB::table('uploaded_excel_data')->insert([
-            'disbursment_date' => $request->disbursment_date,
-            'excel_file_name' => $newExcelFileName,
-            'uploaded_by' => Auth::user()->id,            
-            'records_affected' => 0,
-            'upload_type' => 'loans',
-            'created_at' => now()
-        ]);
         
-        return back()->with('success', 'Excel data imported successfully');
+        try{
+            // Get affected rows
+            $excelData = (new ClientLoansImport)->toArray($request->excel_file);
+            $affectedRows = count($excelData[0]);
+
+            // Save import data
+            $formattedDate = Utilities::formatDate($request->disbursment_date, 'Y-m-d'). ' 00:00:00';
+            LoanForm::saveUploadedExcelData($formattedDate, $newExcelFileName, $affectedRows, 'loans');
+        
+            Excel::import(new ClientLoansImport, $request->excel_file);
+
+            //Save audit trail
+            $activity_type = 'Excel Loans File Upload';
+            $description = 'Successfully imported excel loan for disbursment dated '. $request->disbursment_date;
+            User::saveAuditTrail($activity_type, $description);
+
+            return back()->with('success', 'Excel data imported successfully. '.$affectedRows.' rows affected');
+        }
+        catch(\Throwable $th){
+           
+            DB::rollback();
+             
+            // Save import data
+            $affectedRows = 0;
+            $formattedDate = Utilities::formatDate($request->disbursment_date, 'Y-m-d'). ' 00:00:00';
+            LoanForm::saveUploadedExcelData($formattedDate, $newExcelFileName, $affectedRows, 'loans');
+
+            return back()->with('danger', 'Excel data could not be imported successfully. '.$th->getMessage());
+        }
     }
+
 }
