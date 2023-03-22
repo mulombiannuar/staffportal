@@ -42,6 +42,16 @@ class Admin extends Model
         return  DB::table('outposts')->where('outpost_id', $id)->first();
     }
 
+    public static function getOutpostSupervisor($outpost_id)
+    {
+        return DB::table('role_user')
+                 ->join('users', 'users.id', '=', 'role_user.user_id')
+                 ->join('profiles', 'profiles.user_id', '=', 'users.id')
+                 ->select('role_user.user_id', 'name', 'email', 'mobile_no')
+                 ->where(['role_id' => 5, 'outpost' => $outpost_id])
+                 ->first();
+    }
+
     public static function getOutposts()
     {
         return  DB::table('outposts')

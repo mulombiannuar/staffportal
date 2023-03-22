@@ -79,7 +79,7 @@
                                             <th>RECORDS</th>
                                             <th>UPLOADED BY</th>
                                             <th>EXCEL FILE</th>
-                                            <th>DISBURSMENT DATE</th>
+                                            <th>REGISTRATION DATE</th>
                                             <th>ACTION</th>
                                         </tr>
                                     </thead>

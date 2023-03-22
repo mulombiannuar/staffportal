@@ -16,11 +16,11 @@ class LoanForm extends Model
 
     public static function saveUploadedExcelData($disbursment_date, $file_name, $affected_rows, $upload_type)
     {
-       if ($upload_type == 'loans') 
-       DB::table('client_loans')->where(['disbursment_date' => $disbursment_date])->delete();
+    //    if ($upload_type == 'loans') 
+    //    DB::table('client_loans')->where(['disbursment_date' => $disbursment_date])->delete();
 
-       if ($upload_type == 'clients') 
-       DB::table('clients2')->where(['registration_date' => $disbursment_date])->delete();
+    //    if ($upload_type == 'clients') 
+    //    DB::table('clients2')->where(['registration_date' => $disbursment_date])->delete();
         
         return DB::table('uploaded_excel_data')->insert([
             'disbursment_date' => $disbursment_date,

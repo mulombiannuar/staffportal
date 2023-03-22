@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CheckAuthToken
 {
@@ -18,6 +19,10 @@ class CheckAuthToken
     {
         if (!session()->has('session_token')) {
             return redirect(route('get.token'))->with('danger', 'You must get access token to proceed');;
+        }
+
+        if (Auth::check()) {
+            return redirect(route('dashboard'))->with('success', 'You are already logged in');
         }
         return $next($request);
     }

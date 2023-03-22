@@ -15,7 +15,7 @@ class CustomerTicket extends Model
 
     public static function getCustomerTickets()
     {
-        return DB::table('customer_tickets')
+        $tickets = DB::table('customer_tickets')
                  ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
                  ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
                  ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
@@ -39,6 +39,67 @@ class CustomerTicket extends Model
                  //->where('crm_customers.deleted_at', '!=', null)
                  ->orderBy('ticket_id', 'desc')
                  ->get();
+
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
+    }
+
+    
+    public static function getTicketsByWorkflowID($workflow_id)
+    {
+        $tickets = DB::table('ticket_workflows')
+                 ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_workflows.ticket_id')
+                 ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+                 ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
+                 ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+                 ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+                 ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+                 ->where([
+                    'ticket_workflows.workflow_id' => $workflow_id,
+                    'ticket_closed' => 0
+                    ])
+                ->select(
+                    //'ticket_workflows.id',
+                    //'ticket_workflows.workflow_id',
+                    //'ticket_workflows.workflow_user_id',
+                    'customer_tickets.category_id',
+                    'customer_tickets.source_id',
+                    'customer_tickets.ticket_id',
+                    'customer_tickets.date_raised',
+                    'customer_tickets.ticket_uuid',
+                    'crm_customers.customer_id',
+                    'customer_name',
+                    'customer_phone',
+                    'residence',
+                    'business',
+                    'crm_customers.outpost_id',
+                    'bimas_br_id',
+                    // 'created_by',
+                    'category_name',
+                    'source_name',
+                    'outpost_name',
+                    'users.name as officer_name'
+                )
+                ->orderBy('ticket_workflows.id', 'asc')
+                ->get();
+
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
+    }
+
+    private static function getTicketsCurrentLevels($tickets)
+    {
+        for ($s=0; $s <count($tickets) ; $s++) { 
+            $tickets[$s]->current_level = CustomerTicket::getTicketCurrentWorkflowLevel($tickets[$s]->ticket_id)->workflow_user_name;
+        }
+        return $tickets;
+    }
+
+    public static function getTicketCurrentWorkflowLevel($ticket_id)
+    {
+        return DB::table('ticket_workflows')
+                 ->join('crm_workflow_users', 'crm_workflow_users.workflow_user_id', '=', 'ticket_workflows.workflow_user_id')
+                 ->select('workflow_user_name')
+                 ->where(['ticket_id' => $ticket_id, 'is_current' => 1])
+                 ->first();
     }
 
     public static function getCustomerTicketById($ticket_id)

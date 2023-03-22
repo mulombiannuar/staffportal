@@ -28,7 +28,7 @@ class ClientController extends Controller
      */
     public function index()
     {
-        //return $this->saveCSVFileRawData('clients-15-03-2023.csv');
+        //return $this->saveCSVFileRawData('zombe_clients_csv.csv');
         //return $this->updateCSVRawData(); 
 
         $pageData = [
@@ -243,11 +243,12 @@ class ClientController extends Controller
         for ($s=0; $s <count($data) ; $s++) { 
             DB::table('clients2')->insert([
                 'bimas_br_id' => $data[$s][0],
-                'client_name' => ucwords($data[$s][3]),
-                'client_phone' => $data[$s][5],
-                'national_id' => $data[$s][6],
-                'branch_id' => $data[$s][1],
-                'outpost_id' => $data[$s][4],
+                'client_name' => ucwords($data[$s][2]),
+                'client_phone' => $data[$s][4],
+                'national_id' => $data[$s][5],
+                'registration_date' => $data[$s][6],
+                'branch_id' => 16,
+                'outpost_id' => 40,
                 'created_by' => 1,
                 'created_at' => now(),
                 'updated_at' => now()

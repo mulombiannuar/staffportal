@@ -26,11 +26,13 @@ class CustomerTicketController extends Controller
     public function index()
     {
         //return CustomerTicket::getCustomerTickets();
+        //return TicketWorkflow::getWorkFlowTickets();
         $pageData = [
 			'page_name' => 'crm',
 			'page_title' => 'crm',
             'title' => 'Customer Tickets',
             'tickets' => CustomerTicket::getCustomerTickets(),
+            'workflows' => TicketWorkflow::getWorkFlowTickets(),
         ];
         return view('crm.ticket.index', $pageData);
     }
@@ -104,7 +106,9 @@ class CustomerTicketController extends Controller
         $branch = $request->branch;
         $outpost = $request->outpost_id;
 
-        //$workflow_id = $request->workflow_id;
+        //return Admin::getOutpostSupervisor($outpost);
+
+        $workflow_id = $request->workflow_id;
         $workflow_user_id = $request->workflow_user_id;
         $date_raised = $request->date_raised;
         $category = $request->category;
@@ -125,7 +129,8 @@ class CustomerTicketController extends Controller
         $workflow = new TicketWorkflow();
         $workflow->is_current = 1;
         $workflow->ticket_id = $ticket->ticket_id;
-        $workflow->workflow_id = $workflow_user_id;
+        $workflow->workflow_id = $workflow_id;
+        $workflow->workflow_user_id = $workflow_user_id;
         $workflow->save();
 
         //Save audit trail
@@ -135,16 +140,24 @@ class CustomerTicketController extends Controller
 
         $outpost = Admin::getOutpostById($outpost);
         $ticketCategory = TicketCategory::find($category);
+        $ticket_message = $this->getTicketCustomisedMessage($category);
         $messageModel = new Message();
-
-        //Send Customer customized sms notification
-        $customer_message = $this->setCustomerMessage($outpost, $ticketCategory->message_template, $ticket->ticket_uuid);
-        $messageModel->saveSystemMessage($ticketCategory->category_name, $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
-
-        //Send sms notification to the office
+       
+        //Send sms notification to the officer
         $user = User::getUserById($ticket->officer_id);
         $officer_ticket_message = 'you have a new client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' generated at the Staffportal. Login at the portal to view details. ';
         $messageModel->saveSystemMessage($ticketCategory->category_name, $user->mobile_no, $user->name,  $officer_ticket_message, true);
+
+        // Send sms notification to the branch manager
+        $branch_supervisor = Admin::getOutpostSupervisor($outpost->outpost_id);
+        if (!empty($branch_supervisor)) {
+            $supervisor_ticket_message = $this->setSupervisorMessage($ticket->ticket_uuid, $branch_supervisor);
+            $messageModel->saveSystemMessage($ticketCategory->category_name, $branch_supervisor->mobile_no, $branch_supervisor->name,  $supervisor_ticket_message, true);
+        }
+        
+        //Send Customer customized sms notification
+        $customer_message = $this->setCustomerMessage($outpost, $ticket_message, $ticket->ticket_uuid, $user);
+        $messageModel->saveSystemMessage($ticketCategory->category_name, $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
         
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
@@ -355,16 +368,30 @@ class CustomerTicketController extends Controller
         return $customer;
     }
 
-    private function setCustomerMessage($outpost, $message, $ticket_id)
+    private function setCustomerMessage($outpost, $message, $ticket_id, $user)
     {
         $message = str_replace("ticket_id", $ticket_id, $message);
         $message = str_replace("branch_name", $outpost->outpost_name, $message);
         $message = str_replace("office_number", $outpost->office_number, $message);
+        $message = str_replace("officer_number", $user->mobile_no, $message);
+        $message = str_replace("officer_name", $user->name, $message);
         return $message;
     }
 
     private function setOfficerMessage($customer_message, $officer_ticket_message)
     {
         return ucfirst($officer_ticket_message).' Here is the content of the ticket:  '.$customer_message;
+    }
+
+    private function setSupervisorMessage($ticket_id, $user)
+    {
+        return 'a new client ticket for '.$ticket_id.' has been registered under your branch and assigned to '.strtoupper($user->name).'. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
+    }
+
+    private function getTicketCustomisedMessage($category)
+    {
+        $ticketCategory = TicketCategory::find($category);
+        $message = $ticketCategory->message_template;
+        return $message;
     }
 }

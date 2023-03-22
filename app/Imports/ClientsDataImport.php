@@ -19,6 +19,8 @@ class ClientsDataImport implements ToCollection, WithHeadingRow
     */
     public function collection(Collection $clients)
     {
+        $branch_id = 16;
+        $outpost_id = 40;
         foreach ($clients as $client) 
         {
             $client_id = $client['client_id'];
@@ -27,17 +29,15 @@ class ClientsDataImport implements ToCollection, WithHeadingRow
                 $clientData = Client::where('bimas_br_id', $client_id)->first();
                 if (is_null($clientData) || empty($clientData))  
                 {
-                    $branch_id = 1;
-                    $outpost_id = 1;
-                    $outpostData = Admin::getOutpostByName(ucwords($client['outpost_id']));
+                    // $outpostData = Admin::getOutpostByName(ucwords($client['outpost_id']));
                     $registration_date = Utilities::formatExcelToDateTimeObject($client['registration_date']);
 
-                    if (!is_null($outpostData) || !empty($outpostData)) {
-                        $outpost_id = $outpostData->outpost_id;
-                        $branch_id = $outpostData->outpost_branch_id;
-                    }
+                    // if (!is_null($outpostData) || !empty($outpostData)) {
+                    //     $outpost_id = $outpostData->outpost_id;
+                    //     $branch_id = $outpostData->outpost_branch_id;
+                    // }
     
-                    DB::table('clients2')->insert([
+                    DB::table('clients')->insert([
                         'bimas_br_id' => $client_id,
                         'client_name' => $client['client_name'],
                         'client_phone' => $client['client_phone'],
@@ -49,6 +49,14 @@ class ClientsDataImport implements ToCollection, WithHeadingRow
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
+                }
+                else{
+
+                    DB::table('clients')->where('bimas_br_id', $client_id)->update([
+                        'branch_id' => $branch_id,
+                        'outpost_id' => $outpost_id,
+                    ]);
+
                 }
             }
         }
