@@ -47,6 +47,7 @@
                                             <th>BRANCH</th>
                                             <th>OFFICER</th>
                                             <th>CURRENT LEVEL</th>
+                                            <th>CREATED AT</th>
                                             <th>ACTIONS</th>
                                         </tr>
                                     </thead>
@@ -64,6 +65,7 @@
                                                 <td>{{ $ticket->outpost_name }}</td>
                                                 <td>{{ $ticket->officer_name }}</td>
                                                 <td><strong>{{ $ticket->current_level }}</strong></td>
+                                                <td>{{ $ticket->created_at }}</td>
                                                 <td>
                                                     <div class="margin">
                                                         <div class="btn-group">
@@ -127,6 +129,7 @@
                                                 <th>BRANCH</th>
                                                 <th>OFFICER</th>
                                                 <th>CURRENT LEVEL</th>
+                                                <th>CREATED AT</th>
                                                 <th>ACTIONS</th>
                                             </tr>
                                         </thead>
@@ -144,6 +147,7 @@
                                                     <td>{{ $ticket->outpost_name }}</td>
                                                     <td>{{ $ticket->officer_name }}</td>
                                                     <td><strong>{{ $ticket->current_level }}</strong></td>
+                                                    <td>{{ $ticket->created_at }}</td>
                                                     <td>
                                                         <div class="margin">
                                                             <div class="btn-group">
@@ -151,7 +155,7 @@
                                                                     title="Click to view ticket details">
                                                                     <button type="button" class="btn btn-xs btn-warning"><i
                                                                             class="fa fa-bars"></i>
-                                                                        View Ticket</button>
+                                                                        View </button>
                                                                 </a>
                                                             </div>
                                                         </div>

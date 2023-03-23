@@ -14,6 +14,10 @@ class TicketCategory extends Model
 
     public static function getCategories()
     {
-        return TicketCategory::orderBy('category_name', 'asc')->get();
+        $categories = TicketCategory::orderBy('category_name', 'asc')->get();
+        for ($s=0; $s <count($categories) ; $s++) { 
+            $categories[$s]->count = CustomerTicket::where('category_id', $categories[$s]->category_id)->count();
+        }
+        return $categories;
     }
 }

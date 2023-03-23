@@ -106,6 +106,7 @@ class CustomerTicketController extends Controller
         $branch = $request->branch;
         $outpost = $request->outpost_id;
 
+        //return $request;
         //return Admin::getOutpostSupervisor($outpost);
 
         $workflow_id = $request->workflow_id;
@@ -172,7 +173,7 @@ class CustomerTicketController extends Controller
         $messageModel->SendSystemEmail($user->name, $branchEmail, $emailMessage, $emailSubject);
         $messageModel->SendSystemEmail($user->name, $customerCareEmail, $emailMessage, $emailSubject);
         
-        return redirect(route('crm.tickets.index'))->with('success', 'Successfully created new customer ticket for '.$customerData->customer_name. '. Notifications sent to customer and relevant officer');
+        return back()->with('success', 'Successfully created new customer ticket for '.$customerData->customer_name. '. Notifications sent to customer and relevant officer');
     }
 
     /**
@@ -394,4 +395,31 @@ class CustomerTicketController extends Controller
         $message = $ticketCategory->message_template;
         return $message;
     }
+
+    /// Normal users not admin
+    public function customerTickets()
+    {
+        $customerTicket = new CustomerTicket();
+        $user = User::getUserById(Auth::user()->id);
+      
+        $pageData = [
+            'user' =>  $user,
+            'page_name' => 'crm',
+            'title' => 'Customer Tickets',
+            'sources' => TicketSource::getSources(),
+            'categories' => TicketCategory::getCategories(),
+            'workflows' => TicketWorkflow::getCRMWorkflows(),
+            'outpost_users' => User::getOutpostUsers($user->outpost),
+            'tickets_data' => $customerTicket->getGroupedTickets($user->outpost),
+            'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+        ];
+        return view('crm.ticket.customer_tickets', $pageData); 
+    }
+
+    private function getWorkflowTickets($workflow_id, $outpost_id)
+    {
+        return CustomerTicket::getTicketsByWorkflowAndOutpostID($workflow_id, $outpost_id);
+    }
+
+
 }

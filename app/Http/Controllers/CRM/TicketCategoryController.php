@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Controller;
+use App\Models\CRM\CustomerTicket;
 use App\Models\CRM\TicketCategory;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class TicketCategoryController extends Controller
      */
     public function index()
     {
+        //return TicketCategory::getCategories();
         $pageData = [
 			'page_name' => 'crm',
             'title' => 'Ticket Categories',
@@ -49,6 +51,24 @@ class TicketCategoryController extends Controller
         User::saveAuditTrail($activity_type, $description);
 
         return back()->with('success', 'Successfully created new ticket category '.$category->category_name);
+    }
+
+      /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //return CustomerTicket::getCustomerTickets();
+        //return TicketWorkflow::getWorkFlowTickets();
+        $ticketCategory = TicketCategory::find($id);
+        $pageData = [
+			'page_name' => 'crm',
+            'title' => $ticketCategory->category_name,
+            'tickets' => CustomerTicket::getCustomerTicketsByCategory($id),
+        ];
+        return view('crm.show_category', $pageData);
     }
 
 

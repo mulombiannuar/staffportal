@@ -354,10 +354,19 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
 });
 
 Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
-    Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:admin|communication']);
-    Route:: resource('customers', CRMCustomerController::class, ['except' => ['create', 'store']])->middleware(['role:admin|communication']);
-    Route:: resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
-    Route:: resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:admin|communication']);
-    Route:: resource('tickets', CustomerTicketController::class)->middleware(['role:admin|communication']);
+     
+    //Normal users
+    Route::get('tickets/customers', [CustomerTicketController::class, 'customerTickets'])->name('tickets.customers');
+    Route::post('tickets/customers', [CustomerTicketController::class, 'store'])->name('tickets.store_customer');
+    
+    //Admin users
+    Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:communication']);
+    Route:: resource('customers', CRMCustomerController::class, ['except' => ['create', 'store']])->middleware(['role:communication']);
+    Route:: resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit']])->middleware(['role:communication']);
+    Route:: resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:communication']);
+    Route:: resource('tickets', CustomerTicketController::class)->middleware(['role:communication']);
+
+   
+    
    
 });

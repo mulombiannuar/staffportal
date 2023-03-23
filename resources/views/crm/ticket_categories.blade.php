@@ -20,7 +20,8 @@
                                 <th>S.N</th>
                                 <th>CATEGORY NAMES</th>
                                 <th>MESSAGE TEMPLATES</th>
-                                <th>CREATED AT</th>
+                                <th>CNT</th>
+                                {{-- <th>CREATED AT</th> --}}
                                 <th>ACTIONS</th>
                             </tr>
                         </thead>
@@ -30,27 +31,46 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td><strong>{{ $category->category_name }}</strong></td>
                                     <td>{{ $category->message_template }}</td>
-                                    <td>{{ $category->created_at }}</td>
+                                    <td>{{ $category->count }}</td>
+                                    {{-- <td>{{ $category->created_at }}</td> --}}
                                     <td>
                                         <div class="margin">
+                                            <div class="btn-group">
+                                                <a href="{{ route('crm.ticket-categories.show', $category->category_id) }}"
+                                                    title="Click to view ticket details">
+                                                    <button type="button" class="btn btn-xs btn-secondary"><i
+                                                            class="fa fa-bars"></i>
+                                                        View Tickets</button>
+                                                </a>
+                                            </div>
+
                                             <div class="btn-group">
                                                 <button type="button" data-toggle="modal"
                                                     data-target="#modalEditcategory-{{ $category->category_id }}"
                                                     class="btn btn-xs btn-warning"><i class="fa fa-edit"></i>
                                                     Edit</button>
                                             </div>
-                                            <div class="btn-group">
-                                                <form
-                                                    action="{{ route('crm.ticket-categories.destroy', $category->category_id) }}"
-                                                    method="post"
-                                                    onclick="return confirm('Do you really want to delete this category with all its relationships?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-xs btn-danger"><i
-                                                            class="fa fa-trash"></i>
+                                            @if ($category->editable)
+                                                @if ($category->count == 0)
+                                                    <div class="btn-group">
+                                                        <form
+                                                            action="{{ route('crm.ticket-categories.destroy', $category->category_id) }}"
+                                                            method="post"
+                                                            onclick="return confirm('Do you really want to delete this category with all its relationships?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-xs btn-danger"><i
+                                                                    class="fa fa-trash"></i>
+                                                                Delete</button>
+                                                        </form>
+                                                    </div>
+                                                @else
+                                                    <button disabled type="submit"
+                                                        title="Cannot delete this category since it has active tickets"
+                                                        class="btn btn-xs btn-danger"><i class="fa fa-trash"></i>
                                                         Delete</button>
-                                                </form>
-                                            </div>
+                                                @endif
+                                            @endif
                                         </div>
                                     </td>
                                     <!--/.modal begin -->
@@ -80,6 +100,7 @@
                                                                         autocomplete="off"
                                                                         placeholder="Enter category name e.g Clients complaints"
                                                                         autocomplete="on"
+                                                                        {{ !$category->editable ? 'readonly' : '' }}
                                                                         value="{{ $category->category_name }}" required>
                                                                 </div>
                                                             </div>

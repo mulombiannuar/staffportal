@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\CRM\CRMCustomer;
 use App\Models\CRM\CustomerTicket;
+use App\Models\CRM\TicketWorkflow;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -138,7 +139,7 @@ class CRMCustomerController extends Controller
         $pageData = [
 			'page_name' => 'crm',
             'title' => 'CRM Workflow Levels',
-            'workflows' => Admin::getCRMWorkflowUsers(),
+            'workflows' => TicketWorkflow::getCRMWorkflowUsers(),
         ];
         return view('crm.workflows', $pageData);
     }

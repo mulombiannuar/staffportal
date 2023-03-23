@@ -372,7 +372,7 @@
                         </ul>
                     </li>
                     <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link {{ $page_name == 'customers' ? 'active' : '' }}">
+                        <a href="#" class="nav-link {{ $page_name == 'crm' ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
                             <p>
                                 Branch Customers
@@ -380,6 +380,12 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('crm.tickets.customers') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Customer Tickets</p>
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="{{ route('customers.branch_customers') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
