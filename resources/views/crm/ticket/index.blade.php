@@ -115,7 +115,8 @@
                                     <h3 class="card-title"><i class="fa fa-list"></i> {{ $workflow->name }}</h3>
                                 </div>
                                 <div class="card-body">
-                                    <table class="table table-sm table-bordered table-striped table-head-fixed">
+                                    <table id="table2"
+                                        class="table table-sm table-bordered table-striped table-head-fixed">
                                         <thead>
                                             <tr>
                                                 <th>S.N</th>

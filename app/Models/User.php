@@ -308,5 +308,21 @@ class User extends Authenticatable
             'desktops' => $desktop->getBranchDesktops($branch_id),
         ];
     }
+
+    public static function hasSeniorManagerRole($user_id)
+    {
+        $user = User::find($user_id);
+        if ($user->hasRole('finance manager') 
+        || $user->hasRole('ict manager')
+        || $user->hasRole('audit manager')
+        || $user->hasRole('legal manager')
+        || $user->hasRole('credits manager')
+        || $user->hasRole('marketing manager')
+        || $user->hasRole('operations manager')
+        || $user->hasRole('human resource manager')
+        ) return true;
+        
+        return false;
+    }
         
 }

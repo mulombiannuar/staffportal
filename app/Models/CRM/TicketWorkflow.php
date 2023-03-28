@@ -25,7 +25,7 @@ class TicketWorkflow extends Model
     
     public static function getCRMWorkflows()
     {
-        return  DB::table('crm_workflows')->orderBy('workflow_id', 'desc')->get();
+        return  DB::table('crm_workflows')->where('status', 1)->orderBy('workflow_id', 'desc')->get();
     }
 
     public static function getCRMWorkflowUsers()
@@ -36,12 +36,13 @@ class TicketWorkflow extends Model
                     'crm_workflows.*',
                     'workflow_user_name'
                     )
-                    ->orderBy('workflow_id', 'asc')
+                   ->where('crm_workflow_users.status', 1)
+                   ->orderBy('workflow_id', 'asc')
                    ->get();
     }
 
     public static function getWorkFlowUsers($worklow_id)
     {
-        return  DB::table('crm_workflow_users') ->where('workflow_id', $worklow_id)->orderBy('workflow_user_name', 'asc')->get();
+        return  DB::table('crm_workflow_users')->where(['workflow_id' => $worklow_id, 'status' => 1])->orderBy('workflow_user_name', 'asc')->get();
     }
 }

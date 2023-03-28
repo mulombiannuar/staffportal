@@ -401,7 +401,8 @@ class CustomerTicketController extends Controller
     {
         $customerTicket = new CustomerTicket();
         $user = User::getUserById(Auth::user()->id);
-      
+        //return $this->getTicketsByWorkflow('ICT Manager', $user->outpost);
+        
         $pageData = [
             'user' =>  $user,
             'page_name' => 'crm',
@@ -410,10 +411,38 @@ class CustomerTicketController extends Controller
             'categories' => TicketCategory::getCategories(),
             'workflows' => TicketWorkflow::getCRMWorkflows(),
             'outpost_users' => User::getOutpostUsers($user->outpost),
+            'senior_manager' => User::hasSeniorManagerRole($user->id),
             'tickets_data' => $customerTicket->getGroupedTickets($user->outpost),
             'branches' => DB::table('branches')->orderBy('branch_name', 'asc')->get(),
+
+            /// Tickets by workflow levels
+            'creditofficer' => $this->getTicketsByWorkflow('Credit Officer', $user->outpost),
+            'branchmanager' => $this->getTicketsByWorkflow('Branch Manager', $user->outpost),
+            'creditsmanager' => $this->getTicketsByWorkflow('Credits Manager', $user->outpost),
+            'auditmanager' => $this->getTicketsByWorkflow('Audit Manager', $user->outpost),
+            'marketingmanager' => $this->getTicketsByWorkflow('Marketing Manager', $user->outpost),
+            'legalmanager' => $this->getTicketsByWorkflow('Legal Manager', $user->outpost),
+            'operationsmanager' => $this->getTicketsByWorkflow('Operations Manager', $user->outpost),
+            'humanresourcemanager' => $this->getTicketsByWorkflow('Human Resource Manager', $user->outpost),
+            'ictmanager' => $this->getTicketsByWorkflow('ICT Manager', $user->outpost),
+            'financemanager' => $this->getTicketsByWorkflow('Finance Manager', $user->outpost),
+            'generalmanager' => $this->getTicketsByWorkflow('General Manager', $user->outpost),
+            'ceo' => $this->getTicketsByWorkflow('Chief Executive Officer', $user->outpost),
+            'communication' => $this->getTicketsByWorkflow('Communication Officer"', $user->outpost),
+
         ];
         return view('crm.ticket.customer_tickets', $pageData); 
+    }
+
+    public static function getTicketsByWorkflow($workflow_user_name, $outpost_id)
+    {
+        $customerTicket = new CustomerTicket();
+        $tickets = $customerTicket->getGroupedTickets($outpost_id);
+        foreach ($tickets as $ticket) {
+            if (strtolower($ticket->workflow_user_name == $workflow_user_name)) 
+            return $ticket->tickets;
+        }
+        return [];
     }
 
     private function getWorkflowTickets($workflow_id, $outpost_id)

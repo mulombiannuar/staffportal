@@ -9,13 +9,47 @@
                     <li class="nav-item"><a class="nav-link active" href="#addticket" data-toggle="tab"><i
                                 class="fa fa-user-plus"></i>
                             Add Customer Ticket</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#creditofficer" data-toggle="tab"><i
-                                class="fa fa-list"></i>
-                            Credit Officer</a></li>
+
+                    {{-- /. branch manager/credit officer --}}
+                    @if (Auth::user()->hasRole('bimas staff|branch manager'))
+                        <li class="nav-item"><a class="nav-link" href="#creditofficer" data-toggle="tab"><i
+                                    class="fa fa-list"></i>
+                                Credit Officer ({{ count($creditofficer) }})</a></li>
+                    @endif
+
+                    {{-- /. branch manager --}}
+                    @if (Auth::user()->hasRole('branch manager') || Auth::user()->hasRole('operations manager'))
+                        <li class="nav-item"><a class="nav-link" href="#branchmanager" data-toggle="tab"><i
+                                    class="fa fa-list"></i>
+                                Branch Manager ({{ count($branchmanager) }})</a></li>
+                    @endif
+
+                    {{-- /. senior managers --}}
+                    @if ($senior_manager || Auth::user()->hasRole('general manager') || Auth::user()->hasRole('chief executive officer'))
+                        <li class="nav-item"><a class="nav-link" href="#seniormanagers" data-toggle="tab"><i
+                                    class="fa fa-list"></i>
+                                Senior Managers
+                                ({{ count($creditsmanager) + count($auditmanager) + count($legalmanager) + count($financemanager) + count($ictmanager) + count($marketingmanager) + count($humanresourcemanager) }})</a>
+                        </li>
+                    @endif
+
+                    {{-- /. general manager --}}
+                    @if (Auth::user()->hasRole('general manager') || Auth::user()->hasRole('chief executive officer'))
+                        <li class="nav-item"><a class="nav-link" href="#generalmanager" data-toggle="tab"><i
+                                    class="fa fa-list"></i>
+                                General Manager ({{ count($generalmanager) }})</a></li>
+                    @endif
+
+                    {{-- /. chief executive officer --}}
+                    @if (Auth::user()->hasRole('chief executive officer'))
+                        <li class="nav-item"><a class="nav-link" href="#ceo" data-toggle="tab"><i class="fa fa-list"></i>
+                                Chief Executive Officer ({{ count($ceo) }})</a></li>
+                    @endif
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
                 <div class="tab-content">
+                    <!--/. Add new ticket-->
                     <div class="tab-pane active" id="addticket">
                         <!-- Add Customer Ticket -->
                         <div class="card card-warning">
@@ -205,8 +239,9 @@
                     </div>
                     <!-- /.tab-pane -->
 
+                    <!--/. Credit officer-->
+                    @if (Auth::user()->hasRole('bimas staff|branch manager'))
                     <div class="tab-pane" id="creditofficer">
-                        <!-- documents -->
                         <div class="card card-warning">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fa fa-list"></i> Credit Officer </h3>
@@ -221,8 +256,6 @@
                                             <th>NAMES</th>
                                             <th>MOBILE</th>
                                             <th>RESIDENCE</th>
-                                            {{-- <th>BUSINESS</th> --}}
-                                            {{-- <th>TICKET CONTENT</th> --}}
                                             <th>BUSINESS</th>
                                             <th>DATE</th>
                                             <th>BRANCH</th>
@@ -232,46 +265,319 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($tickets_data as $ticket_data)
-                                            @if ($ticket_data->workflow_user_name == 'Credit Officer')
-                                                @foreach ($ticket_data->tickets as $ticket)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $ticket->ticket_uuid }}</td>
-                                                        <td>{{ strtoupper($ticket->customer_name) }}</td>
-                                                        <td>{{ $ticket->customer_phone }}</td>
-                                                        <td>{{ $ticket->residence }}</td>
-                                                        <td>{{ $ticket->business }}</td>
-                                                        <td>{{ $ticket->date_raised }}</td>
-                                                        <td>{{ $ticket->outpost_name }}</td>
-                                                        <td>{{ $ticket->officer_name }}</td>
-                                                        <td>{{ $ticket->created_at }}</td>
-                                                        <td>
-                                                            <div class="margin">
-                                                                <div class="btn-group">
-                                                                    <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
-                                                                        title="Click to view ticket details">
-                                                                        <button type="button"
-                                                                            class="btn btn-xs btn-info"><i
-                                                                                class="fa fa-eye"></i>
-                                                                            View</button>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            @endif
+                                        @foreach ($creditofficer as $ticket)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $ticket->ticket_uuid }}</td>
+                                                <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                                <td>{{ $ticket->customer_phone }}</td>
+                                                <td>{{ $ticket->residence }}</td>
+                                                <td>{{ $ticket->business }}</td>
+                                                <td>{{ $ticket->date_raised }}</td>
+                                                <td>{{ $ticket->outpost_name }}</td>
+                                                <td>{{ $ticket->officer_name }}</td>
+                                                <td>{{ $ticket->created_at }}</td>
+                                                <td>
+                                                    <div class="margin">
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                title="Click to view ticket details">
+                                                                <button type="button" class="btn btn-xs btn-info"><i
+                                                                        class="fa fa-eye"></i>
+                                                                    View</button>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
                             <!-- /.card-body -->
                         </div>
-                        <!-- documents -->
                     </div>
+                    @endif
                     <!-- /.tab-pane -->
 
+                    <!--/. Branch Manager-->
+                    @if (Auth::user()->hasRole('branch manager') || Auth::user()->hasRole('operations manager'))
+                        <div class="tab-pane" id="branchmanager">
+                            <div class="card card-warning">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fa fa-list"></i> Branch Manager </h3>
+                                </div>
+                                <div class="card-body">
+                                    <table id="table2"
+                                        class="table table-sm table-bordered table-striped table-head-fixed">
+                                        <thead>
+                                            <tr>
+                                                <th>S.N</th>
+                                                <th>TICKET ID</th>
+                                                <th>NAMES</th>
+                                                <th>MOBILE</th>
+                                                <th>RESIDENCE</th>
+                                                <th>BUSINESS</th>
+                                                <th>DATE</th>
+                                                <th>BRANCH</th>
+                                                <th>OFFICER</th>
+                                                <th>CREATED AT</th>
+                                                <th>ACTIONS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($branchmanager as $ticket)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $ticket->ticket_uuid }}</td>
+                                                    <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                                    <td>{{ $ticket->customer_phone }}</td>
+                                                    <td>{{ $ticket->residence }}</td>
+                                                    <td>{{ $ticket->business }}</td>
+                                                    <td>{{ $ticket->date_raised }}</td>
+                                                    <td>{{ $ticket->outpost_name }}</td>
+                                                    <td>{{ $ticket->officer_name }}</td>
+                                                    <td>{{ $ticket->created_at }}</td>
+                                                    <td>
+                                                        <div class="margin">
+                                                            <div class="btn-group">
+                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                    title="Click to view ticket details">
+                                                                    <button type="button" class="btn btn-xs btn-info"><i
+                                                                            class="fa fa-eye"></i>
+                                                                        View</button>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    @endif
+                    <!-- /.tab-pane -->
+
+                    <!--/. Senior Manager -->
+                    @if ($senior_manager || Auth::user()->hasRole('general manager') || Auth::user()->hasRole('chief executive officer'))
+                        <div class="tab-pane" id="seniormanagers">
+                            <div class="card card-warning">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fa fa-list"></i> Senior Managers </h3>
+                                </div>
+                                <div class="card-body">
+                                    <table id="table2"
+                                        class="table table-sm table-bordered table-striped table-head-fixed">
+                                        <thead>
+                                            <tr>
+                                                <th>S.N</th>
+                                                <th>TICKET ID</th>
+                                                <th>NAMES</th>
+                                                <th>MOBILE</th>
+                                                <th>RESIDENCE</th>
+                                                <th>BUSINESS</th>
+                                                <th>DATE</th>
+                                                <th>BRANCH</th>
+                                                <th>OFFICER</th>
+                                                <th>CREATED AT</th>
+                                                <th>ACTIONS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php
+                                                $manager_tickets = [];
+                                            @endphp
+                                            @if (Auth::user()->hasRole('finance manager'))
+                                                $manager_tickets = $financemanager;
+                                            @endif
+
+                                            @if (Auth::user()->hasRole('ict manager'))
+                                                $manager_tickets = $ictmanager;
+                                            @endif
+
+                                            @if (Auth::user()->hasRole('audit manager'))
+                                                $manager_tickets = $auditmanager;
+                                            @endif
+
+                                            @if (Auth::user()->hasRole('legal manager'))
+                                                $manager_tickets = $legalmanager;
+                                            @endif
+
+                                            @if (Auth::user()->hasRole('credits manager'))
+                                                $manager_tickets = $creditsmanager;
+                                            @endif
+
+                                            @if (Auth::user()->hasRole('marketing manager'))
+                                                $manager_tickets = $marketingmanager;
+                                            @endif
+
+                                            @if (Auth::user()->hasRole('operations manager'))
+                                                $manager_tickets = $financemanager;
+                                            @endif
+
+                                            @if (Auth::user()->hasRole('human resource manager'))
+                                                $manager_tickets = $humanresourcemanager;
+                                            @endif
+
+                                            @foreach ($manager_tickets as $ticket)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $ticket->ticket_uuid }}</td>
+                                                    <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                                    <td>{{ $ticket->customer_phone }}</td>
+                                                    <td>{{ $ticket->residence }}</td>
+                                                    <td>{{ $ticket->business }}</td>
+                                                    <td>{{ $ticket->date_raised }}</td>
+                                                    <td>{{ $ticket->outpost_name }}</td>
+                                                    <td>{{ $ticket->officer_name }}</td>
+                                                    <td>{{ $ticket->created_at }}</td>
+                                                    <td>
+                                                        <div class="margin">
+                                                            <div class="btn-group">
+                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                    title="Click to view ticket details">
+                                                                    <button type="button" class="btn btn-xs btn-info"><i
+                                                                            class="fa fa-eye"></i>
+                                                                        View</button>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    @endif
+                    <!-- /.tab-pane -->
+
+                    <!--/. General Manager-->
+                    @if (Auth::user()->hasRole('general manager') || Auth::user()->hasRole('chief executive officer'))
+                        <div class="tab-pane" id="generalmanager">
+                            <div class="card card-warning">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fa fa-list"></i> General Manager </h3>
+                                </div>
+                                <div class="card-body">
+                                    <table id="table"
+                                        class="table table-sm table-bordered table-striped table-head-fixed">
+                                        <thead>
+                                            <tr>
+                                                <th>S.N</th>
+                                                <th>TICKET ID</th>
+                                                <th>NAMES</th>
+                                                <th>MOBILE</th>
+                                                <th>RESIDENCE</th>
+                                                <th>BUSINESS</th>
+                                                <th>DATE</th>
+                                                <th>BRANCH</th>
+                                                <th>OFFICER</th>
+                                                <th>CREATED AT</th>
+                                                <th>ACTIONS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($generalmanager as $ticket)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $ticket->ticket_uuid }}</td>
+                                                    <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                                    <td>{{ $ticket->customer_phone }}</td>
+                                                    <td>{{ $ticket->residence }}</td>
+                                                    <td>{{ $ticket->business }}</td>
+                                                    <td>{{ $ticket->date_raised }}</td>
+                                                    <td>{{ $ticket->outpost_name }}</td>
+                                                    <td>{{ $ticket->officer_name }}</td>
+                                                    <td>{{ $ticket->created_at }}</td>
+                                                    <td>
+                                                        <div class="margin">
+                                                            <div class="btn-group">
+                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                    title="Click to view ticket details">
+                                                                    <button type="button" class="btn btn-xs btn-info"><i
+                                                                            class="fa fa-eye"></i>
+                                                                        View</button>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    @endif
+                    <!-- /.tab-pane -->
+
+                    <!--/. CEO-->
+                    @if (Auth::user()->hasRole('chief executive officer'))
+                        <div class="tab-pane" id="ceo">
+                            <div class="card card-warning">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fa fa-list"></i> Chief Executive Officer </h3>
+                                </div>
+                                <div class="card-body">
+                                    <table id="table"
+                                        class="table table-sm table-bordered table-striped table-head-fixed">
+                                        <thead>
+                                            <tr>
+                                                <th>S.N</th>
+                                                <th>TICKET ID</th>
+                                                <th>NAMES</th>
+                                                <th>MOBILE</th>
+                                                <th>RESIDENCE</th>
+                                                <th>BUSINESS</th>
+                                                <th>DATE</th>
+                                                <th>BRANCH</th>
+                                                <th>OFFICER</th>
+                                                <th>CREATED AT</th>
+                                                <th>ACTIONS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($ceo as $ticket)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $ticket->ticket_uuid }}</td>
+                                                    <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                                    <td>{{ $ticket->customer_phone }}</td>
+                                                    <td>{{ $ticket->residence }}</td>
+                                                    <td>{{ $ticket->business }}</td>
+                                                    <td>{{ $ticket->date_raised }}</td>
+                                                    <td>{{ $ticket->outpost_name }}</td>
+                                                    <td>{{ $ticket->officer_name }}</td>
+                                                    <td>{{ $ticket->created_at }}</td>
+                                                    <td>
+                                                        <div class="margin">
+                                                            <div class="btn-group">
+                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                    title="Click to view ticket details">
+                                                                    <button type="button" class="btn btn-xs btn-info"><i
+                                                                            class="fa fa-eye"></i>
+                                                                        View</button>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    @endif
+                    <!-- /.tab-pane -->
                 </div>
                 <!-- /.tab-content -->
             </div><!-- /.card-body -->
