@@ -186,9 +186,25 @@ class CustomerTicket extends Model
     {
         return DB::table('ticket_workflows')
                  ->join('crm_workflow_users', 'crm_workflow_users.workflow_user_id', '=', 'ticket_workflows.workflow_user_id')
-                 ->select('workflow_user_name')
+                 ->select('workflow_user_name', 'id')
                  ->where(['ticket_id' => $ticket_id, 'is_current' => 1])
                  ->first();
+    }
+
+    public static function getTicketEscalationWorkflowLevels($ticket_id)
+    {
+        return DB::table('ticket_workflows')
+                 ->join('users', 'users.id', '=', 'ticket_workflows.message_by')
+                 ->join('crm_workflow_users', 'crm_workflow_users.workflow_user_id', '=', 'ticket_workflows.workflow_user_id')
+                 ->select(
+                    'workflow_user_name', 
+                    'workflow_message',
+                    'date_responded',
+                    'name as officer_name', 
+                    'email'
+                    )
+                 ->where(['ticket_id' => $ticket_id, 'is_current' => 0])
+                 ->get();
     }
 
     public static function getCustomerTicketById($ticket_id)
@@ -285,10 +301,11 @@ class CustomerTicket extends Model
 
     private static function generateTicketID(): string
     {
-        $bytes = random_bytes(5);
+        $rand = rand(0,9);
+        $bytes = random_bytes(6);
         $base64 = base64_encode($bytes);
 
-        //return rtrim(strtr($base64, '+/', 'O'), '=');
-        return rtrim(strtr($base64, '+/', '-_'), '=');
+        return rtrim(strtr($base64, '+/', $rand), '=');
+        //return rtrim(strtr($base64, '+/', '-_'), '=');
     }
 }

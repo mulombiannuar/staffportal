@@ -125,7 +125,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @if (Auth::user()->hasRole('bimas staff|branch manager'))
+                                        @if (Auth::user()->hasRole('credit officer|branch manager'))
                                             <input type="hidden" name="branch" value="{{ $user->branch }}">
                                             <input type="hidden" name="outpost_id" value="{{ $user->outpost }}">
 
@@ -280,7 +280,7 @@
                                                     <td>
                                                         <div class="margin">
                                                             <div class="btn-group">
-                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                <a href="{{ route('crm.tickets.details', $ticket->ticket_id) }}"
                                                                     title="Click to view ticket details">
                                                                     <button type="button" class="btn btn-xs btn-info"><i
                                                                             class="fa fa-eye"></i>
@@ -341,7 +341,7 @@
                                                     <td>
                                                         <div class="margin">
                                                             <div class="btn-group">
-                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                <a href="{{ route('crm.tickets.details', $ticket->ticket_id) }}"
                                                                     title="Click to view ticket details">
                                                                     <button type="button" class="btn btn-xs btn-info"><i
                                                                             class="fa fa-eye"></i>
@@ -463,7 +463,7 @@
                                                     <td>
                                                         <div class="margin">
                                                             <div class="btn-group">
-                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                <a href="{{ route('crm.tickets.details', $ticket->ticket_id) }}"
                                                                     title="Click to view ticket details">
                                                                     <button type="button" class="btn btn-xs btn-info"><i
                                                                             class="fa fa-eye"></i>
@@ -524,7 +524,7 @@
                                                     <td>
                                                         <div class="margin">
                                                             <div class="btn-group">
-                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                <a href="{{ route('crm.tickets.details', $ticket->ticket_id) }}"
                                                                     title="Click to view ticket details">
                                                                     <button type="button" class="btn btn-xs btn-info"><i
                                                                             class="fa fa-eye"></i>
@@ -585,7 +585,7 @@
                                                     <td>
                                                         <div class="margin">
                                                             <div class="btn-group">
-                                                                <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                <a href="{{ route('crm.tickets.details', $ticket->ticket_id) }}"
                                                                     title="Click to view ticket details">
                                                                     <button type="button" class="btn btn-xs btn-info"><i
                                                                             class="fa fa-eye"></i>

@@ -356,8 +356,10 @@ Route::middleware(['auth', 'role:admin|records|operations'])->prefix('records')-
 Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
      
     //Normal users
+    Route::get('tickets/details/{id}', [CustomerTicketController::class, 'show'])->name('tickets.details');
     Route::get('tickets/customers', [CustomerTicketController::class, 'customerTickets'])->name('tickets.customers');
     Route::post('tickets/customers', [CustomerTicketController::class, 'store'])->name('tickets.store_customer');
+    Route::post('tickets/save-comment', [CustomerTicketController::class, 'saveTicketComment'])->name('tickets.save_comment');
     
     //Admin users
     Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:communication']);

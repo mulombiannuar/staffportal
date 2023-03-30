@@ -185,10 +185,17 @@ class CustomerTicketController extends Controller
     public function show($id)
     {
         $ticket = CustomerTicket::getCustomerTicketById($id);
+        $customer = CRMCustomer::getCustomerByMobileNumber($ticket->customer_phone);
+      
         $pageData = [
             'page_name' => 'crm',
+            //'page_title' => 'crm',
             'ticket' => $ticket,
+            'customer' => $customer,
             'title' => 'Customer Ticket - '.$ticket->ticket_uuid,
+            'escalations' => CustomerTicket::getTicketEscalationWorkflowLevels($id),
+            'current_workflow' => CustomerTicket::getTicketCurrentWorkflowLevel($id),
+            'workflows' => TicketWorkflow::getUserForwadedToLevels(Auth::user()->id)
         ];
         return view('crm.ticket.show', $pageData);
     }
@@ -389,6 +396,12 @@ class CustomerTicketController extends Controller
         return 'a new client ticket for '.$ticket_id.' has been registered under your branch and assigned to '.strtoupper($user->name).'. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
     }
 
+    
+    private function setCustomerEscalationMessage($ticket_id)
+    {
+        return 'thank you for contacting BIMAS concerning our products and services. Your issue of ticket ID '.$ticket_id.' has been escalated to another agent. Please be patient while we try to resolve the matter in the best way and shortest time possible';
+    }
+
     private function getTicketCustomisedMessage($category)
     {
         $ticketCategory = TicketCategory::find($category);
@@ -445,10 +458,84 @@ class CustomerTicketController extends Controller
         return [];
     }
 
+
     private function getWorkflowTickets($workflow_id, $outpost_id)
     {
         return CustomerTicket::getTicketsByWorkflowAndOutpostID($workflow_id, $outpost_id);
     }
 
+    public function saveTicketComment(Request $request)
+    {
+        $request->validate([
+            'current_id' => 'integer|required',
+            'ticket_id' => 'integer|required',
+            'workflow_id' => 'integer|required',
+            'workflow_message' => 'string|required',
+            'workflow_user_id' => 'integer|required',
+        ]);
 
+        $current_id = $request->current_id;
+        $ticket_id = $request->ticket_id;
+        $workflow_id = $request->workflow_id;
+        $workflow_user_id = $request->workflow_user_id;
+        $workflow_message = $request->workflow_message;
+        return $request;
+
+        // Update workflow message
+        TicketWorkflow::submitTicketComment($current_id, $workflow_message);
+
+        //Register ticket to the workflow
+        $ticket = CustomerTicket::find($ticket_id);
+
+        $workflow = new TicketWorkflow();
+        $workflow->is_current = 1;
+        $workflow->ticket_id = $ticket_id;
+        $workflow->workflow_id = $workflow_id;
+        $workflow->workflow_user_id = $workflow_user_id;
+        $workflow->save();
+
+        //Save audit trail
+        $activity_type = 'Customer Ticket Comment';
+        $description = 'Successfully submitted customer ticket comment for '.$ticket->ticket_uuid;
+        User::saveAuditTrail($activity_type, $description);
+
+        // Send message to client if ticket escalated beyond branch
+        if($workflow_id === 5)
+        {  
+            $messageModel = new Message();
+            $customerData = CRMCustomer::find($ticket->customer_id);
+            $customer_message = $this->setCustomerEscalationMessage($ticket->ticket_uuid);
+            $messageModel->saveSystemMessage('Ticket Escalation', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
+        }
+
+        // Get the person ticket being escalated to and send notification
+       
+    }
+
+    //Get the person ticket being escalated
+    public function getEscalatedPersonDetails($ticket_id, $outpost_id, $workflow_user_id)
+    {
+        $ticket = CustomerTicket::find($ticket_id);
+        $workflow = DB::table('crm_workflow_users')->where('workflow_user_id', $workflow_user_id)->first();
+        if ($outpost_id === 5 || $outpost_id === 6) {
+            $user = User::getUserById($ticket->officer_id);
+            return is_null($user) ? [] : $user;
+        }
+
+        $role = DB::table('roles')->where('name', strtolower($workflow->workflow_user_name))->first();
+        if ($role) 
+        {
+            $role_user = DB::table('role_user')->where('role_id', $role->id)->first();
+            if ($role_user) 
+            {
+                $user = User::getUserById($role_user->user_id);
+                return is_null($user) ? [] : $user;
+            } else {
+                return [];
+            }
+            
+        } else {
+            return [];
+        }
+    }
 }
