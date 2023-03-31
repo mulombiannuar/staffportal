@@ -51,32 +51,50 @@ class TicketWorkflow extends Model
 
     public static function getUserForwadedToLevels($user_id)
     {
-        $data = [];
         $user = User::find($user_id);
-        if($user->hasRole('communication')) $data = [2,3,4,5,6,7];
-        if($user->hasRole('Chief Executive Officer')) $data = [1,2,3,4,5,6,7];
-        if($user->hasRole('General Manager')) $data = [1,2,4];
-        if(User::hasSeniorManagerRole($user_id)) $data = [1,2,5];
-        if($user->hasRole('Branch Manager')) $data = [4,6];
-        if($user->hasRole('Receptionist')) $data = [1,2,3,4,5,6];
-        if($user->hasRole('Credit Officer')) $data = [5];
+        if($user->hasRole('communication')) 
+        return TicketWorkflow::forwardedLevels([2,3,4,5,6,7]);
 
-        return  DB::table('crm_workflows')
-                  ->where('status', 1)
+        if($user->hasRole('chief executive officer')) 
+        return TicketWorkflow::forwardedLevels([1,2,3,4,5,6,7]);
+
+        if($user->hasRole('general manager')) 
+        return TicketWorkflow::forwardedLevels([1,2,4]);
+
+        if(User::hasSeniorManagerRole($user_id)) 
+        return TicketWorkflow::forwardedLevels([1,2,5]);
+        
+        if($user->hasRole('branch manager')) 
+        return TicketWorkflow::forwardedLevels([4,6]);
+        
+        if($user->hasRole('receptionist')) 
+        return TicketWorkflow::forwardedLevels([1,2,3,4,5,6]);
+        
+        if($user->hasRole('credit officer')) 
+        return TicketWorkflow::forwardedLevels([5]);
+
+        return [];
+    }
+
+
+    private static function forwardedLevels($data)
+    {
+        return  DB::table('crm_workflows')->where('status', 1)
                   ->whereIn('workflow_id', $data)
                   ->select('name', 'workflow_id')
                   ->orderBy('workflow_id', 'asc')
                   ->get();
     }
 
-    public static function submitTicketComment($id, $workflow_message)
+    public static function submitTicketComment($id, $workflow_message, $ticket_resolved)
     {
         return  DB::table('ticket_workflows')->where('id', $id)
                   ->update([
                     'is_current' => 0,
                     'message_by' => Auth::user()->id,
                     'date_responded' => Carbon::now(),
-                    'workflow_message' => $workflow_message
+                    'ticket_resolved' => $ticket_resolved,
+                    'workflow_message' => $workflow_message,
                 ]);        
     }
 }

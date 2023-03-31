@@ -1,4 +1,4 @@
-@extends('layouts.admin.form')
+@extends('layouts.admin.table')
 
 @section('content')
     <!-- Main content -->
@@ -154,30 +154,47 @@
                                         <div class="row">
                                             <div class="col-md-6 col-sm-12">
                                                 <div class="form-group">
-                                                    <label for="workflow_id">Forward to Workflow Level</label>
-                                                    <select name="workflow_id" class="form-control select2"
-                                                        id="workflows" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Wokflow Level -</option>
-                                                        @foreach ($workflows as $workflow)
-                                                            <option value="{{ $workflow->workflow_id }}">
-                                                                {{ $workflow->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="workflow_users">Forwarded to User</label>
-                                                    <select name="workflow_user_id" class="form-control select2"
-                                                        id="workflow_users" required>
-                                                        <option class="mb-1" value="">
-                                                            - Select Workflow Level First -</option>
+                                                    <label for="ticket_resolved">Has Ticket Been Resolved at your
+                                                        level?</label>
+                                                    <select name="ticket_resolved" class="form-control select2"
+                                                        id="ticket_resolved" required>
+                                                        <option selected value="1">Yes, it has been resolved</option>
+                                                        <option value="0">Nop, lemme forward to the next person
+                                                        </option>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div id="hidden" style="display: none">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="workflow_id">Forward to Workflow Level</label>
+                                                        <select name="workflow_id" class="form-control select2"
+                                                            id="workflows">
+                                                            <option class="mb-1" value="">
+                                                                - Select Wokflow Level -</option>
+                                                            @foreach ($workflows as $workflow)
+                                                                <option value="{{ $workflow->workflow_id }}">
+                                                                    {{ $workflow->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="workflow_users">Forwarded to User</label>
+                                                        <select name="workflow_user_id" class="form-control select2"
+                                                            id="workflow_users">
+                                                            <option class="mb-1" value="">
+                                                                - Select Workflow Level First -</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div class="row">
                                             <div class="col-sm-12">
                                                 <div class="form-group">
@@ -207,15 +224,15 @@
                                 <h3 class="card-title"><i class="fa fa-list-alt"></i> Ticket Escalation</h3>
                             </div>
                             <div class="card-body">
-                                <table class="table table-sm table-striped table-bordered table-head-fixed">
+                                <table id="table1" class="table table-sm table-hover table-bordered table-head-fixed">
                                     <thead>
                                         <tr>
                                             <th>S.N</th>
                                             <th>NAME</th>
                                             <th>EMAIL</th>
-                                            <th>WORKFLOW LEVEL</th>
+                                            <th>LEVEL</th>
                                             <th>COMMENT</th>
-                                            <th>DATE RESPONDED</th>
+                                            <th>DATE</th>
                                             <th>RESOLVED?</th>
                                         </tr>
                                     </thead>
@@ -276,6 +293,15 @@
                     $('#users').html('<p value="text text-danger">No Workflow Users Found </p>');
                 }
             });
+        });
+
+        $('#ticket_resolved').change(function() {
+            ticket_resolved = $('#ticket_resolved').val();
+            if (ticket_resolved != '') {
+                if (ticket_resolved == 0) {
+                    document.getElementById("hidden").style.display = "block";
+                }
+            }
         });
     </script>
 @endpush

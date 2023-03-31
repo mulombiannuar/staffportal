@@ -179,12 +179,25 @@ class User extends Authenticatable
        return  User::where('id', $id)
                     ->where('deleted_at', null)
                     ->where('status', 1)
-                    ->leftJoin('profiles', 'profiles.user_id', '=', 'users.id' )
+                    ->join('profiles', 'profiles.user_id', '=', 'users.id' )
                     ->join('sub_counties', 'sub_counties.sub_id', '=', 'sub_county')
                     ->join('counties', 'counties.county_id', '=', 'profiles.county')
-                    ->leftJoin('outposts', 'outposts.outpost_id', '=', 'profiles.outpost')
-                    ->leftJoin('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+                    ->join('outposts', 'outposts.outpost_id', '=', 'profiles.outpost')
+                    ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
                     ->first();
+    }
+
+    public static function getUsersById(array $ids)
+    {
+       return  User::whereIn('id', $ids)
+                    ->where('status', 1)
+                    ->join('profiles', 'profiles.user_id', '=', 'users.id' )
+                    ->join('sub_counties', 'sub_counties.sub_id', '=', 'sub_county')
+                    ->join('counties', 'counties.county_id', '=', 'profiles.county')
+                    ->join('outposts', 'outposts.outpost_id', '=', 'profiles.outpost')
+                    ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+                    ->select('name', 'email', 'user_id', 'mobile_no', 'outpost', 'branch')
+                    ->get();
     }
 
     public static function getUserIpAddress()

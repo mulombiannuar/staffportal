@@ -152,7 +152,7 @@ class CustomerTicketController extends Controller
         // Send sms notification to the branch manager
         $branch_supervisor = Admin::getOutpostSupervisor($outpost->outpost_id);
         if (!empty($branch_supervisor)) {
-            $supervisor_ticket_message = $this->setSupervisorMessage($ticket->ticket_uuid, $branch_supervisor);
+            $supervisor_ticket_message = $this->setSupervisorMessage($ticket->ticket_uuid, $user);
             $messageModel->saveSystemMessage($ticketCategory->category_name, $branch_supervisor->mobile_no, $branch_supervisor->name,  $supervisor_ticket_message, true);
         }
         
@@ -186,10 +186,11 @@ class CustomerTicketController extends Controller
     {
         $ticket = CustomerTicket::getCustomerTicketById($id);
         $customer = CRMCustomer::getCustomerByMobileNumber($ticket->customer_phone);
+       // return TicketWorkflow::getUserForwadedToLevels(Auth::user()->id);
       
         $pageData = [
             'page_name' => 'crm',
-            //'page_title' => 'crm',
+            'page_title' => 'crm',
             'ticket' => $ticket,
             'customer' => $customer,
             'title' => 'Customer Ticket - '.$ticket->ticket_uuid,
@@ -402,6 +403,11 @@ class CustomerTicketController extends Controller
         return 'thank you for contacting BIMAS concerning our products and services. Your issue of ticket ID '.$ticket_id.' has been escalated to another agent. Please be patient while we try to resolve the matter in the best way and shortest time possible';
     }
 
+    private function setOfficerEscalationMessage($ticket_id)
+    {
+        return 'you have ticket issue of ID '.$ticket_id.' forwarded to you. Login to the Staffportal to view details';
+    }
+
     private function getTicketCustomisedMessage($category)
     {
         $ticketCategory = TicketCategory::find($category);
@@ -469,20 +475,31 @@ class CustomerTicketController extends Controller
         $request->validate([
             'current_id' => 'integer|required',
             'ticket_id' => 'integer|required',
-            'workflow_id' => 'integer|required',
+            'ticket_resolved' => 'integer|required',
             'workflow_message' => 'string|required',
-            'workflow_user_id' => 'integer|required',
+            //'workflow_user_id' => 'integer|required',
         ]);
 
         $current_id = $request->current_id;
-        $ticket_id = $request->ticket_id;
-        $workflow_id = $request->workflow_id;
-        $workflow_user_id = $request->workflow_user_id;
+        $ticket_resolved = $request->ticket_resolved;
         $workflow_message = $request->workflow_message;
-        return $request;
+        $ticket_id = $request->ticket_id;
+
+        if ($ticket_resolved == 1) {
+            $workflow_id = 1;
+            $workflow_user_id = 1;
+        }else{
+            $request->validate([
+                'workflow_id' => 'integer|required',
+                'workflow_user_id' => 'integer|required',
+            ]);
+            $workflow_id = $request->workflow_id;
+            $workflow_user_id = $request->workflow_user_id;
+        }
+        //return $request;
 
         // Update workflow message
-        TicketWorkflow::submitTicketComment($current_id, $workflow_message);
+        TicketWorkflow::submitTicketComment($current_id, $workflow_message, $ticket_resolved);
 
         //Register ticket to the workflow
         $ticket = CustomerTicket::find($ticket_id);
@@ -499,37 +516,53 @@ class CustomerTicketController extends Controller
         $description = 'Successfully submitted customer ticket comment for '.$ticket->ticket_uuid;
         User::saveAuditTrail($activity_type, $description);
 
+        $messageModel = new Message();
+        $customerData = CRMCustomer::find($ticket->customer_id);
+
         // Send message to client if ticket escalated beyond branch
-        if($workflow_id === 5)
-        {  
-            $messageModel = new Message();
-            $customerData = CRMCustomer::find($ticket->customer_id);
+        if($workflow_id === 5){  
             $customer_message = $this->setCustomerEscalationMessage($ticket->ticket_uuid);
-            $messageModel->saveSystemMessage('Ticket Escalation', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
+            $messageModel->saveSystemMessage('Ticket Escalation Customer', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
         }
 
         // Get the person ticket being escalated to and send notification
-       
+        $persons = $this->getEscalatedPersonsDetails($ticket_id, $workflow_user_id);
+        if(!empty($persons)){
+            for ($s=0; $s <count($persons) ; $s++) { 
+
+                // Send sms notification
+                $officer_message = $this->setOfficerEscalationMessage($ticket->ticket_uuid);
+                $messageModel->saveSystemMessage('Ticket Escalation Officer', $persons[$s]->mobile_no, $persons[$s]->name,  $officer_message, true);
+
+                // Send email to the person
+                $emailSubject = 'Ticket Escalation for '.strtoupper($customerData->customer_name).'-'.$customerData->customer_phone. ' raised on Staffportal';
+                $messageModel->SendSystemEmail($persons[$s]->name, $persons[$s]->email, $officer_message, $emailSubject);
+            }       
+        }
+
+        if (Auth::user()->hasRole('communication|admin')) 
+        return redirect(route('crm.tickets.index'))->with('success', 'Successfully submitted comment for customer ticket of '.$customerData->customer_name. '. Notifications sent to the relevant officer');
+        
+        return redirect(route('crm.tickets.customers'))->with('success', 'Successfully submitted comment for customer ticket of '.$customerData->customer_name. '. Notifications sent to the relevant officer');
     }
 
     //Get the person ticket being escalated
-    public function getEscalatedPersonDetails($ticket_id, $outpost_id, $workflow_user_id)
+    public function getEscalatedPersonsDetails($ticket_id, $workflow_user_id)
     {
         $ticket = CustomerTicket::find($ticket_id);
         $workflow = DB::table('crm_workflow_users')->where('workflow_user_id', $workflow_user_id)->first();
-        if ($outpost_id === 5 || $outpost_id === 6) {
+        if ($workflow_user_id === 12 || $workflow_user_id === 13) {
+            $users = [];
             $user = User::getUserById($ticket->officer_id);
-            return is_null($user) ? [] : $user;
+            return is_null($user) ? [] : array_push($users, $user);
         }
 
         $role = DB::table('roles')->where('name', strtolower($workflow->workflow_user_name))->first();
-        if ($role) 
-        {
-            $role_user = DB::table('role_user')->where('role_id', $role->id)->first();
-            if ($role_user) 
-            {
-                $user = User::getUserById($role_user->user_id);
-                return is_null($user) ? [] : $user;
+        if ($role) {
+            $role_users = DB::table('role_user')->where('role_id', $role->id)->pluck('user_id')->toArray();
+            if ($role_users) {
+                $users = User::getUsersById($role_users);
+                return is_null($users) ? [] : $users;
             } else {
                 return [];
             }

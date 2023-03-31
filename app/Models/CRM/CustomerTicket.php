@@ -74,8 +74,17 @@ class CustomerTicket extends Model
     public static function getTicketsByWorkflowAndOutpostID($workflow_user_id, $outpost_id)
     {
         $data = $outpost_id == null 
-        ? ['ticket_workflows.workflow_user_id' => $workflow_user_id, 'ticket_closed' => 0 ] 
-        : ['ticket_workflows.workflow_user_id' => $workflow_user_id, 'outposts.outpost_id' => $outpost_id, 'ticket_closed' => 0 ] ;
+        ? [
+            'ticket_workflows.workflow_user_id' => $workflow_user_id, 
+            'ticket_closed' => 0, 
+            'is_current' => 1 
+            ] 
+        : [
+            'ticket_workflows.workflow_user_id' => $workflow_user_id, 
+            'outposts.outpost_id' => $outpost_id, 
+            'ticket_closed' => 0, 
+            'is_current' => 1 
+           ] ;
 
 
         $tickets = DB::table('ticket_workflows')
@@ -143,7 +152,8 @@ class CustomerTicket extends Model
                  ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
                  ->where([
                     'ticket_workflows.workflow_id' => $workflow_id,
-                    'ticket_closed' => 0
+                    'ticket_closed' => 0,
+                    'is_current' => 1
                     ])
                 ->select(
                     //'ticket_workflows.id',
@@ -201,6 +211,7 @@ class CustomerTicket extends Model
                     'workflow_message',
                     'date_responded',
                     'name as officer_name', 
+                    'ticket_resolved',
                     'email'
                     )
                  ->where(['ticket_id' => $ticket_id, 'is_current' => 0])
