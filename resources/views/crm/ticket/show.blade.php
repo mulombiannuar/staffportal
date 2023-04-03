@@ -8,13 +8,21 @@
                 <ul class="nav nav-pills">
                     <li class="nav-item"><a class="nav-link active" href="#details" data-toggle="tab"><i class="fa fa-bars"></i>
                             Ticket Details</a></li>
+                    @if (!$ticketData->ticket_closed)
+                        <li class="nav-item"><a class="nav-link" href="#addcomment" data-toggle="tab"><i
+                                    class="fa fa-user-plus"></i>
+                                Add Comment</a></li>
+                    @endif
 
-                    <li class="nav-item"><a class="nav-link" href="#addcomment" data-toggle="tab"><i
-                                class="fa fa-user-plus"></i>
-                            Add Comment</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#closeticket" data-toggle="tab"><i
+                                class="fa fa-calendar"></i>
+                            Ticket Closure</a></li>
 
                     <li class="nav-item"><a class="nav-link" href="#escalation" data-toggle="tab"><i
                                 class="fa fa-list-alt"></i> Ticket Escalation</a></li>
+
+                    <li class="nav-item"><a class="nav-link" href="#survey" data-toggle="tab"><i class="fa fa-question"></i>
+                            Ticket Survey</a></li>
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
@@ -83,9 +91,9 @@
                                         <div class="col-md-4 col-sm-12">
                                             <div class="form-group">
                                                 <label for="business">Business</label>
-                                                <input type="text" name="business" class="form-control" id="business"
-                                                    placeholder="Enter business activity" value="{{ $customer->business }}"
-                                                    autocomplete="on" required>
+                                                <input type="text" name="business" class="form-control"
+                                                    id="business" placeholder="Enter business activity"
+                                                    value="{{ $customer->business }}" autocomplete="on" required>
                                             </div>
                                         </div>
                                         <div class="col-md-4 col-sm-12">
@@ -250,6 +258,164 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- roles user -->
+                    </div>
+                    <!-- /.tab-pane -->
+
+                    <div class="tab-pane" id="closeticket">
+                        <!-- roles user -->
+                        <div class="card card-warning">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa fa-calendar"></i>
+                                    {{ $ticketData->ticket_closed ? 'Ticket Closure Details' : 'Ticket Comment' }} </h3>
+                            </div>
+                            <div class="card-body">
+                                @if ($ticketData->ticket_closed)
+                                    <table class="table table-sm table-hover table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <th>IS CLOSED</th>
+                                                <td>{{ $ticketData->ticket_closed ? 'Ticket Closed' : 'Ticket Open' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>DATE CLOSED</th>
+                                                <td>{{ $ticketData->date_closed }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>CLOSURE COMMENT</th>
+                                                <td>{{ $ticketData->closure_comment }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>SURVEY SENT</th>
+                                                <td>{{ $ticketData->customer_sent_survey ? 'Yes' : 'Not' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>SURVEY RESPONDED</th>
+                                                <td>{{ $ticketData->customer_responded_survey ? 'Yes' : 'Not' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <form method="post" action="{{ route('crm.tickets.close') }}">
+                                        <input type="hidden" name="ticket_id" value="{{ $ticketData->ticket_id }}">
+                                        <input type="hidden" name="current_id" value="{{ $current_workflow->id }}">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-4 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="date_closed">Date Closed</label>
+                                                        <input type="date" name="date_closed" class="form-control"
+                                                            id="date_closed" placeholder="Enter date closed"
+                                                            value="{{ date('Y-m-d') }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="closure_message">Your Comment</label>
+                                                        <textarea class="form-control" name="closure_message" id="closure_comment" cols="4" rows="2"
+                                                            placeholder="Enter your comment" autocomplete="on" required></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-between">
+                                            <button type="submit" class="btn btn-warning"> <i
+                                                    class="fa fa-user-plus"></i>
+                                                Close Ticket</button>
+                                        </div>
+                                    </form>
+                                @endif
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- roles user -->
+                    </div>
+                    <!-- /.tab-pane -->
+
+                    <div class="tab-pane" id="survey">
+                        <!-- roles user -->
+                        <div class="card card-warning">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa fa-question"></i>
+                                    {{ $ticketData->customer_sent_survey ? 'Ticket Sent Survey Details' : 'Send Survey Question' }}
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                @if ($ticketData->customer_sent_survey)
+                                    <table class="table table-sm table-hover table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <th>DATE SENT</th>
+                                                <td>{{ $survey_data->date_sent }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>SENT BY</th>
+                                                <td>{{ $survey_data->name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>CUSTOMER MESSAGE</th>
+                                                <td>{{ $survey_data->survey_message }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>SURVEY QUESTION LINK</th>
+                                                <td><a target="_blank"
+                                                        href="{{ $survey_data->survey_link }}">{{ $survey_data->survey_link }}</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>SURVEY RESPONDED</th>
+                                                <td>
+                                                    @if ($ticketData->customer_responded_survey)
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('crm.tickets.show', $survey_data->id) }}"
+                                                                title="Click to view ticket details">
+                                                                <button type="button" class="btn btn-xs btn-warning"><i
+                                                                        class="fa fa-bars"></i>
+                                                                    View Details</button>
+                                                            </a>
+                                                        </div>
+                                                    @else
+                                                        Not
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <form method="post" action="{{ route('crm.tickets.save-survey') }}">
+                                        <input type="hidden" name="ticket_id" value="{{ $ticketData->ticket_id }}">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-8 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="survey_message">Survey Message</label>
+                                                        <textarea class="form-control" name="survey_message" id="survey_message" cols="4" rows="2"
+                                                            placeholder="Enter survey message" autocomplete="on" required>Thank you for contacting Bimas Kenya Limited. We value your feedback. Please rate your experience here </textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="source">Survey Link</label>
+                                                        <input type="text" name="survey_link" class="form-control"
+                                                            id="survey_link" value="{{ $ticket_url }}"
+                                                            autocomplete="on" readonly required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-between">
+                                            <button type="submit" class="btn btn-secondary"> <i
+                                                    class="fa fa-user-plus"></i>
+                                                Send Client Message</button>
+                                        </div>
+                                    </form>
+                                @endif
                             </div>
                             <!-- /.card-body -->
                         </div>

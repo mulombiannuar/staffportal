@@ -2,6 +2,7 @@
 
 namespace App\Models\CRM;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -42,6 +43,39 @@ class CustomerTicket extends Model
 
         return CustomerTicket::getTicketsCurrentLevels($tickets);
     }
+
+    public static function getCustomerTicketsByStatus($status)
+    {
+        $tickets = DB::table('customer_tickets')
+                 ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+                 ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
+                 ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+                 ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+                 ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+                 ->join('users as closers', 'closers.id', '=', 'customer_tickets.closed_by')
+                 ->select(
+                    'customer_tickets.*', 
+                    'customer_name',
+                    'customer_phone',
+                    'residence',
+                    'business',
+                    //'branch_id',
+                    'crm_customers.outpost_id',
+                    'bimas_br_id',
+                    // 'created_by',
+                    'category_name',
+                    'source_name',
+                    'outpost_name',
+                    'users.name as officer_name',
+                    'closers.name as closed_by'
+                    )
+                 ->where('ticket_closed', $status)
+                 ->orderBy('ticket_id', 'desc')
+                 ->get();
+
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
+    }
+
 
     public static function getCustomerTicketsByCategory($category_id)
     {
@@ -309,6 +343,60 @@ class CustomerTicket extends Model
         return $ticket;
     }
 
+    public static function saveSurveyData($ticket_id, $ticket_uuid, $survey_link, $survey_message)
+    {
+       DB::table('customer_tickets')->where('ticket_id', $ticket_id)
+         ->update(['customer_sent_survey' => 1]);
+
+       return DB::table('ticket_survey')->insert([
+            'ticket_id' => $ticket_id,
+            'date_sent' => Carbon::now(),
+            'sent_by' => Auth::user()->id,
+            'ticket_uuid' => $ticket_uuid,
+            'survey_link' => $survey_link,
+            'survey_message' => $survey_message,
+            'created_at' => Carbon::now()
+        ]);
+    }
+
+    public static function getSurveyData($status)
+    {
+        return DB::table('ticket_survey')
+                 ->join('users', 'users.id', '=', 'ticket_survey.sent_by')
+                 ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_survey.ticket_id')
+                 ->join('users as officers', 'officers.id', '=', 'customer_tickets.officer_id')
+                 ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+                 ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+                 ->select(
+                    'ticket_survey.*', 'users.name as sent_by', 'date_raised',
+                    'customer_name','customer_phone','residence',
+                    'outpost_name', 'officers.name as officer_name'
+                    )
+                 ->where('customer_responded_survey', $status)
+                 ->orderBy('id', 'desc')
+                 ->get();     
+    }
+
+    public static function getSurveyDataByTicketID($ticket_id)
+    {
+        return DB::table('ticket_survey')
+                 ->join('users', 'users.id', '=', 'ticket_survey.sent_by')
+                 ->select('ticket_survey.*', 'name')
+                 ->where('ticket_id', $ticket_id)
+                 ->first();     
+    }
+
+    public static function closeTicket($ticket_id, $closure_message, $date_closed)
+    {
+        return  DB::table('customer_tickets')->where('ticket_id', $ticket_id)
+                  ->update([
+                      'ticket_closed' => 1,
+                      'date_closed' => $date_closed,
+                      'closed_by' => Auth::user()->id,
+                      'closure_comment' => $closure_message,
+                    ]);        
+    }
+
 
     private static function generateTicketID(): string
     {
@@ -319,4 +407,11 @@ class CustomerTicket extends Model
         return rtrim(strtr($base64, '+/', $rand), '=');
         //return rtrim(strtr($base64, '+/', '-_'), '=');
     }
+
+    public static function getTicketURL($ticket_uuid)
+    {
+        $websiteURL = 'https://bit.ly/';
+        return $websiteURL.$ticket_uuid;
+    }
+    
 }

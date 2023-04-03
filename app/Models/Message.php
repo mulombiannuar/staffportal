@@ -22,15 +22,15 @@ class Message extends Model
         $time = date("H");
         if ($time < "12") 
         {
-            $greetings = "Good morning ".$username;
+            $greetings = "Good morning ".strtoupper($username);
         }
         elseif ($time >= "12" && $time < "15")
         {
-            $greetings = "Good afternoon ".$username;
+            $greetings = "Good afternoon ".strtoupper($username);
         }
         else
         {
-            $greetings = "Good evening ".$username;
+            $greetings = "Good evening ".strtoupper($username);
         }
         return $greetings;
     } 

@@ -11,6 +11,7 @@ use App\Models\CRM\TicketSource;
 use App\Models\CRM\TicketWorkflow;
 use App\Models\Message;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,13 +27,14 @@ class CustomerTicketController extends Controller
     public function index()
     {
         //return CustomerTicket::getCustomerTickets();
-        //return TicketWorkflow::getWorkFlowTickets();
+        //return CustomerTicket::getCustomerTicketsByStatus(1);
         $pageData = [
 			'page_name' => 'crm',
 			'page_title' => 'crm',
             'title' => 'Customer Tickets',
             'tickets' => CustomerTicket::getCustomerTickets(),
             'workflows' => TicketWorkflow::getWorkFlowTickets(),
+            'closed_tickets' => CustomerTicket::getCustomerTicketsByStatus(1),
         ];
         return view('crm.ticket.index', $pageData);
     }
@@ -184,6 +186,7 @@ class CustomerTicketController extends Controller
      */
     public function show($id)
     {
+        $messageModel = new Message();
         $ticket = CustomerTicket::getCustomerTicketById($id);
         $customer = CRMCustomer::getCustomerByMobileNumber($ticket->customer_phone);
        // return TicketWorkflow::getUserForwadedToLevels(Auth::user()->id);
@@ -192,8 +195,12 @@ class CustomerTicketController extends Controller
             'page_name' => 'crm',
             'page_title' => 'crm',
             'ticket' => $ticket,
+            'ticketData' => $ticket,
             'customer' => $customer,
+            'closed' => $ticket->ticket_closed,
             'title' => 'Customer Ticket - '.$ticket->ticket_uuid,
+            'survey_data' => CustomerTicket::getSurveyDataByTicketID($id),
+            'ticket_url' => CustomerTicket::getTicketURL($ticket->ticket_uuid),
             'escalations' => CustomerTicket::getTicketEscalationWorkflowLevels($id),
             'current_workflow' => CustomerTicket::getTicketCurrentWorkflowLevel($id),
             'workflows' => TicketWorkflow::getUserForwadedToLevels(Auth::user()->id)
@@ -403,6 +410,11 @@ class CustomerTicketController extends Controller
         return 'thank you for contacting BIMAS concerning our products and services. Your issue of ticket ID '.$ticket_id.' has been escalated to another agent. Please be patient while we try to resolve the matter in the best way and shortest time possible';
     }
 
+    private function setCustomerTicketClosureMessage($ticket_id)
+    {
+        return 'your issue of ticket ID '.$ticket_id.' has been successfully closed. Thank you for your patience. For further inquiries you can always contact our customer care line on 0701111700';
+    }
+
     private function setOfficerEscalationMessage($ticket_id)
     {
         return 'you have ticket issue of ID '.$ticket_id.' forwarded to you. Login to the Staffportal to view details';
@@ -499,7 +511,7 @@ class CustomerTicketController extends Controller
         //return $request;
 
         // Update workflow message
-        TicketWorkflow::submitTicketComment($current_id, $workflow_message, $ticket_resolved);
+        TicketWorkflow::submitTicketComment($current_id, $workflow_message, $ticket_resolved, 0);
 
         //Register ticket to the workflow
         $ticket = CustomerTicket::find($ticket_id);
@@ -570,5 +582,100 @@ class CustomerTicketController extends Controller
         } else {
             return [];
         }
+    }
+
+    public function closeTicket(Request $request)
+    {
+        $request->validate([
+            'current_id' => 'integer|required',
+            'ticket_id' => 'integer|required',
+            'date_closed' => 'date|required',
+            'closure_message' => 'string|required',
+        ]);
+
+        $closure_message = $request->closure_message;
+        $date_closed = $request->date_closed;
+        $ticket_id = $request->ticket_id;
+        $current_id = $request->current_id;
+
+        $messageModel = new Message();
+        $ticket = CustomerTicket::find($ticket_id);
+        $customerData = CRMCustomer::find($ticket->customer_id);
+
+        // Update workflow message
+        TicketWorkflow::submitTicketComment($current_id, $closure_message, 1, 0);
+
+        // Submit ticket closure comment
+        TicketWorkflow::submitTicketClosureComment($ticket_id, $closure_message);
+
+        //Close customer ticket
+        CustomerTicket::closeTicket($ticket_id, $closure_message, $date_closed);
+
+        //Save audit trail
+        $activity_type = 'Customer Ticket Closure';
+        $description = 'Successfully closed ticket of ID '.$ticket->ticket_uuid;
+        User::saveAuditTrail($activity_type, $description);
+
+        //Send Customer customized sms notification
+        $customer_message = $this->setCustomerTicketClosureMessage($ticket->ticket_uuid);
+        $messageModel->saveSystemMessage('Client Ticket Closure', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
+
+        //Send sms notification to the logged in user
+        $loggedInUser = User::getUserById(Auth::user()->id);
+        $loggedInUserMessage = 'you have successfully closed client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' on '.Carbon::now();
+        $messageModel->saveSystemMessage('Client Ticket Closure', $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
+
+        return redirect(route('crm.tickets.index'))->with('success', 'Successfully closed client ticket of '.$customerData->customer_name. '. Notifications sent to the client');
+    }
+
+    public function saveClientSurveyData(Request $request)
+    {
+        //return $request;
+        $request->validate([
+            'ticket_id' => 'integer|required',
+            'survey_message' => 'string|required',
+            'survey_link' => 'string|required',
+        ]);
+        //return $request;
+
+        $survey_message = $request->survey_message;
+        $survey_link = $request->survey_link;
+        $ticket_id = $request->ticket_id;
+
+        $messageModel = new Message();
+        $ticket = CustomerTicket::find($ticket_id);
+        $customerData = CRMCustomer::find($ticket->customer_id);
+
+        //save survey data locally
+        CustomerTicket::saveSurveyData($ticket_id, $ticket->ticket_uuid, $survey_link, $survey_message.' '.$survey_link);
+
+        // Save survey data remotely
+
+        //Send customer notification sms
+        $messageModel->saveSystemMessage('Client Survey Message', $customerData->customer_phone, $customerData->customer_name, $survey_message, true);
+
+        //Send sms notification to the logged in user
+        $loggedInUser = User::getUserById(Auth::user()->id);
+        $loggedInUserMessage = 'you have successfully initiated client feedback survey response for ticket ID'.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' on '.Carbon::now();
+        $messageModel->saveSystemMessage('Client Survey Message', $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
+
+        //Save audit trail
+        $activity_type = 'Customer Survey Message';
+        $description = 'Successfully sent customer survey for ticket of ID '.$ticket->ticket_uuid;
+        User::saveAuditTrail($activity_type, $description);
+  
+        return redirect(route('crm.tickets.show', $ticket_id))->with('success', 'Successfully sent customer survey for ticket of ID '.$ticket->ticket_uuid);
+    }
+
+    public function surveyFeedback()
+    {
+        $pageData = [
+            'page_name' => 'crm',
+            'page_title' => 'crm',
+            'title' => 'Survey Responses Data',
+            'pending_feedbacks' => CustomerTicket::getSurveyData(0),
+            'completed_feedbacks' => CustomerTicket::getSurveyData(1),
+        ];
+        return view('crm.feedback', $pageData);
     }
 }

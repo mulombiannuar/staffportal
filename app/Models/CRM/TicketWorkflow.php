@@ -86,15 +86,31 @@ class TicketWorkflow extends Model
                   ->get();
     }
 
-    public static function submitTicketComment($id, $workflow_message, $ticket_resolved)
+    public static function submitTicketComment($id, $workflow_message, $ticket_resolved, $is_current)
     {
         return  DB::table('ticket_workflows')->where('id', $id)
                   ->update([
-                    'is_current' => 0,
+                    'is_current' => $is_current,
                     'message_by' => Auth::user()->id,
                     'date_responded' => Carbon::now(),
                     'ticket_resolved' => $ticket_resolved,
                     'workflow_message' => $workflow_message,
                 ]);        
     }
+
+    public static function submitTicketClosureComment($ticket_id, $closure_message)
+    {
+        $workflow = new TicketWorkflow();
+        $workflow->is_current = 1;
+        $workflow->workflow_id = 1;
+        $workflow->ticket_resolved = 1;
+        $workflow->ticket_id = $ticket_id;
+        $workflow->workflow_user_id = 1;
+        $workflow->message_by = Auth::user()->id;
+        $workflow->date_responded = Carbon::now();
+        $workflow->workflow_message = $closure_message;
+        $workflow->save();      
+    }
+
+    
 }

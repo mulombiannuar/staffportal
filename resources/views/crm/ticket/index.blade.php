@@ -15,7 +15,7 @@
                     @endforeach
                     <li class="nav-item"><a class="nav-link" href="#closed" data-toggle="tab"><i
                                 class="fa fa-briefcase"></i>
-                            Closed Tickets</a></li>
+                            Closed Tickets({{ count($closed_tickets) }})</a></li>
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
@@ -83,18 +83,20 @@
                                                                     View</button>
                                                             </a>
                                                         </div>
-                                                        <div class="btn-group">
-                                                            <form
-                                                                action="{{ route('crm.tickets.destroy', $ticket->ticket_id) }}"
-                                                                method="post"
-                                                                onclick="return confirm('Do you really want to delete this ticket?')">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-xs btn-danger"><i
-                                                                        class="fa fa-trash"></i>
-                                                                    Delete</button>
-                                                            </form>
-                                                        </div>
+                                                        @if (!$ticket->ticket_closed)
+                                                            <div class="btn-group">
+                                                                <form
+                                                                    action="{{ route('crm.tickets.destroy', $ticket->ticket_id) }}"
+                                                                    method="post"
+                                                                    onclick="return confirm('Do you really want to delete this ticket?')">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="btn btn-xs btn-danger"><i
+                                                                            class="fa fa-trash"></i>
+                                                                        Delete</button>
+                                                                </form>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -179,7 +181,53 @@
                                 <h3 class="card-title"><i class="fa fa-briefcase"></i> Closed Tickets</h3>
                             </div>
                             <div class="card-body">
-                                Closed Tickets
+                                <table id="table5" class="table table-sm table-bordered table-striped table-head-fixed">
+                                    <thead>
+                                        <tr>
+                                            <th>S.N</th>
+                                            <th>TICKET ID</th>
+                                            <th>NAMES</th>
+                                            <th>MOBILE</th>
+                                            <th>RESIDENCE</th>
+                                            <th>DATE</th>
+                                            <th>BRANCH</th>
+                                            <th>OFFICER</th>
+                                            <th>CURRENT LEVEL</th>
+                                            <th>DATE CLOSED</th>
+                                            <th>SURVEY SENT</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($closed_tickets as $ticket)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $ticket->ticket_uuid }}</td>
+                                                <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                                <td>{{ $ticket->customer_phone }}</td>
+                                                <td>{{ $ticket->residence }}</td>
+                                                <td>{{ $ticket->date_raised }}</td>
+                                                <td>{{ $ticket->outpost_name }}</td>
+                                                <td>{{ $ticket->officer_name }}</td>
+                                                <td><strong>{{ $ticket->current_level }}</strong></td>
+                                                <td>{{ $ticket->date_closed }}</td>
+                                                <td>{{ $ticket->customer_sent_survey ? 'Yes' : 'Not' }}</td>
+                                                <td>
+                                                    <div class="margin">
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                title="Click to view ticket details">
+                                                                <button type="button" class="btn btn-xs btn-warning"><i
+                                                                        class="fa fa-bars"></i>
+                                                                    View </button>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <!-- /.card-body -->
                         </div>
