@@ -12,6 +12,8 @@ use App\Models\CRM\TicketWorkflow;
 use App\Models\Message;
 use App\Models\User;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,8 +31,8 @@ class CustomerTicketController extends Controller
         //return CustomerTicket::getCustomerTickets();
         //return CustomerTicket::getCustomerTicketsByStatus(1);
         $pageData = [
-			'page_name' => 'crm',
-			'page_title' => 'crm',
+            'page_name' => 'crm',
+            'page_title' => 'crm',
             'title' => 'Customer Tickets',
             'tickets' => CustomerTicket::getCustomerTickets(),
             'workflows' => TicketWorkflow::getWorkFlowTickets(),
@@ -56,7 +58,7 @@ class CustomerTicketController extends Controller
         ];
         return view('crm.ticket.create', $pageData);
     }
-    
+
 
     /**
      * Store a newly created resource in storage.
@@ -69,8 +71,8 @@ class CustomerTicketController extends Controller
         $request->validate([
             'customer_phone' => [
                 'required',
-                'digits:10', 
-                'max:10', 
+                'digits:10',
+                'max:10',
                 'min:10',
             ],
             'customer_name' => [
@@ -102,8 +104,8 @@ class CustomerTicketController extends Controller
 
         $bimas_br_id = null;
         $customer_name = $request->customer_name;
-        $customer_phone = $request->customer_phone; 
-        $residence = $request->residence; 
+        $customer_phone = $request->customer_phone;
+        $residence = $request->residence;
         $business = $request->business;
         $branch = $request->branch;
         $outpost = $request->outpost_id;
@@ -120,8 +122,8 @@ class CustomerTicketController extends Controller
         $source = $request->source;
 
         $clientData = CRMCustomer::getClientByMobileNumber($customer_phone);
-        if($clientData) $bimas_br_id = $clientData->bimas_br_id;
-        
+        if ($clientData) $bimas_br_id = $clientData->bimas_br_id;
+
         //Register and get details of registered client
         $customerData = $this->getRegisteredCustomerDetails($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id);
 
@@ -138,17 +140,17 @@ class CustomerTicketController extends Controller
 
         //Save audit trail
         $activity_type = 'Customer Ticket Creation';
-        $description = 'Successfully created new customer ticket '.$ticket->ticket_uuid.' for '. $customerData->customer_name;
+        $description = 'Successfully created new customer ticket ' . $ticket->ticket_uuid . ' for ' . $customerData->customer_name;
         User::saveAuditTrail($activity_type, $description);
 
         $outpost = Admin::getOutpostById($outpost);
         $ticketCategory = TicketCategory::find($category);
         $ticket_message = $this->getTicketCustomisedMessage($category);
         $messageModel = new Message();
-       
+
         //Send sms notification to the officer
         $user = User::getUserById($ticket->officer_id);
-        $officer_ticket_message = 'you have a new client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' generated at the Staffportal. Login at the portal to view details. ';
+        $officer_ticket_message = 'you have a new client ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' generated at the Staffportal. Login at the portal to view details. ';
         $messageModel->saveSystemMessage($ticketCategory->category_name, $user->mobile_no, $user->name,  $officer_ticket_message, true);
 
         // Send sms notification to the branch manager
@@ -157,25 +159,25 @@ class CustomerTicketController extends Controller
             $supervisor_ticket_message = $this->setSupervisorMessage($ticket->ticket_uuid, $user);
             $messageModel->saveSystemMessage($ticketCategory->category_name, $branch_supervisor->mobile_no, $branch_supervisor->name,  $supervisor_ticket_message, true);
         }
-        
+
         //Send Customer customized sms notification
         $customer_message = $this->setCustomerMessage($outpost, $ticket_message, $ticket->ticket_uuid, $user);
         $messageModel->saveSystemMessage($ticketCategory->category_name, $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
-        
+
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
-        $loggedInUserMessage = 'you have successfully registered new client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' for '.$outpost->outpost_name. ' branch';
+        $loggedInUserMessage = 'you have successfully registered new client ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' for ' . $outpost->outpost_name . ' branch';
         $messageModel->saveSystemMessage($ticketCategory->category_name, $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
 
         //Send email to outpost email
-        $emailSubject = 'New Customer Ticket for '.strtoupper($customerData->customer_name).'-'.$customerData->customer_phone. ' raised on Staffportal';
+        $emailSubject = 'New Customer Ticket for ' . strtoupper($customerData->customer_name) . '-' . $customerData->customer_phone . ' raised on Staffportal';
         $emailMessage = $this->setOfficerMessage($ticket->message, $officer_ticket_message);
         $customerCareEmail = 'customercare@bimaskenya.com';
         $branchEmail = $outpost->outpost_email;
         $messageModel->SendSystemEmail($user->name, $branchEmail, $emailMessage, $emailSubject);
         $messageModel->SendSystemEmail($user->name, $customerCareEmail, $emailMessage, $emailSubject);
-        
-        return back()->with('success', 'Successfully created new customer ticket for '.$customerData->customer_name. '. Notifications sent to customer and relevant officer');
+
+        return back()->with('success', 'Successfully created new customer ticket for ' . $customerData->customer_name . '. Notifications sent to customer and relevant officer');
     }
 
     /**
@@ -189,8 +191,8 @@ class CustomerTicketController extends Controller
         $messageModel = new Message();
         $ticket = CustomerTicket::getCustomerTicketById($id);
         $customer = CRMCustomer::getCustomerByMobileNumber($ticket->customer_phone);
-       // return TicketWorkflow::getUserForwadedToLevels(Auth::user()->id);
-      
+        // return TicketWorkflow::getUserForwadedToLevels(Auth::user()->id);
+
         $pageData = [
             'page_name' => 'crm',
             'page_title' => 'crm',
@@ -198,7 +200,7 @@ class CustomerTicketController extends Controller
             'ticketData' => $ticket,
             'customer' => $customer,
             'closed' => $ticket->ticket_closed,
-            'title' => 'Customer Ticket - '.$ticket->ticket_uuid,
+            'title' => 'Customer Ticket - ' . $ticket->ticket_uuid,
             'survey_data' => CustomerTicket::getSurveyDataByTicketID($id),
             'ticket_url' => CustomerTicket::getTicketURL($ticket->ticket_uuid),
             'escalations' => CustomerTicket::getTicketEscalationWorkflowLevels($id),
@@ -244,8 +246,8 @@ class CustomerTicketController extends Controller
         $request->validate([
             'customer_phone' => [
                 'required',
-                'digits:10', 
-                'max:10', 
+                'digits:10',
+                'max:10',
                 'min:10',
             ],
             'customer_name' => [
@@ -276,11 +278,11 @@ class CustomerTicketController extends Controller
         ]);
 
         $ticketData = CustomerTicket::find($id);
-        
+
         $bimas_br_id = null;
         $customer_name = $request->customer_name;
-        $customer_phone = $request->customer_phone; 
-        $residence = $request->residence; 
+        $customer_phone = $request->customer_phone;
+        $residence = $request->residence;
         $business = $request->business;
         $branch = $request->branch;
         $outpost = $request->outpost_id;
@@ -293,8 +295,8 @@ class CustomerTicketController extends Controller
         $source = $request->source;
 
         $clientData = CRMCustomer::getClientByMobileNumber($customer_phone);
-        if($clientData) $bimas_br_id = $clientData->bimas_br_id;
-        
+        if ($clientData) $bimas_br_id = $clientData->bimas_br_id;
+
         //Update and get details of client
         $customerData = $this->updateCustomer($ticketData->customer_id, $customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id);
 
@@ -309,10 +311,10 @@ class CustomerTicketController extends Controller
 
         //Save audit trail
         $activity_type = 'Customer Ticket Updation';
-        $description = 'Successfully updated customer ticket '.$ticket->ticket_uuid.' for '. $customerData->customer_name;
+        $description = 'Successfully updated customer ticket ' . $ticket->ticket_uuid . ' for ' . $customerData->customer_name;
         User::saveAuditTrail($activity_type, $description);
 
-        return redirect(route('crm.tickets.index'))->with('success', 'Successfully updated customer ticket for '.$customerData->customer_name);
+        return redirect(route('crm.tickets.index'))->with('success', 'Successfully updated customer ticket for ' . $customerData->customer_name);
     }
 
     /**
@@ -325,10 +327,10 @@ class CustomerTicketController extends Controller
     {
         CustomerTicket::destroy($id);
         TicketWorkflow::where('ticket_id', $id)->delete();
-        
+
         //Save audit trail
         $activity_type = 'Customer Ticket Deletion';
-        $description = 'Deleted customer ticket successfully of the id '.$id;
+        $description = 'Deleted customer ticket successfully of the id ' . $id;
         User::saveAuditTrail($activity_type, $description);
 
         return back()->with('success', 'Deleted Customer Ticket Successfully');
@@ -338,12 +340,11 @@ class CustomerTicketController extends Controller
     {
         $workflow_id =  $request->input('workflow');
         $workflows = TicketWorkflow::getWorkFlowUsers($workflow_id);
-        $output = '<option value="">- Select Workflow User -</option>'; 
-        foreach($workflows as $row)
-        {
-          $output .= '<option value="'.$row->workflow_user_id.'">'.$row->workflow_user_name.'</option>';
+        $output = '<option value="">- Select Workflow User -</option>';
+        foreach ($workflows as $row) {
+            $output .= '<option value="' . $row->workflow_user_id . '">' . $row->workflow_user_name . '</option>';
         }
-        return $output; 
+        return $output;
     }
 
     private function getRegisteredCustomerDetails($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id)
@@ -396,28 +397,28 @@ class CustomerTicketController extends Controller
 
     private function setOfficerMessage($customer_message, $officer_ticket_message)
     {
-        return ucfirst($officer_ticket_message).' Here is the content of the ticket:  '.$customer_message;
+        return ucfirst($officer_ticket_message) . ' Here is the content of the ticket:  ' . $customer_message;
     }
 
     private function setSupervisorMessage($ticket_id, $user)
     {
-        return 'a new client ticket for '.$ticket_id.' has been registered under your branch and assigned to '.strtoupper($user->name).'. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
+        return 'a new client ticket for ' . $ticket_id . ' has been registered under your branch and assigned to ' . strtoupper($user->name) . '. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
     }
 
-    
+
     private function setCustomerEscalationMessage($ticket_id)
     {
-        return 'thank you for contacting BIMAS concerning our products and services. Your issue of ticket ID '.$ticket_id.' has been escalated to another agent. Please be patient while we try to resolve the matter in the best way and shortest time possible';
+        return 'thank you for contacting BIMAS concerning our products and services. Your issue of ticket ID ' . $ticket_id . ' has been escalated to another agent. Please be patient while we try to resolve the matter in the best way and shortest time possible';
     }
 
     private function setCustomerTicketClosureMessage($ticket_id)
     {
-        return 'your issue of ticket ID '.$ticket_id.' has been successfully closed. Thank you for your patience. For further inquiries you can always contact our customer care line on 0701111700';
+        return 'your issue of ticket ID ' . $ticket_id . ' has been successfully closed. Thank you for your patience. For further inquiries you can always contact our customer care line on 0701111700';
     }
 
     private function setOfficerEscalationMessage($ticket_id)
     {
-        return 'you have ticket issue of ID '.$ticket_id.' forwarded to you. Login to the Staffportal to view details';
+        return 'you have ticket issue of ID ' . $ticket_id . ' forwarded to you. Login to the Staffportal to view details';
     }
 
     private function getTicketCustomisedMessage($category)
@@ -433,7 +434,7 @@ class CustomerTicketController extends Controller
         $customerTicket = new CustomerTicket();
         $user = User::getUserById(Auth::user()->id);
         //return $this->getTicketsByWorkflow('ICT Manager', $user->outpost);
-        
+
         $pageData = [
             'user' =>  $user,
             'page_name' => 'crm',
@@ -462,7 +463,7 @@ class CustomerTicketController extends Controller
             'communication' => $this->getTicketsByWorkflow('Communication Officer"', $user->outpost),
 
         ];
-        return view('crm.ticket.customer_tickets', $pageData); 
+        return view('crm.ticket.customer_tickets', $pageData);
     }
 
     public static function getTicketsByWorkflow($workflow_user_name, $outpost_id)
@@ -470,8 +471,8 @@ class CustomerTicketController extends Controller
         $customerTicket = new CustomerTicket();
         $tickets = $customerTicket->getGroupedTickets($outpost_id);
         foreach ($tickets as $ticket) {
-            if (strtolower($ticket->workflow_user_name == $workflow_user_name)) 
-            return $ticket->tickets;
+            if (strtolower($ticket->workflow_user_name == $workflow_user_name))
+                return $ticket->tickets;
         }
         return [];
     }
@@ -500,7 +501,7 @@ class CustomerTicketController extends Controller
         if ($ticket_resolved == 1) {
             $workflow_id = 1;
             $workflow_user_id = 1;
-        }else{
+        } else {
             $request->validate([
                 'workflow_id' => 'integer|required',
                 'workflow_user_id' => 'integer|required',
@@ -525,37 +526,37 @@ class CustomerTicketController extends Controller
 
         //Save audit trail
         $activity_type = 'Customer Ticket Comment';
-        $description = 'Successfully submitted customer ticket comment for '.$ticket->ticket_uuid;
+        $description = 'Successfully submitted customer ticket comment for ' . $ticket->ticket_uuid;
         User::saveAuditTrail($activity_type, $description);
 
         $messageModel = new Message();
         $customerData = CRMCustomer::find($ticket->customer_id);
 
         // Send message to client if ticket escalated beyond branch
-        if($workflow_id === 5){  
+        if ($workflow_id === 5) {
             $customer_message = $this->setCustomerEscalationMessage($ticket->ticket_uuid);
             $messageModel->saveSystemMessage('Ticket Escalation Customer', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
         }
 
         // Get the person ticket being escalated to and send notification
         $persons = $this->getEscalatedPersonsDetails($ticket_id, $workflow_user_id);
-        if(!empty($persons)){
-            for ($s=0; $s <count($persons) ; $s++) { 
+        if (!empty($persons)) {
+            for ($s = 0; $s < count($persons); $s++) {
 
                 // Send sms notification
                 $officer_message = $this->setOfficerEscalationMessage($ticket->ticket_uuid);
                 $messageModel->saveSystemMessage('Ticket Escalation Officer', $persons[$s]->mobile_no, $persons[$s]->name,  $officer_message, true);
 
                 // Send email to the person
-                $emailSubject = 'Ticket Escalation for '.strtoupper($customerData->customer_name).'-'.$customerData->customer_phone. ' raised on Staffportal';
+                $emailSubject = 'Ticket Escalation for ' . strtoupper($customerData->customer_name) . '-' . $customerData->customer_phone . ' raised on Staffportal';
                 $messageModel->SendSystemEmail($persons[$s]->name, $persons[$s]->email, $officer_message, $emailSubject);
-            }       
+            }
         }
 
-        if (Auth::user()->hasRole('communication|admin')) 
-        return redirect(route('crm.tickets.index'))->with('success', 'Successfully submitted comment for customer ticket of '.$customerData->customer_name. '. Notifications sent to the relevant officer');
-        
-        return redirect(route('crm.tickets.customers'))->with('success', 'Successfully submitted comment for customer ticket of '.$customerData->customer_name. '. Notifications sent to the relevant officer');
+        if (Auth::user()->hasRole('communication|admin'))
+            return redirect(route('crm.tickets.index'))->with('success', 'Successfully submitted comment for customer ticket of ' . $customerData->customer_name . '. Notifications sent to the relevant officer');
+
+        return redirect(route('crm.tickets.customers'))->with('success', 'Successfully submitted comment for customer ticket of ' . $customerData->customer_name . '. Notifications sent to the relevant officer');
     }
 
     //Get the person ticket being escalated
@@ -578,7 +579,6 @@ class CustomerTicketController extends Controller
             } else {
                 return [];
             }
-            
         } else {
             return [];
         }
@@ -613,7 +613,7 @@ class CustomerTicketController extends Controller
 
         //Save audit trail
         $activity_type = 'Customer Ticket Closure';
-        $description = 'Successfully closed ticket of ID '.$ticket->ticket_uuid;
+        $description = 'Successfully closed ticket of ID ' . $ticket->ticket_uuid;
         User::saveAuditTrail($activity_type, $description);
 
         //Send Customer customized sms notification
@@ -622,10 +622,10 @@ class CustomerTicketController extends Controller
 
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
-        $loggedInUserMessage = 'you have successfully closed client ticket '.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' on '.Carbon::now();
+        $loggedInUserMessage = 'you have successfully closed client ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' on ' . Carbon::now();
         $messageModel->saveSystemMessage('Client Ticket Closure', $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
 
-        return redirect(route('crm.tickets.index'))->with('success', 'Successfully closed client ticket of '.$customerData->customer_name. '. Notifications sent to the client');
+        return redirect(route('crm.tickets.index'))->with('success', 'Successfully closed client ticket of ' . $customerData->customer_name . '. Notifications sent to the client');
     }
 
     public function saveClientSurveyData(Request $request)
@@ -646,29 +646,87 @@ class CustomerTicketController extends Controller
         $ticket = CustomerTicket::find($ticket_id);
         $customerData = CRMCustomer::find($ticket->customer_id);
 
-        //save survey data locally
-        CustomerTicket::saveSurveyData($ticket_id, $ticket->ticket_uuid, $survey_link, $survey_message.' '.$survey_link);
-
         // Save survey data remotely
+        try {
+            $client =  new Client(array('curl' => array(CURLOPT_SSL_VERIFYPEER => false,),));
+            $url = env('FEEDBACK_URL') . "api/customer-feedback/v1/save-survey-data";
+
+            $form_data = [
+                'ticket_id' => $ticket_id,
+                'ticket_uuid' => $ticket->ticket_uuid,
+                'customer_name' => $customerData->customer_name,
+                'customer_phone' => $customerData->customer_phone,
+            ];
+
+            $response = $client->post(
+                $url,
+                [
+                    RequestOptions::ALLOW_REDIRECTS => [
+                        'max' => 5,
+                        'track_redirects' => true,
+                    ],
+                    RequestOptions::FORM_PARAMS => $form_data,
+                ]
+            );
+        } catch (\Throwable $th) {
+            throw $th;
+            file_put_contents("log.txt", $th . " \n", FILE_APPEND);
+            return back()->with('warning', 'There was an error while trying to post survey data to remote server : ' . $th);
+        }
+
+        //save survey data locally
+        CustomerTicket::saveSurveyData($ticket_id, $ticket->ticket_uuid, $survey_link, $survey_message . ' ' . $survey_link);
 
         //Send customer notification sms
         $messageModel->saveSystemMessage('Client Survey Message', $customerData->customer_phone, $customerData->customer_name, $survey_message, true);
 
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
-        $loggedInUserMessage = 'you have successfully initiated client feedback survey response for ticket ID'.$ticket->ticket_uuid.' for '.strtoupper($customerData->customer_name).' on '.Carbon::now();
+        $loggedInUserMessage = 'you have successfully initiated client feedback survey response for ticket ID ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' on ' . Carbon::now();
         $messageModel->saveSystemMessage('Client Survey Message', $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
 
         //Save audit trail
         $activity_type = 'Customer Survey Message';
-        $description = 'Successfully sent customer survey for ticket of ID '.$ticket->ticket_uuid;
+        $description = 'Successfully sent customer survey for ticket of ID ' . $ticket->ticket_uuid;
         User::saveAuditTrail($activity_type, $description);
-  
-        return redirect(route('crm.tickets.show', $ticket_id))->with('success', 'Successfully sent customer survey for ticket of ID '.$ticket->ticket_uuid);
+
+        return redirect(route('crm.tickets.show', $ticket_id))->with('success', 'Successfully sent customer survey for ticket of ID ' . $ticket->ticket_uuid);
+    }
+
+    public function resendSurveyMessage(Request $request)
+    {
+        $request->validate([
+            'ticket_id' => 'integer|required',
+            'survey_message' => 'string|required',
+        ]);
+        //return $request;
+        $survey_message = $request->survey_message;
+        $ticket_id = $request->ticket_id;
+
+        $messageModel = new Message();
+        $ticket = CustomerTicket::find($ticket_id);
+        $customerData = CRMCustomer::find($ticket->customer_id);
+
+        //Send customer notification sms
+        $messageModel->saveSystemMessage('Customer Survey Reminder', $customerData->customer_phone, $customerData->customer_name, $survey_message, true);
+
+        //Send sms notification to the logged in user
+        $loggedInUser = User::getUserById(Auth::user()->id);
+        $loggedInUserMessage = 'you have successfully sent client feedback reminder message for ticket ID ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' on ' . Carbon::now();
+        $messageModel->saveSystemMessage('Client Survey Reminder', $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
+
+        //Save audit trail
+        $activity_type = 'Customer Survey Reminder';
+        $description = 'Successfully sent customer survey for ticket of ID ' . $ticket->ticket_uuid;
+        User::saveAuditTrail($activity_type, $description);
+
+        return redirect(route('crm.tickets.show', $ticket_id))->with('success', 'Successfully sent customer survey reminder response for ticket of ID ' . $ticket->ticket_uuid);
     }
 
     public function surveyFeedback()
     {
+
+
         $pageData = [
             'page_name' => 'crm',
             'page_title' => 'crm',
@@ -677,5 +735,33 @@ class CustomerTicketController extends Controller
             'completed_feedbacks' => CustomerTicket::getSurveyData(1),
         ];
         return view('crm.feedback', $pageData);
+    }
+
+    // Synch data from the remote server
+    public function syncSurveyData()
+    {
+        $customerTicket = new CustomerTicket();
+        try {
+            $client =  new Client(array('curl' => array(CURLOPT_SSL_VERIFYPEER => false,),));
+            $url = env('FEEDBACK_URL') . "api/customer-feedback/v1/get/synced/0";
+
+            $response = $client->request('GET', $url, [
+                'verify'  => false,
+            ]);
+
+            $data = json_decode($response->getBody());
+            $customerTicket->syncSurveyData($data);
+        } catch (\Throwable $th) {
+            throw $th;
+            file_put_contents("log.txt", $th . " \n", FILE_APPEND);
+            return back()->with('warning', 'There was an error while trying to post survey data to remote server : ' . $th);
+        }
+
+        //Save audit trail
+        $activity_type = 'Survey Data Synchronization';
+        $description = 'Successfully synced customer survey data ' . count($data) . ' records affected';
+        User::saveAuditTrail($activity_type, $description);
+
+        return back()->with('success', 'Customer feedback survey data synced successfuly : ' . count($data) . ' records affected');
     }
 }

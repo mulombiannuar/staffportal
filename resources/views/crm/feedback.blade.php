@@ -11,6 +11,10 @@
                     <li class="nav-item"><a class="nav-link" href="#completed" data-toggle="tab"><i
                                 class="fa fa-list-alt"></i>
                             Completed Responses ({{ count($completed_feedbacks) }})</a></li>
+
+                    <li class="nav-item"><a class="nav-link" href="#syncdata" data-toggle="tab"><i
+                                class="fa fa-user-plus"></i>
+                            Sync Survey Data </a></li>
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
@@ -128,6 +132,27 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- documents -->
+                    </div>
+                    <!-- /.tab-pane -->
+
+                    <div class="tab-pane" id="syncdata">
+                        <!-- documents -->
+                        <div class="card card-secondary">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa fa-list-alt"></i> Sync Survey Data
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ route('crm.tickets.sync-data') }}" method="post"
+                                    onclick="return confirm('Do you really want to sync survey data?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning"> <i class="fa fa-user-plus"></i>
+                                        Sync Survey Data</button>
+                                </form>
                             </div>
                             <!-- /.card-body -->
                         </div>

@@ -363,15 +363,14 @@ Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
 
     //Admin users
     Route::post('tickets/close-ticket', [CustomerTicketController::class, 'closeTicket'])->name('tickets.close');
+    Route::post('tickets/sync-data', [CustomerTicketController::class, 'syncSurveyData'])->name('tickets.sync-data');
     Route::get('tickets/feedbacks', [CustomerTicketController::class, 'surveyFeedback'])->name('tickets.feedback');
     Route::post('tickets/save-survey', [CustomerTicketController::class, 'saveClientSurveyData'])->name('tickets.save-survey');
+    Route::post('tickets/resend-message', [CustomerTicketController::class, 'resendSurveyMessage'])->name('tickets.resend-message');
     Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:communication']);
     Route:: resource('customers', CRMCustomerController::class, ['except' => ['create', 'store']])->middleware(['role:communication']);
     Route:: resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit']])->middleware(['role:communication']);
     Route:: resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:communication']);
     Route:: resource('tickets', CustomerTicketController::class)->middleware(['role:communication']);
-
-   
-    
    
 });

@@ -21,7 +21,8 @@
                     <li class="nav-item"><a class="nav-link" href="#escalation" data-toggle="tab"><i
                                 class="fa fa-list-alt"></i> Ticket Escalation</a></li>
 
-                    <li class="nav-item"><a class="nav-link" href="#survey" data-toggle="tab"><i class="fa fa-question"></i>
+                    <li class="nav-item"><a class="nav-link" href="#survey" data-toggle="tab"><i
+                                class="fa fa-question-circle"></i>
                             Ticket Survey</a></li>
                 </ul>
             </div><!-- /.card-header -->
@@ -340,7 +341,7 @@
                         <!-- roles user -->
                         <div class="card card-warning">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fa fa-question"></i>
+                                <h3 class="card-title"><i class="fa fa-question-circle"></i>
                                     {{ $ticketData->customer_sent_survey ? 'Ticket Sent Survey Details' : 'Send Survey Question' }}
                                 </h3>
                             </div>
@@ -384,6 +385,22 @@
                                                     @endif
                                                 </td>
                                             </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <form action="{{ route('crm.tickets.resend-message') }}"
+                                                        method="post"
+                                                        onclick="return confirm('Do you really want to send customer reminder message')">
+                                                        @csrf
+                                                        <input type="hidden" name="ticket_id"
+                                                            value="{{ $ticketData->ticket_id }}">
+                                                        <input type="hidden" name="survey_message"
+                                                            value="{{ $survey_data->survey_message }}">
+                                                        <button type="submit" class="btn btn-secondary"> <i
+                                                                class="fa fa-envelope"></i>
+                                                            Send Reminder Message</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 @else
@@ -392,14 +409,14 @@
                                         @csrf
                                         <div class="modal-body">
                                             <div class="row">
-                                                <div class="col-md-8 col-sm-12">
+                                                <div class="col-md-7 col-sm-12">
                                                     <div class="form-group">
                                                         <label for="survey_message">Survey Message</label>
                                                         <textarea class="form-control" name="survey_message" id="survey_message" cols="4" rows="2"
                                                             placeholder="Enter survey message" autocomplete="on" required>Thank you for contacting Bimas Kenya Limited. We value your feedback. Please rate your experience here </textarea>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4 col-sm-12">
+                                                <div class="col-md-5 col-sm-12">
                                                     <div class="form-group">
                                                         <label for="source">Survey Link</label>
                                                         <input type="text" name="survey_link" class="form-control"
