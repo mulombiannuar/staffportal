@@ -429,7 +429,6 @@ class CustomerTicket extends Model
         } catch (\Throwable $th) {
             throw $th;
             file_put_contents("log.txt", $th . " \n", FILE_APPEND);
-            return back()->with('warning', 'There was an error while trying to synch survey data to remote server : ' . $th);
         }
     }
 
