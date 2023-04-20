@@ -169,6 +169,12 @@ class CustomerTicketController extends Controller
         $loggedInUserMessage = 'you have successfully registered new client ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' for ' . $outpost->outpost_name . ' branch';
         $messageModel->saveSystemMessage($ticketCategory->category_name, $loggedInUser->mobile_no, $loggedInUser->name, $loggedInUserMessage, true);
 
+        //Send message marketting if category is 1
+        if ($category == 1) {
+            $marketing_message = $this->setOperationAreaMessage($ticket->ticket_uuid, $customerData->customer_name);
+            $messageModel->saveSystemMessage($ticketCategory->category_name, '0723209040', 'Backson Ndiba',  $marketing_message, true);
+        }
+
         //Send email to outpost email
         $emailSubject = 'New Customer Ticket for ' . strtoupper($customerData->customer_name) . '-' . $customerData->customer_phone . ' raised on Staffportal';
         $emailMessage = $this->setOfficerMessage($ticket->message, $officer_ticket_message);
@@ -405,6 +411,10 @@ class CustomerTicketController extends Controller
         return 'a new client ticket for ' . $ticket_id . ' has been registered under your branch and assigned to ' . strtoupper($user->name) . '. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
     }
 
+    private function setOperationAreaMessage($ticket_uuid, $customer_name)
+    {
+        return 'a new client ticket ID ' . $ticket_uuid . ' for '. strtoupper($customer_name).' has been registered seeking assistance outside our areas of operations. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
+    }
 
     private function setCustomerEscalationMessage($ticket_id)
     {
@@ -678,7 +688,7 @@ class CustomerTicketController extends Controller
         CustomerTicket::saveSurveyData($ticket_id, $ticket->ticket_uuid, $survey_link, $survey_message . ' ' . $survey_link);
 
         //Send customer notification sms
-        $messageModel->saveSystemMessage('Client Survey Message', $customerData->customer_phone, $customerData->customer_name, $survey_message, true);
+        $messageModel->saveSystemMessage('Client Survey Message', $customerData->customer_phone, $customerData->customer_name, $survey_message. ' ' . $survey_link, true);
 
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
@@ -723,16 +733,28 @@ class CustomerTicketController extends Controller
         return redirect(route('crm.tickets.show', $ticket_id))->with('success', 'Successfully sent customer survey reminder response for ticket of ID ' . $ticket->ticket_uuid);
     }
 
-    public function surveyFeedback()
+    public function surveyFeedbacks()
     {
-
-
         $pageData = [
             'page_name' => 'crm',
             'page_title' => 'crm',
             'title' => 'Survey Responses Data',
             'pending_feedbacks' => CustomerTicket::getSurveyData(0),
             'completed_feedbacks' => CustomerTicket::getSurveyData(1),
+        ];
+        return view('crm.feedbacks', $pageData);
+    }
+
+    public function surveyFeedback($id)
+    {
+        $surveyData = CustomerTicket::getSurveyDataById($id);
+        //return unserialize($surveyData->customer_response)['Q1'];
+        $pageData = [
+            'page_name' => 'crm',
+            'page_title' => 'crm',
+            'ticket' => $surveyData,
+            'title' => 'Customer Survey Responses',
+            'response' => unserialize($surveyData->customer_response),
         ];
         return view('crm.feedback', $pageData);
     }

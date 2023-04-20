@@ -382,6 +382,30 @@ class CustomerTicket extends Model
             ->get();
     }
 
+    public static function getSurveyDataById($id)
+    {
+        return DB::table('ticket_survey')
+            ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_survey.ticket_id')
+            ->join('users as officers', 'officers.id', '=', 'customer_tickets.officer_id')
+            ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+            ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+            ->join('branches', 'branches.branch_id', '=', 'crm_customers.branch_id')
+            ->select(
+                'ticket_survey.*',
+                'date_raised',
+                'customer_name',
+                'customer_phone',
+                'residence', 'business',
+                'message',
+                'branch_name',
+                'outpost_name',
+                'officers.name as officer_name'
+            )
+            ->where('ticket_survey.id', $id)
+            ->orderBy('id', 'desc')
+            ->first();
+    }
+
     public static function getSurveyDataByTicketID($ticket_id)
     {
         return DB::table('ticket_survey')
