@@ -119,7 +119,7 @@
                                                 <td>
                                                     <div class="margin">
                                                         <div class="btn-group">
-                                                            <a href="{{ route('crm.tickets.feedbacks.show', $ticket->id) }}"
+                                                            <a href="{{ route('crm.tickets.feedbacks.show', $ticket->ticket_uuid) }}"
                                                                 title="Click to view ticket details">
                                                                 <button type="button" class="btn btn-xs btn-warning"><i
                                                                         class="fa fa-bars"></i>

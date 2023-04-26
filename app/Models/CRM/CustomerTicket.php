@@ -46,6 +46,35 @@ class CustomerTicket extends Model
         return CustomerTicket::getTicketsCurrentLevels($tickets);
     }
 
+    public static function getCustomerOverdueTickets()
+    {
+        $tickets = DB::table('customer_tickets')
+            ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+            ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
+            ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+            ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+            ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+            ->select(
+                'customer_tickets.*',
+                'customer_name',
+                'customer_phone',
+                'residence',
+                'business',
+                'crm_customers.outpost_id',
+                'bimas_br_id',
+                'category_name',
+                'source_name',
+                'outpost_name',
+                'users.name as officer_name'
+            )
+            ->where('ticket_closed', 0)
+            ->where('overdue_days','!=', 0)
+            ->orderBy('ticket_id', 'desc')
+            ->get();
+
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
+    }
+
     public static function getCustomerTicketsByStatus($status)
     {
         $tickets = DB::table('customer_tickets')
@@ -77,7 +106,6 @@ class CustomerTicket extends Model
 
         return CustomerTicket::getTicketsCurrentLevels($tickets);
     }
-
 
     public static function getCustomerTicketsByCategory($category_id)
     {
@@ -246,10 +274,20 @@ class CustomerTicket extends Model
                 'date_responded',
                 'name as officer_name',
                 'ticket_resolved',
+                'resolution_time',
                 'email'
             )
             ->where(['ticket_id' => $ticket_id, 'is_current' => 0])
             ->get();
+    }
+
+    public static function getCustomerTicketsByActiveStatus($ticket_closed, $is_current)
+    {
+        return DB::table('ticket_workflows')
+                 ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_workflows.ticket_id')
+                 ->where(['ticket_closed' => $ticket_closed, 'is_current' => $is_current])
+                 ->select('ticket_workflows.*', 'is_current')
+                 ->get();
     }
 
     public static function getCustomerTicketById($ticket_id)
@@ -277,7 +315,7 @@ class CustomerTicket extends Model
                 'crm_workflows.name as workflow_name',
                 'crm_workflows.workflow_id as flow_id',
                 'bimas_br_id',
-                // 'created_by',
+                'max_stay_hours',
                 'category_name',
                 'source_name',
                 'outpost_name',
@@ -382,7 +420,7 @@ class CustomerTicket extends Model
             ->get();
     }
 
-    public static function getSurveyDataById($id)
+    public static function getSurveyDataById($ticket_uuid)
     {
         return DB::table('ticket_survey')
             ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_survey.ticket_id')
@@ -401,7 +439,7 @@ class CustomerTicket extends Model
                 'outpost_name',
                 'officers.name as officer_name'
             )
-            ->where('ticket_survey.id', $id)
+            ->where('ticket_survey.ticket_uuid', $ticket_uuid)
             ->orderBy('id', 'desc')
             ->first();
     }
@@ -465,6 +503,15 @@ class CustomerTicket extends Model
                 'customer_response' => $customer_response,
                 'updated_at' => Carbon::now()
             ]);
+    }
+
+    public static function communicationOfficer()
+    {
+        return [
+            'name' => 'Catherine Mukami',
+            'email' => 'cmukami@bimaskenya.com',
+            'mobile_no' => '0722776906'
+        ];
     }
 
     private static function generateTicketID(): string

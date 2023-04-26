@@ -62,7 +62,7 @@ class TicketWorkflow extends Model
         return TicketWorkflow::forwardedLevels([1,2,4]);
 
         if(User::hasSeniorManagerRole($user_id)) 
-        return TicketWorkflow::forwardedLevels([1,2,5]);
+        return TicketWorkflow::forwardedLevels([1,2,3]);
         
         if($user->hasRole('branch manager')) 
         return TicketWorkflow::forwardedLevels([4,6]);
@@ -88,6 +88,9 @@ class TicketWorkflow extends Model
 
     public static function submitTicketComment($id, $workflow_message, $ticket_resolved, $is_current)
     {
+        $ticket = TicketWorkflow::find($id);
+        TicketWorkflow::updateTicketOverdueTime($ticket->ticket_id);
+        
         return  DB::table('ticket_workflows')->where('id', $id)
                   ->update([
                     'is_current' => $is_current,
@@ -95,11 +98,15 @@ class TicketWorkflow extends Model
                     'date_responded' => Carbon::now(),
                     'ticket_resolved' => $ticket_resolved,
                     'workflow_message' => $workflow_message,
+                    'resolution_time' => TicketWorkflow::getTicketResolutionHours($ticket->created_at)
                 ]);        
     }
 
     public static function submitTicketClosureComment($ticket_id, $closure_message)
     {
+        $ticket = CustomerTicket::find($ticket_id);
+        TicketWorkflow::updateTicketOverdueTime($ticket->ticket_id);
+        
         $workflow = new TicketWorkflow();
         $workflow->is_current = 1;
         $workflow->workflow_id = 1;
@@ -109,7 +116,20 @@ class TicketWorkflow extends Model
         $workflow->message_by = Auth::user()->id;
         $workflow->date_responded = Carbon::now();
         $workflow->workflow_message = $closure_message;
+        $workflow->resolution_time = TicketWorkflow::getTicketResolutionHours($ticket->created_at);
         $workflow->save();      
+    }
+    
+    public static function updateTicketOverdueTime($ticket_id)
+    {
+        return CustomerTicket::where('ticket_id', $ticket_id)
+                             ->update(['overdue_days' => 0, 'overdue_hours' => 0]);
+    }
+
+    public static function getTicketResolutionHours($date_created)
+    {
+        $date = Carbon::parse($date_created);
+        return $date->diffInHours(Carbon::now());
     }
 
     

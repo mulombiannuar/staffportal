@@ -8,22 +8,24 @@
                 <ul class="nav nav-pills">
                     <li class="nav-item"><a class="nav-link active" href="#details" data-toggle="tab"><i class="fa fa-bars"></i>
                             Ticket Details</a></li>
-                    @if (!$ticketData->ticket_closed)
-                        <li class="nav-item"><a class="nav-link" href="#addcomment" data-toggle="tab"><i
-                                    class="fa fa-user-plus"></i>
-                                Add Comment</a></li>
-                    @endif
-
-                    <li class="nav-item"><a class="nav-link" href="#closeticket" data-toggle="tab"><i
-                                class="fa fa-calendar"></i>
-                            Ticket Closure</a></li>
 
                     <li class="nav-item"><a class="nav-link" href="#escalation" data-toggle="tab"><i
                                 class="fa fa-list-alt"></i> Ticket Escalation</a></li>
+                    @if (!$ticketData->ticket_closed)
+                        <li class="nav-item"><a class="nav-link" href="#addcomment" data-toggle="tab"><i
+                                    class="fa fa-plus-circle"></i>
+                                Submit Your Comment</a></li>
+                    @endif
 
-                    <li class="nav-item"><a class="nav-link" href="#survey" data-toggle="tab"><i
-                                class="fa fa-question-circle"></i>
-                            Ticket Survey</a></li>
+                    @if (Auth::user()->hasRole('administrator') || Auth::user()->hasRole('communication'))
+                        <li class="nav-item"><a class="nav-link" href="#closeticket" data-toggle="tab"><i
+                                    class="fa fa-calendar"></i>
+                                Ticket Closure</a></li>
+
+                        <li class="nav-item"><a class="nav-link" href="#survey" data-toggle="tab"><i
+                                    class="fa fa-question-circle"></i>
+                                Ticket Survey</a></li>
+                    @endif
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
@@ -152,7 +154,7 @@
                         <!-- roles user -->
                         <div class="card card-warning">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fa fa-user-plus"></i> Ticket Comment</h3>
+                                <h3 class="card-title"><i class="fa fa-plus-circle"></i> Ticket Comment</h3>
                             </div>
                             <div class="card-body">
                                 <form method="post" action="{{ route('crm.tickets.save_comment') }}">
@@ -215,7 +217,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer justify-content-between">
-                                        <button type="submit" class="btn btn-primary"> <i class="fa fa-user-plus"></i>
+                                        <button type="submit" class="btn btn-primary"> <i class="fa fa-plus-circle"></i>
                                             Submit Ticket Comment</button>
                                     </div>
                                 </form>
@@ -241,7 +243,8 @@
                                             <th>EMAIL</th>
                                             <th>LEVEL</th>
                                             <th>COMMENT</th>
-                                            <th>DATE</th>
+                                            <th>DATE RESPONDED</th>
+                                            <th>RES. TIME</th>
                                             <th>RESOLVED?</th>
                                         </tr>
                                     </thead>
@@ -254,6 +257,7 @@
                                                 <td>{{ $ticket->workflow_user_name }}</td>
                                                 <td>{{ $ticket->workflow_message }}</td>
                                                 <td>{{ $ticket->date_responded }}</td>
+                                                <td>{{ $ticket->resolution_time }}Hrs</td>
                                                 <td>{{ $ticket->ticket_resolved ? 'Yes' : 'No' }}</td>
                                             </tr>
                                         @endforeach
@@ -373,7 +377,7 @@
                                                 <td>
                                                     @if ($ticketData->customer_responded_survey)
                                                         <div class="btn-group">
-                                                            <a href="{{ route('crm.tickets.show', $survey_data->id) }}"
+                                                            <a href="{{ route('crm.tickets.feedbacks.show', $survey_data->ticket_uuid) }}"
                                                                 title="Click to view ticket details">
                                                                 <button type="button" class="btn btn-xs btn-warning"><i
                                                                         class="fa fa-bars"></i>

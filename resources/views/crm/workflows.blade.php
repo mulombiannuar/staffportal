@@ -16,7 +16,7 @@
                                 <th>S.N</th>
                                 <th>WORKFLOW NAME</th>
                                 <th>WORKFLOW USER</th>
-                                <th>MAXIMUM DAYS</th>
+                                <th>MAXIMUM HOURS</th>
                                 <th>ESCALATION PERIOD</th>
                                 <th>CREATED AT</th>
                             </tr>
@@ -25,9 +25,9 @@
                             @foreach ($workflows as $workflow)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td><strong>{{ strtoupper($workflow->name) }}</strong></td>
-                                    <td>{{ $workflow->workflow_user_name }}</td>
-                                    <td>{{ $workflow->max_days }} Day</td>
+                                    <td>{{ strtoupper($workflow->name) }}</td>
+                                    <td><strong>{{ $workflow->workflow_user_name }}</strong></td>
+                                    <td>{{ $workflow->max_stay_hours }} HRS</td>
                                     <td>{{ $workflow->escalation_period }} Days</td>
                                     <td>{{ $workflow->created_at }} </td>
                                 </tr>

@@ -29,13 +29,14 @@ class CustomerTicketController extends Controller
     public function index()
     {
         //return CustomerTicket::getCustomerTickets();
-        //return CustomerTicket::getCustomerTicketsByStatus(1);
+        //return CustomerTicket::getCustomerOverdueTickets();
         $pageData = [
             'page_name' => 'crm',
             'page_title' => 'crm',
             'title' => 'Customer Tickets',
             'tickets' => CustomerTicket::getCustomerTickets(),
             'workflows' => TicketWorkflow::getWorkFlowTickets(),
+            'overdue_tickets' => CustomerTicket::getCustomerOverdueTickets(),
             'closed_tickets' => CustomerTicket::getCustomerTicketsByStatus(1),
         ];
         return view('crm.ticket.index', $pageData);
@@ -413,7 +414,7 @@ class CustomerTicketController extends Controller
 
     private function setOperationAreaMessage($ticket_uuid, $customer_name)
     {
-        return 'a new client ticket ID ' . $ticket_uuid . ' for '. strtoupper($customer_name).' has been registered seeking assistance outside our areas of operations. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
+        return 'a new client ticket ID ' . $ticket_uuid . ' for ' . strtoupper($customer_name) . ' has been registered seeking assistance outside our areas of operations. Login into the Staffportal to view details. For any assistance, contact Communications Dept.';
     }
 
     private function setCustomerEscalationMessage($ticket_id)
@@ -423,12 +424,17 @@ class CustomerTicketController extends Controller
 
     private function setCustomerTicketClosureMessage($ticket_id)
     {
-        return 'your issue of ticket ID ' . $ticket_id . ' has been successfully closed. Thank you for your patience. For further inquiries you can always contact our customer care line on 0701111700';
+        return 'Your issue of ticket ID ' . $ticket_id . ' has been successfully closed. Thank you for your patience. For further inquiries you can always contact our customer care line on 0701111700';
     }
 
     private function setOfficerEscalationMessage($ticket_id)
     {
-        return 'you have ticket issue of ID ' . $ticket_id . ' forwarded to you. Login to the Staffportal to view details';
+        return 'You have ticket issue of ID ' . $ticket_id . ' forwarded to you. Login to the Staffportal to view details';
+    }
+
+    private function setOfficerOverdueReminderMessage($ticket_id, $hours, $customer_name)
+    {
+        return 'Your ticket of ID ' . $ticket_id . ' for ' . strtoupper($customer_name) . ' is overdue with ' . $hours . ' hours. Login to the Staffportal to view details';
     }
 
     private function getTicketCustomisedMessage($category)
@@ -688,7 +694,7 @@ class CustomerTicketController extends Controller
         CustomerTicket::saveSurveyData($ticket_id, $ticket->ticket_uuid, $survey_link, $survey_message . ' ' . $survey_link);
 
         //Send customer notification sms
-        $messageModel->saveSystemMessage('Client Survey Message', $customerData->customer_phone, $customerData->customer_name, $survey_message. ' ' . $survey_link, true);
+        $messageModel->saveSystemMessage('Client Survey Message', $customerData->customer_phone, $customerData->customer_name, $survey_message . ' ' . $survey_link, true);
 
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
@@ -745,9 +751,9 @@ class CustomerTicketController extends Controller
         return view('crm.feedbacks', $pageData);
     }
 
-    public function surveyFeedback($id)
+    public function surveyFeedback($ticket_uuid)
     {
-        $surveyData = CustomerTicket::getSurveyDataById($id);
+        $surveyData = CustomerTicket::getSurveyDataById($ticket_uuid);
         //return unserialize($surveyData->customer_response)['Q1'];
         $pageData = [
             'page_name' => 'crm',
@@ -785,5 +791,86 @@ class CustomerTicketController extends Controller
         User::saveAuditTrail($activity_type, $description);
 
         return back()->with('success', 'Customer feedback survey data synced successfuly : ' . count($data) . ' records affected');
+    }
+
+    // Send reminder messages for overstaying tickets
+    public function sendOverdueTicketsReminders()
+    {
+        $affected_rows = 0;
+        $tickets = CustomerTicket::getCustomerTicketsByActiveStatus(0, 1);
+
+        try {
+            for ($s = 0; $s < count($tickets); $s++) {
+                $data = $this->getTicketOverdueHours($tickets[$s]->ticket_id, $tickets[$s]->created_at);
+                if (!empty($data)) {
+                    $this->sendOverdueTicketReminderMessage($tickets[$s]->ticket_id, $data['hours']);
+                    $affected_rows = $affected_rows + 1;
+                }
+            }
+        } catch (\Throwable $th) {
+            return back()->with('danger', 'Reminder notification messages could not be sent successfully. ' . $th->getMessage());
+        }
+
+        // Send communication officer message
+        $messageModel = new Message();
+        $communicationOfficer = CustomerTicket::communicationOfficer();
+        $communicationMessage = 'a total of ' . $affected_rows . ' tickets are overdue as at ' . now();
+        $messageModel->saveSystemMessage('Overdue Message Reminder', $communicationOfficer['mobile_no'], $communicationOfficer['name'], $communicationMessage, true);
+
+        //Save audit trail
+        $activity_type = 'Overdue Tickets Reminders';
+        $description = 'Successfully sent overdue customer tickets reminders. ' . $affected_rows . ' records affected ';
+        User::saveAuditTrail($activity_type, $description);
+
+        //return $tickets;
+        return redirect(route('crm.tickets.index'))->with('success', 'Successfully sent overdue customer tickets reminders. ' . $affected_rows . ' records affected ');
+    }
+
+    // Get ticket overdue hours
+    public function getTicketOverdueHours($ticket_id, $date_created)
+    {
+        $data = [];
+        $ticket = CustomerTicket::getCustomerTicketById($ticket_id);
+        $maximum_hours = $ticket->max_stay_hours;
+        $maximum_days = round($ticket->max_stay_hours / 24);
+
+        $date = Carbon::parse($date_created);
+        $hours = $date->diffInHours(Carbon::now());
+        $days = $date->diffInDays(Carbon::now());
+
+        if ($hours > $maximum_hours) {
+            $overdue_hours = $hours - $maximum_hours;
+            $overdue_days =  $days - $maximum_days;
+
+            DB::table('customer_tickets')->where('ticket_id', $ticket_id)
+                ->update([
+                    'overdue_hours' => $overdue_hours,
+                    'overdue_days' => $overdue_days
+                ]);
+
+            $data = ['days' => $overdue_days, 'hours' => $overdue_hours];
+        }
+
+        return $data;
+    }
+
+    // Send officer reminder message for overdue tickets
+    public function sendOverdueTicketReminderMessage($ticket_id, $hours)
+    {
+        $ticket = CustomerTicket::getCustomerTicketById($ticket_id);
+        $outpost = Admin::getOutpostById($ticket->outpost_id);
+        $customerData = CRMCustomer::find($ticket->customer_id);
+        $messageModel = new Message();
+
+        //Send sms notification to the officer
+        $user = User::getUserById($ticket->officer_id);
+        $reminder_message = $this->setOfficerOverdueReminderMessage($ticket->ticket_uuid, $hours, $customerData->customer_name);
+        $messageModel->saveSystemMessage('Overdue Message Reminder', $user->mobile_no, $user->name,  $reminder_message, true);
+
+        //Send email to outpost email
+        $emailSubject = 'Overdue Customer Ticket for ' . strtoupper($customerData->customer_name) . '-' . $customerData->customer_phone . ' raised on Staffportal';
+        $messageModel->SendSystemEmail($user->name, $outpost->outpost_email, $reminder_message, $emailSubject);
+
+        return true;
     }
 }

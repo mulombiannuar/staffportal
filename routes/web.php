@@ -369,9 +369,10 @@ Route::middleware(['auth'])->prefix('crm')->name('crm.')->group(function(){
     Route::post('tickets/save-survey', [CustomerTicketController::class, 'saveClientSurveyData'])->name('tickets.save-survey');
     Route::post('tickets/resend-message', [CustomerTicketController::class, 'resendSurveyMessage'])->name('tickets.resend-message');
     Route::get('workflows', [CRMCustomerController::class, 'workflows'])->name('workflows.index')->middleware(['role:communication']);
-    Route:: resource('customers', CRMCustomerController::class, ['except' => ['create', 'store']])->middleware(['role:communication']);
-    Route:: resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit']])->middleware(['role:communication']);
-    Route:: resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:communication']);
-    Route:: resource('tickets', CustomerTicketController::class)->middleware(['role:communication']);
+    Route::resource('customers', CRMCustomerController::class, ['except' => ['create', 'store']])->middleware(['role:communication']);
+    Route::resource('ticket-categories', TicketCategoryController::class, ['except' => ['create', 'edit']])->middleware(['role:communication']);
+    Route::resource('ticket-sources', TicketSourceController::class, ['except' => ['create', 'edit', 'show']])->middleware(['role:communication']);
+    Route::post('tickets/send-overdue-reminders', [CustomerTicketController::class, 'sendOverdueTicketsReminders'])->name('tickets.send-overdue-reminders');
+    Route::resource('tickets', CustomerTicketController::class)->middleware(['role:communication']);
    
 });

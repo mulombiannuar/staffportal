@@ -49,6 +49,8 @@ class Admin extends Model
                  ->join('profiles', 'profiles.user_id', '=', 'users.id')
                  ->select('role_user.user_id', 'name', 'email', 'mobile_no')
                  ->where(['role_id' => 5, 'outpost' => $outpost_id])
+                 ->whereNull('users.deleted_at')
+                 ->latest()
                  ->first();
     }
 

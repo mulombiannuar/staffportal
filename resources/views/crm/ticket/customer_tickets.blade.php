@@ -29,7 +29,7 @@
                         <li class="nav-item"><a class="nav-link" href="#seniormanagers" data-toggle="tab"><i
                                     class="fa fa-list"></i>
                                 Senior Managers
-                                ({{ count($creditsmanager) + count($auditmanager) + count($legalmanager) + count($financemanager) + count($ictmanager) + count($marketingmanager) + count($humanresourcemanager) }})</a>
+                                ({{ count($creditsmanager) + count($operationsmanager) + count($auditmanager) + count($legalmanager) + count($financemanager) + count($ictmanager) + count($marketingmanager) + count($humanresourcemanager) }})</a>
                         </li>
                     @endif
 

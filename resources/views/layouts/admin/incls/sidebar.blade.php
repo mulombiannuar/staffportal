@@ -212,7 +212,7 @@
                         <a href="#" class="nav-link {{ $page_name == 'crm' ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
                             <p>
-                                CRM Module
+                                Customer Tickets
                                 <i class="fas fa-angle-left right"></i>
                             </p>
                         </a>
@@ -375,7 +375,7 @@
                         <a href="#" class="nav-link {{ $page_name == 'crm' ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
                             <p>
-                                Branch Customers
+                                Customer Tickets
                                 <i class="fas fa-angle-left right"></i>
                             </p>
                         </a>

@@ -13,6 +13,11 @@
                                 data-toggle="tab"><i class="fa fa-list"></i>
                                 {{ $workflow->name }}({{ $workflow->count }}) </a></li>
                     @endforeach
+
+                    <li class="nav-item"><a class="nav-link" href="#overdue" data-toggle="tab"><i
+                                class="fa fa-list-alt"></i>
+                            Overdue Tickets({{ count($overdue_tickets) }})</a></li>
+
                     <li class="nav-item"><a class="nav-link" href="#closed" data-toggle="tab"><i
                                 class="fa fa-briefcase"></i>
                             Closed Tickets({{ count($closed_tickets) }})</a></li>
@@ -41,8 +46,6 @@
                                             <th>NAMES</th>
                                             <th>MOBILE</th>
                                             <th>RESIDENCE</th>
-                                            {{-- <th>BUSINESS</th> --}}
-                                            {{-- <th>TICKET CONTENT</th> --}}
                                             <th>DATE</th>
                                             <th>BRANCH</th>
                                             <th>OFFICER</th>
@@ -59,8 +62,6 @@
                                                 <td>{{ strtoupper($ticket->customer_name) }}</td>
                                                 <td>{{ $ticket->customer_phone }}</td>
                                                 <td>{{ $ticket->residence }}</td>
-                                                {{-- <td>{{ $ticket->business }}</td> --}}
-                                                {{-- <td>{{ $ticket->message }}</td> --}}
                                                 <td>{{ $ticket->date_raised }}</td>
                                                 <td>{{ $ticket->outpost_name }}</td>
                                                 <td>{{ $ticket->officer_name }}</td>
@@ -174,6 +175,7 @@
                         </div>
                         <!-- /.tab-pane -->
                     @endforeach
+
                     <div class="tab-pane" id="closed">
                         <!-- roles user -->
                         <div class="card card-info">
@@ -235,6 +237,73 @@
                     </div>
                     <!-- /.tab-pane -->
 
+                    <div class="tab-pane" id="overdue">
+                        <!-- roles user -->
+                        <div class="card card-danger">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fa fa-list-alt"></i> Overdue Tickets</h3>
+                                <div class="text-right">
+                                    <form action="{{ route('crm.tickets.send-overdue-reminders') }}" method="post"
+                                        onclick="return confirm('By synching tickets records, you will be able to know the overdue ones.Do you want to proceed?')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning"> <i class="fa fa-user-plus"></i>
+                                            Sync Tickets Records</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="card-body">
+
+                                <table id="table3" class="table table-sm table-bordered table-hover table-head-fixed">
+                                    <thead>
+                                        <tr>
+                                            <th>S.N</th>
+                                            <th>TICKET ID</th>
+                                            <th>NAMES</th>
+                                            <th>MOBILE</th>
+                                            <th>RESIDENCE</th>
+                                            <th>DATE RAISED</th>
+                                            <th>BRANCH</th>
+                                            <th>OFFICER</th>
+                                            <th>CURRENT LEVEL</th>
+                                            <th>OVERDUE HOURS</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($overdue_tickets as $ticket)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $ticket->ticket_uuid }}</td>
+                                                <td>{{ strtoupper($ticket->customer_name) }}</td>
+                                                <td>{{ $ticket->customer_phone }}</td>
+                                                <td>{{ $ticket->residence }}</td>
+                                                <td>{{ $ticket->date_raised }}</td>
+                                                <td>{{ $ticket->outpost_name }}</td>
+                                                <td>{{ $ticket->officer_name }}</td>
+                                                <td><strong>{{ $ticket->current_level }}</strong></td>
+                                                <td>{{ $ticket->overdue_hours - 48 }}</td>
+                                                <td>
+                                                    <div class="margin">
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('crm.tickets.show', $ticket->ticket_id) }}"
+                                                                title="Click to view ticket details">
+                                                                <button type="button" class="btn btn-xs btn-warning"><i
+                                                                        class="fa fa-bars"></i>
+                                                                    View </button>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- roles user -->
+                    </div>
+                    <!-- /.tab-pane -->
                 </div>
                 <!-- /.tab-content -->
             </div><!-- /.card-body -->
