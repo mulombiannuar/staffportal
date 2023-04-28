@@ -45,22 +45,22 @@ class Admin extends Model
     public static function getOutpostSupervisor($outpost_id)
     {
         return DB::table('role_user')
-                 ->join('users', 'users.id', '=', 'role_user.user_id')
-                 ->join('profiles', 'profiles.user_id', '=', 'users.id')
-                 ->select('role_user.user_id', 'name', 'email', 'mobile_no')
-                 ->where(['role_id' => 5, 'outpost' => $outpost_id])
-                 ->whereNull('users.deleted_at')
-                 ->latest()
-                 ->first();
+            ->join('users', 'users.id', '=', 'role_user.user_id')
+            ->join('profiles', 'profiles.user_id', '=', 'users.id')
+            ->select('role_user.user_id', 'name', 'email', 'mobile_no')
+            ->where(['role_id' => 5, 'outpost' => $outpost_id])
+            ->whereNull('users.deleted_at')
+            ->latest('users.created_at')
+            ->first();
     }
 
     public static function getOutposts()
     {
         return  DB::table('outposts')
-                  ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
-                  ->select('outposts.*', 'branches.branch_name')
-                  ->orderBy('outpost_branch_id', 'ASC')
-                  ->get();
+            ->join('branches', 'branches.branch_id', '=', 'outposts.outpost_branch_id')
+            ->select('outposts.*', 'branches.branch_name')
+            ->orderBy('outpost_branch_id', 'ASC')
+            ->get();
     }
 
     public static function getOutpostByName($name)
@@ -82,8 +82,7 @@ class Admin extends Model
     {
         $admin = new Admin();
         $categories = DB::table('asset_types')->get();
-        for ($s=0; $s <count($categories) ; $s++) 
-        { 
+        for ($s = 0; $s < count($categories); $s++) {
             $categories[$s]->count = $admin->getCategoryCount($categories[$s]->asset_id);
         }
         return $categories;
@@ -91,8 +90,7 @@ class Admin extends Model
 
     private function getCategoryCount($asset_id)
     {
-        switch ($asset_id) 
-        {
+        switch ($asset_id) {
             case 1:
                 $count = Desktop::count();
                 break;
@@ -132,10 +130,10 @@ class Admin extends Model
             case 10:
                 $count = PowerSupply::count();
                 break;
-            
+
             default:
                 $count = Desktop::count();
-            break;
+                break;
         }
         return $count;
     }
@@ -154,11 +152,11 @@ class Admin extends Model
             array(
                 'user_name' => 'Marangu Kimathi',
                 'user_phone' => '254725493645'
-            ), 
+            ),
             array(
                 'user_name' => 'Faith Utuku',
                 'user_phone' => '254710802686'
-            ), 
+            ),
             array(
                 'user_name' => 'Josphat Njogu',
                 'user_phone' => '254715677376'
@@ -170,10 +168,10 @@ class Admin extends Model
     public static function getRanProcesses()
     {
         return  DB::table('system_processes')
-                  ->join('users', 'users.id', '=', 'system_processes.user')
-                  ->orderBy('system_processes.id', 'asc')
-                  ->select('users.name as user_name', 'system_processes.*')
-                  ->get();
+            ->join('users', 'users.id', '=', 'system_processes.user')
+            ->orderBy('system_processes.id', 'asc')
+            ->select('users.name as user_name', 'system_processes.*')
+            ->get();
     }
 
     public static function getSystemProcesses()
@@ -186,7 +184,7 @@ class Admin extends Model
 
     public static function getRandomNumbers($min, $max)
     {
-        return mt_rand($min, $max); 
+        return mt_rand($min, $max);
     }
 
     public static function getBudgetYears()
@@ -216,9 +214,6 @@ class Admin extends Model
 
     public static function formatMobileNumber($mobile_no)
     {
-        return '254'.substr(trim($mobile_no), 1);
+        return '254' . substr(trim($mobile_no), 1);
     }
-
-  
-   
 }

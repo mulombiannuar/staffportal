@@ -13,3 +13,12 @@ generalmanager@bimaskenya.com / General Manager / @Staffportal321 / 0703539204
 5. CEO
 ceo@bimaskenya.com / CEO Manager / @Staffportal321 / 0703539205
 
+
+##Chron jobs 
+php artisan sms:overdue-reminders
+php artisan sync:survey-data
+php artisan sms:customers-reminder
+
+
+##Chron job arguement
+-f "C:\laragon\www\staffportal\artisan" schedule:run

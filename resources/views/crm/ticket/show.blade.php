@@ -21,10 +21,11 @@
                         <li class="nav-item"><a class="nav-link" href="#closeticket" data-toggle="tab"><i
                                     class="fa fa-calendar"></i>
                                 Ticket Closure</a></li>
-
-                        <li class="nav-item"><a class="nav-link" href="#survey" data-toggle="tab"><i
-                                    class="fa fa-question-circle"></i>
-                                Ticket Survey</a></li>
+                        @if ($ticketData->ticket_closed)
+                            <li class="nav-item"><a class="nav-link" href="#survey" data-toggle="tab"><i
+                                        class="fa fa-question-circle"></i>
+                                    Ticket Survey</a></li>
+                        @endif
                     @endif
                 </ul>
             </div><!-- /.card-header -->
@@ -356,6 +357,10 @@
                                             <tr>
                                                 <th>DATE SENT</th>
                                                 <td>{{ $survey_data->date_sent }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>SMS COUNT</th>
+                                                <td>{{ $ticketData->reminder_count }}</td>
                                             </tr>
                                             <tr>
                                                 <th>SENT BY</th>

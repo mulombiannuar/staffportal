@@ -2,6 +2,7 @@
 
 namespace App\Models\CRM;
 
+use App\Models\Message;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
@@ -68,7 +69,7 @@ class CustomerTicket extends Model
                 'users.name as officer_name'
             )
             ->where('ticket_closed', 0)
-            ->where('overdue_days','!=', 0)
+            ->where('overdue_days', '!=', 0)
             ->orderBy('ticket_id', 'desc')
             ->get();
 
@@ -193,11 +194,11 @@ class CustomerTicket extends Model
             ->orderBy('workflow_id', 'asc')
             ->get();
 
-        for ($s = 0; $s < count($workflows); $s++) {
-            if ($workflows[$s]->workflow_user_id == 12 || $workflows[$s]->workflow_user_id == 13) {
-                $workflows[$s]->tickets = $this->getTicketsByWorkflowAndOutpostID($workflows[$s]->workflow_user_id, $outpost_id);
+        foreach ($workflows as $workflow) {
+            if ($workflow->workflow_user_id == 12 || $workflow->workflow_user_id == 13) {
+                $workflow->tickets = $this->getTicketsByWorkflowAndOutpostID($workflow->workflow_user_id, $outpost_id);
             } else {
-                $workflows[$s]->tickets = $this->getTicketsByWorkflowAndOutpostID($workflows[$s]->workflow_user_id, null);
+                $workflow->tickets = $this->getTicketsByWorkflowAndOutpostID($workflow->workflow_user_id, null);
             }
         }
         return $workflows;
@@ -248,8 +249,8 @@ class CustomerTicket extends Model
 
     private static function getTicketsCurrentLevels($tickets)
     {
-        for ($s = 0; $s < count($tickets); $s++) {
-            $tickets[$s]->current_level = CustomerTicket::getTicketCurrentWorkflowLevel($tickets[$s]->ticket_id)->workflow_user_name;
+        foreach ($tickets as $ticket) {
+            $ticket->current_level = CustomerTicket::getTicketCurrentWorkflowLevel($ticket->ticket_id)->workflow_user_name;
         }
         return $tickets;
     }
@@ -284,10 +285,10 @@ class CustomerTicket extends Model
     public static function getCustomerTicketsByActiveStatus($ticket_closed, $is_current)
     {
         return DB::table('ticket_workflows')
-                 ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_workflows.ticket_id')
-                 ->where(['ticket_closed' => $ticket_closed, 'is_current' => $is_current])
-                 ->select('ticket_workflows.*', 'is_current')
-                 ->get();
+            ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_workflows.ticket_id')
+            ->where(['ticket_closed' => $ticket_closed, 'is_current' => $is_current])
+            ->select('ticket_workflows.*', 'is_current')
+            ->get();
     }
 
     public static function getCustomerTicketById($ticket_id)
@@ -383,9 +384,7 @@ class CustomerTicket extends Model
 
     public static function saveSurveyData($ticket_id, $ticket_uuid, $survey_link, $survey_message)
     {
-        DB::table('customer_tickets')->where('ticket_id', $ticket_id)
-            ->update(['customer_sent_survey' => 1]);
-
+        CustomerTicket::updateSurveySentCount($ticket_id);
         return DB::table('ticket_survey')->insert([
             'ticket_id' => $ticket_id,
             'date_sent' => Carbon::now(),
@@ -395,6 +394,31 @@ class CustomerTicket extends Model
             'survey_message' => $survey_message,
             'created_at' => Carbon::now()
         ]);
+    }
+
+    public static function updateSurveySentCount($ticket_id)
+    {
+        $ticket = CustomerTicket::find($ticket_id);
+        $reminder_count = $ticket->reminder_count + 1;
+
+        return DB::table('customer_tickets')->where('ticket_id', $ticket_id)
+            ->update([
+                'customer_sent_survey' => 1,
+                'reminder_count' => $reminder_count
+            ]);
+    }
+
+    public static function sendCustomerReminder($ticket_id, $customerData, $survey_message)
+    {
+        $messageModel = new Message();
+
+        //Update survey count
+        CustomerTicket::updateSurveySentCount($ticket_id);
+
+        //Send customer notification sms
+        $messageModel->saveSystemMessage('Customer Survey Reminder', $customerData->customer_phone, $customerData->customer_name, $survey_message, true);
+
+        return 0;
     }
 
     public static function getSurveyData($status)
@@ -433,7 +457,8 @@ class CustomerTicket extends Model
                 'date_raised',
                 'customer_name',
                 'customer_phone',
-                'residence', 'business',
+                'residence',
+                'business',
                 'message',
                 'branch_name',
                 'outpost_name',
@@ -464,13 +489,14 @@ class CustomerTicket extends Model
             ]);
     }
 
-    public function syncSurveyData($data)
+    public function syncSurveyData($datas)
     {
-        for ($s = 0; $s < count($data); $s++) {
-            $this->updateRemoteHasSynced($data[$s]->ticket_id);
-            $this->updateCustomerHasResponded($data[$s]->ticket_id);
-            $this->updateCustomerResponse($data[$s]->ticket_id, $data[$s]->date_responded, $data[$s]->ip_address, $data[$s]->customer_response);
+        foreach ($datas as $data) {
+            $this->updateRemoteHasSynced($data->ticket_id);
+            $this->updateCustomerHasResponded($data->ticket_id);
+            $this->updateCustomerResponse($data->ticket_id, $data->date_responded, $data->ip_address, $data->customer_response);
         }
+
         return true;
     }
 
@@ -511,6 +537,15 @@ class CustomerTicket extends Model
             'name' => 'Catherine Mukami',
             'email' => 'cmukami@bimaskenya.com',
             'mobile_no' => '0722776906'
+        ];
+    }
+
+    public static function markettingOfficer()
+    {
+        return [
+            'name' => 'Backson Ndiba',
+            'email' => 'bndiba@bimaskenya.com',
+            'mobile_no' => '0723209040'
         ];
     }
 

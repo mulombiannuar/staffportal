@@ -172,8 +172,9 @@ class CustomerTicketController extends Controller
 
         //Send message marketting if category is 1
         if ($category == 1) {
+            $marketting_officer = CustomerTicket::markettingOfficer();
             $marketing_message = $this->setOperationAreaMessage($ticket->ticket_uuid, $customerData->customer_name);
-            $messageModel->saveSystemMessage($ticketCategory->category_name, '0723209040', 'Backson Ndiba',  $marketing_message, true);
+            $messageModel->saveSystemMessage($ticketCategory->category_name,  $marketting_officer['mobile_no'], $marketting_officer['name'],  $marketing_message, true);
         }
 
         //Send email to outpost email
@@ -557,15 +558,14 @@ class CustomerTicketController extends Controller
         // Get the person ticket being escalated to and send notification
         $persons = $this->getEscalatedPersonsDetails($ticket_id, $workflow_user_id);
         if (!empty($persons)) {
-            for ($s = 0; $s < count($persons); $s++) {
-
+            foreach ($persons as $person) {
                 // Send sms notification
                 $officer_message = $this->setOfficerEscalationMessage($ticket->ticket_uuid);
-                $messageModel->saveSystemMessage('Ticket Escalation Officer', $persons[$s]->mobile_no, $persons[$s]->name,  $officer_message, true);
+                $messageModel->saveSystemMessage('Ticket Escalation Officer', $person->mobile_no, $person->name,  $officer_message, true);
 
                 // Send email to the person
                 $emailSubject = 'Ticket Escalation for ' . strtoupper($customerData->customer_name) . '-' . $customerData->customer_phone . ' raised on Staffportal';
-                $messageModel->SendSystemEmail($persons[$s]->name, $persons[$s]->email, $officer_message, $emailSubject);
+                $messageModel->SendSystemEmail($person->name, $person->email, $officer_message, $emailSubject);
             }
         }
 
@@ -723,8 +723,12 @@ class CustomerTicketController extends Controller
         $ticket = CustomerTicket::find($ticket_id);
         $customerData = CRMCustomer::find($ticket->customer_id);
 
+        //Cannot send sms once count == 3
+        if ($ticket->reminder_count >= 3)
+            return redirect(route('crm.tickets.show', $ticket_id))->with('warning', 'Cannot send customer survey reminder response for ticket of ID ' . $ticket->ticket_uuid . '. Maximum number of 3 counts reached');
+
         //Send customer notification sms
-        $messageModel->saveSystemMessage('Customer Survey Reminder', $customerData->customer_phone, $customerData->customer_name, $survey_message, true);
+        CustomerTicket::sendCustomerReminder($ticket_id, $customerData, $survey_message);
 
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);
@@ -787,10 +791,10 @@ class CustomerTicketController extends Controller
 
         //Save audit trail
         $activity_type = 'Survey Data Synchronization';
-        $description = 'Successfully synced customer survey data ' . count($data) . ' records affected';
+        $description = 'Successfully synchronized customer survey data ' . count($data) . ' records affected';
         User::saveAuditTrail($activity_type, $description);
 
-        return back()->with('success', 'Customer feedback survey data synced successfuly : ' . count($data) . ' records affected');
+        return back()->with('success', 'Customer feedback survey data synchronized successfuly : ' . count($data) . ' records affected');
     }
 
     // Send reminder messages for overstaying tickets
@@ -800,10 +804,10 @@ class CustomerTicketController extends Controller
         $tickets = CustomerTicket::getCustomerTicketsByActiveStatus(0, 1);
 
         try {
-            for ($s = 0; $s < count($tickets); $s++) {
-                $data = $this->getTicketOverdueHours($tickets[$s]->ticket_id, $tickets[$s]->created_at);
+            foreach ($tickets as $ticket) {
+                $data = $this->getTicketOverdueHours($ticket->ticket_id, $ticket->created_at);
                 if (!empty($data)) {
-                    $this->sendOverdueTicketReminderMessage($tickets[$s]->ticket_id, $data['hours']);
+                    $this->sendOverdueTicketReminderMessage($ticket->ticket_id, $data['hours']);
                     $affected_rows = $affected_rows + 1;
                 }
             }
