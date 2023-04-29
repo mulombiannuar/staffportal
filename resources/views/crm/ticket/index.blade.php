@@ -242,14 +242,14 @@
                         <div class="card card-danger">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fa fa-list-alt"></i> Overdue Tickets</h3>
-                                <div class="text-right">
+                                {{-- <div class="text-right">
                                     <form action="{{ route('crm.tickets.send-overdue-reminders') }}" method="post"
                                         onclick="return confirm('By synching tickets records, you will be able to know the overdue ones.Do you want to proceed?')">
                                         @csrf
                                         <button type="submit" class="btn btn-warning"> <i class="fa fa-user-plus"></i>
                                             Sync Tickets Records</button>
                                     </form>
-                                </div>
+                                </div> --}}
                             </div>
                             <div class="card-body">
 

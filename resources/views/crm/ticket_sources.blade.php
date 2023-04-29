@@ -37,17 +37,20 @@
                                                     class="btn btn-xs btn-warning"><i class="fa fa-edit"></i>
                                                     Edit</button>
                                             </div>
-                                            <div class="btn-group">
-                                                <form action="{{ route('crm.ticket-sources.destroy', $source->source_id) }}"
-                                                    method="post"
-                                                    onclick="return confirm('Do you really want to delete this source with all its relationships?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-xs btn-danger"><i
-                                                            class="fa fa-trash"></i>
-                                                        Delete</button>
-                                                </form>
-                                            </div>
+                                            @if ($source->editable)
+                                                <div class="btn-group">
+                                                    <form
+                                                        action="{{ route('crm.ticket-sources.destroy', $source->source_id) }}"
+                                                        method="post"
+                                                        onclick="return confirm('Do you really want to delete this source with all its relationships?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-xs btn-danger"><i
+                                                                class="fa fa-trash"></i>
+                                                            Delete</button>
+                                                    </form>
+                                                </div>
+                                            @endif
                                         </div>
                                     </td>
                                     <!--/.modal begin -->

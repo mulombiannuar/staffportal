@@ -47,6 +47,36 @@ class CustomerTicket extends Model
         return CustomerTicket::getTicketsCurrentLevels($tickets);
     }
 
+    public static function getCustomerTicketsByDate($date)
+    {
+        $tickets = DB::table('customer_tickets')
+            ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+            ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
+            ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+            ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+            ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+            ->select(
+                'customer_tickets.*',
+                'customer_name',
+                'customer_phone',
+                'residence',
+                'business',
+                //'branch_id',
+                'crm_customers.outpost_id',
+                'bimas_br_id',
+                // 'created_by',
+                'category_name',
+                'source_name',
+                'outpost_name',
+                'users.name as officer_name'
+            )
+            ->where('customer_tickets.created_at', $date)
+            ->orderBy('ticket_id', 'desc')
+            ->get();
+
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
+    }
+
     public static function getCustomerOverdueTickets()
     {
         $tickets = DB::table('customer_tickets')
@@ -70,6 +100,36 @@ class CustomerTicket extends Model
             )
             ->where('ticket_closed', 0)
             ->where('overdue_days', '!=', 0)
+            ->orderBy('ticket_id', 'desc')
+            ->get();
+
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
+    }
+
+    public static function getCustomerOverdueTicketsByDate($date)
+    {
+        $tickets = DB::table('customer_tickets')
+            ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+            ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
+            ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+            ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+            ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+            ->select(
+                'customer_tickets.*',
+                'customer_name',
+                'customer_phone',
+                'residence',
+                'business',
+                'crm_customers.outpost_id',
+                'bimas_br_id',
+                'category_name',
+                'source_name',
+                'outpost_name',
+                'users.name as officer_name'
+            )
+            ->where('ticket_closed', 0)
+            ->where('overdue_days', '!=', 0)
+            ->whereDate('customer_tickets.created_at', '>=', $date)
             ->orderBy('ticket_id', 'desc')
             ->get();
 
@@ -102,6 +162,39 @@ class CustomerTicket extends Model
                 'closers.name as closed_by'
             )
             ->where('ticket_closed', $status)
+            ->orderBy('ticket_id', 'desc')
+            ->get();
+
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
+    }
+
+    public static function getCustomerTicketsByStatusAndDate($status, $date)
+    {
+        $tickets = DB::table('customer_tickets')
+            ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+            ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
+            ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+            ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+            ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+            ->join('users as closers', 'closers.id', '=', 'customer_tickets.closed_by')
+            ->select(
+                'customer_tickets.*',
+                'customer_name',
+                'customer_phone',
+                'residence',
+                'business',
+                //'branch_id',
+                'crm_customers.outpost_id',
+                'bimas_br_id',
+                // 'created_by',
+                'category_name',
+                'source_name',
+                'outpost_name',
+                'users.name as officer_name',
+                'closers.name as closed_by'
+            )
+            ->where('ticket_closed', $status)
+            ->whereDate('customer_tickets.date_closed', $date)
             ->orderBy('ticket_id', 'desc')
             ->get();
 
@@ -355,7 +448,7 @@ class CustomerTicket extends Model
             ->get();
     }
 
-    public static function saveCustomerTicket($message, $user_id, $source, $category, $date_raised, $customer_id)
+    public static function saveCustomerTicket($message, $user_id, $source, $category, $date_raised, $customer_id, $created_by)
     {
         $ticket = new CustomerTicket();
         $ticket->message = $message;
@@ -363,11 +456,22 @@ class CustomerTicket extends Model
         $ticket->source_id = $source;
         $ticket->category_id = $category;
         $ticket->date_raised = $date_raised;
-        $ticket->created_by = Auth::user()->id;
+        $ticket->created_by = $created_by;
         $ticket->ticket_uuid = CustomerTicket::generateTicketID();
         $ticket->customer_id = $customer_id;
         $ticket->save();
         return $ticket;
+    }
+
+    public static function newCustomerTicketWorkFlow($is_current, $ticket_id, $workflow_id, $workflow_user_id)
+    {
+        $workflow = new TicketWorkflow();
+        $workflow->ticket_id = $ticket_id;
+        $workflow->is_current = $is_current;
+        $workflow->workflow_id = $workflow_id;
+        $workflow->workflow_user_id = $workflow_user_id;
+        $workflow->save();
+        return $workflow;
     }
 
     public static function updateCustomerTicket($ticket_id, $message, $user_id, $source, $category, $date_raised)
@@ -439,6 +543,30 @@ class CustomerTicket extends Model
                 'outpost_name',
                 'officers.name as officer_name'
             )
+            ->where('customer_responded_survey', $status)
+            ->orderBy('id', 'desc')
+            ->get();
+    }
+
+    public static function getSurveyDataByDate($status, $date)
+    {
+        return DB::table('ticket_survey')
+            ->join('users', 'users.id', '=', 'ticket_survey.sent_by')
+            ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_survey.ticket_id')
+            ->join('users as officers', 'officers.id', '=', 'customer_tickets.officer_id')
+            ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
+            ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
+            ->select(
+                'ticket_survey.*',
+                'users.name as sent_by',
+                'date_raised',
+                'customer_name',
+                'customer_phone',
+                'residence',
+                'outpost_name',
+                'officers.name as officer_name'
+            )
+            ->whereDate('ticket_survey.date_responded', $date)
             ->where('customer_responded_survey', $status)
             ->orderBy('id', 'desc')
             ->get();
@@ -536,6 +664,7 @@ class CustomerTicket extends Model
         return [
             'name' => 'Catherine Mukami',
             'email' => 'cmukami@bimaskenya.com',
+            'office_email' => 'customercare@bimaskenya.com',
             'mobile_no' => '0722776906'
         ];
     }
@@ -555,7 +684,8 @@ class CustomerTicket extends Model
         $bytes = random_bytes(6);
         $base64 = base64_encode($bytes);
 
-        return rtrim(strtr($base64, '+/', $rand), '=');
+        $string = rtrim(strtr($base64, '+/', $rand), '=');
+        return str_replace(['/', '+', '%'], '', $string);;
         //return rtrim(strtr($base64, '+/', '-_'), '=');
     }
 

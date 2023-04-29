@@ -11,9 +11,10 @@ class TestController extends Controller
     public function index()
     {
         $pageData = [
-			'page_name' => 'users',
+            'page_name' => 'users',
             'title' => 'Test Application',
         ];
-        return view('admin.test', $pageData);
+        //return view('admin.test', $pageData);
+        return view('emails.customer_tickets_report', $pageData);
     }
 }

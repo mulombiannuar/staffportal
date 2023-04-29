@@ -18,8 +18,9 @@ class TicketCategoryController extends Controller
     public function index()
     {
         //return TicketCategory::getCategories();
+        //return date_create(date('Y-m-d'))->modify('-1 days')->format('Y-m-d');
         $pageData = [
-			'page_name' => 'crm',
+            'page_name' => 'crm',
             'title' => 'Ticket Categories',
             'categories' => TicketCategory::getCategories(),
         ];
@@ -47,13 +48,13 @@ class TicketCategoryController extends Controller
 
         //Save audit trail
         $activity_type = 'Ticket Category Creation';
-        $description = 'Successfully created new ticket category '.$category->category_name;
+        $description = 'Successfully created new ticket category ' . $category->category_name;
         User::saveAuditTrail($activity_type, $description);
 
-        return back()->with('success', 'Successfully created new ticket category '.$category->category_name);
+        return back()->with('success', 'Successfully created new ticket category ' . $category->category_name);
     }
 
-      /**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -64,7 +65,7 @@ class TicketCategoryController extends Controller
         //return TicketWorkflow::getWorkFlowTickets();
         $ticketCategory = TicketCategory::find($id);
         $pageData = [
-			'page_name' => 'crm',
+            'page_name' => 'crm',
             'title' => $ticketCategory->category_name,
             'tickets' => CustomerTicket::getCustomerTicketsByCategory($id),
         ];
@@ -88,10 +89,10 @@ class TicketCategoryController extends Controller
 
         //Save audit trail
         $activity_type = 'Ticket Category Updation';
-        $description = 'Successfully created new ticket category '.$category->category_name;
+        $description = 'Successfully created new ticket category ' . $category->category_name;
         User::saveAuditTrail($activity_type, $description);
 
-        return back()->with('success', 'Successfully updated ticket category '.$category->category_name);
+        return back()->with('success', 'Successfully updated ticket category ' . $category->category_name);
     }
 
     /**
@@ -103,10 +104,10 @@ class TicketCategoryController extends Controller
     public function destroy($id)
     {
         TicketCategory::destroy($id);
-        
+
         //Save audit trail
         $activity_type = 'Ticket Category Deletion';
-        $description = 'Deleted ticket category successfully of the id '.$id;
+        $description = 'Deleted ticket category successfully of the id ' . $id;
         User::saveAuditTrail($activity_type, $description);
 
         return back()->with('success', 'Deleted Ticket category successfully');

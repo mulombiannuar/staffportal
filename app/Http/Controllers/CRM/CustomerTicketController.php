@@ -126,18 +126,13 @@ class CustomerTicketController extends Controller
         if ($clientData) $bimas_br_id = $clientData->bimas_br_id;
 
         //Register and get details of registered client
-        $customerData = $this->getRegisteredCustomerDetails($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id);
+        $customerData = $this->getRegisteredCustomerDetails($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id, Auth::user()->id);
 
         // Create new ticket for the client
-        $ticket = CustomerTicket::saveCustomerTicket($message, $user_id, $source, $category, $date_raised, $customerData->customer_id);
+        $ticket = CustomerTicket::saveCustomerTicket($message, $user_id, $source, $category, $date_raised, $customerData->customer_id, Auth::user()->id);
 
         //Register ticket to the workflow
-        $workflow = new TicketWorkflow();
-        $workflow->is_current = 1;
-        $workflow->ticket_id = $ticket->ticket_id;
-        $workflow->workflow_id = $workflow_id;
-        $workflow->workflow_user_id = $workflow_user_id;
-        $workflow->save();
+        CustomerTicket::newCustomerTicketWorkFlow(1, $ticket->ticket_id, $workflow_id, $workflow_user_id);
 
         //Save audit trail
         $activity_type = 'Customer Ticket Creation';
@@ -355,20 +350,20 @@ class CustomerTicketController extends Controller
         return $output;
     }
 
-    private function getRegisteredCustomerDetails($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id)
+    public function getRegisteredCustomerDetails($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id, $user_id)
     {
         $customer = CRMCustomer::getCustomerByMobileNumber($customer_phone);
         if ($customer) return $customer;
 
-        return $this->registerCustomer($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id);
+        return $this->registerCustomer($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id, $user_id);
     }
 
-    public function registerCustomer($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id)
+    public function registerCustomer($customer_name, $customer_phone, $residence, $business, $branch, $outpost, $bimas_br_id, $user_id)
     {
         $customer = new CRMCustomer();
         $customer->customer_phone = $customer_phone;
         $customer->customer_name = $customer_name;
-        $customer->created_by = Auth::user()->id;
+        $customer->created_by = $user_id;
         $customer->bimas_br_id = $bimas_br_id;
         $customer->residence = $residence;
         $customer->business = $business;
@@ -393,7 +388,7 @@ class CustomerTicketController extends Controller
         return $customer;
     }
 
-    private function setCustomerMessage($outpost, $message, $ticket_id, $user)
+    public function setCustomerMessage($outpost, $message, $ticket_id, $user)
     {
         $message = str_replace("ticket_id", $ticket_id, $message);
         $message = str_replace("branch_name", $outpost->outpost_name, $message);
@@ -403,7 +398,7 @@ class CustomerTicketController extends Controller
         return $message;
     }
 
-    private function setOfficerMessage($customer_message, $officer_ticket_message)
+    public function setOfficerMessage($customer_message, $officer_ticket_message)
     {
         return ucfirst($officer_ticket_message) . ' Here is the content of the ticket:  ' . $customer_message;
     }
@@ -438,7 +433,7 @@ class CustomerTicketController extends Controller
         return 'Your ticket of ID ' . $ticket_id . ' for ' . strtoupper($customer_name) . ' is overdue with ' . $hours . ' hours. Login to the Staffportal to view details';
     }
 
-    private function getTicketCustomisedMessage($category)
+    public function getTicketCustomisedMessage($category)
     {
         $ticketCategory = TicketCategory::find($category);
         $message = $ticketCategory->message_template;

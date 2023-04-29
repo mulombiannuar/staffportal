@@ -18,7 +18,14 @@ ceo@bimaskenya.com / CEO Manager / @Staffportal321 / 0703539205
 php artisan sms:overdue-reminders
 php artisan sync:survey-data
 php artisan sms:customers-reminder
+php artisan sync:online-loans
 
 
 ##Chron job arguement
 -f "C:\laragon\www\staffportal\artisan" schedule:run
+
+##Reports
+1. Overdue Tickets
+2. All tickets closed the previous days
+3. All tickets Generated the previous day
+4. All completed survey responses for the previous day

@@ -12,9 +12,9 @@
                                 class="fa fa-list-alt"></i>
                             Completed Responses ({{ count($completed_feedbacks) }})</a></li>
 
-                    <li class="nav-item"><a class="nav-link" href="#syncdata" data-toggle="tab"><i
+                    {{-- <li class="nav-item"><a class="nav-link" href="#syncdata" data-toggle="tab"><i
                                 class="fa fa-user-plus"></i>
-                            Sync Survey Data </a></li>
+                            Sync Survey Data </a></li> --}}
                 </ul>
             </div><!-- /.card-header -->
             <div class="card-body">
