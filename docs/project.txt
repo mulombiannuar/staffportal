@@ -19,6 +19,7 @@ php artisan sms:overdue-reminders
 php artisan sync:survey-data
 php artisan sms:customers-reminder
 php artisan sync:online-loans
+php artisan reports:tickets
 
 
 ##Chron job arguement

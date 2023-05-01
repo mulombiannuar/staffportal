@@ -45,14 +45,14 @@ class SendOverdueTicketReminderMessageCommand extends Command
                 }
             }
         } catch (\Throwable $th) {
-            file_put_contents("log.txt", $th . " \n", FILE_APPEND);
+            file_put_contents(storage_path('logs/system_logs.txt'), $th . " \n", FILE_APPEND);
         }
 
         // Send communication officer message
         $messageModel = new Message();
-        $communicationOfficer = CustomerTicket::communicationOfficer();
+        $defaultUser = CustomerTicket::defaultUser();
         $communicationMessage = 'a total of ' . $affected_rows . ' tickets are overdue as at ' . now();
-        $messageModel->saveSystemMessage('Overdue Message Reminder', $communicationOfficer['mobile_no'], $communicationOfficer['name'], $communicationMessage, true);
+        $messageModel->saveSystemMessage('Overdue Message Reminder', $defaultUser->mobile_no, $defaultUser->name, $communicationMessage, true);
 
         //Save audit trail
         $activity_type = 'Overdue Tickets Reminders';

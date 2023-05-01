@@ -43,6 +43,7 @@
                                         <tr>
                                             <th>S.N</th>
                                             <th>TICKET ID</th>
+                                            <th>CATEGORY NAME</th>
                                             <th>NAMES</th>
                                             <th>MOBILE</th>
                                             <th>RESIDENCE</th>
@@ -59,6 +60,7 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $ticket->ticket_uuid }}</td>
+                                                <td>{{ $ticket->category_name }}</td>
                                                 <td>{{ strtoupper($ticket->customer_name) }}</td>
                                                 <td>{{ $ticket->customer_phone }}</td>
                                                 <td>{{ $ticket->residence }}</td>
@@ -124,6 +126,7 @@
                                             <tr>
                                                 <th>S.N</th>
                                                 <th>TICKET ID</th>
+                                                <th>CATEGORY NAME</th>
                                                 <th>NAMES</th>
                                                 <th>MOBILE</th>
                                                 <th>RESIDENCE</th>
@@ -142,6 +145,7 @@
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $ticket->ticket_uuid }}</td>
+                                                    <td>{{ $ticket->category_name }}</td>
                                                     <td>{{ strtoupper($ticket->customer_name) }}</td>
                                                     <td>{{ $ticket->customer_phone }}</td>
                                                     <td>{{ $ticket->residence }}</td>
@@ -188,6 +192,7 @@
                                         <tr>
                                             <th>S.N</th>
                                             <th>TICKET ID</th>
+                                            <th>CATEGORY NAME</th>
                                             <th>NAMES</th>
                                             <th>MOBILE</th>
                                             <th>RESIDENCE</th>
@@ -205,6 +210,7 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $ticket->ticket_uuid }}</td>
+                                                <td>{{ $ticket->category_name }}</td>
                                                 <td>{{ strtoupper($ticket->customer_name) }}</td>
                                                 <td>{{ $ticket->customer_phone }}</td>
                                                 <td>{{ $ticket->residence }}</td>
@@ -258,6 +264,7 @@
                                         <tr>
                                             <th>S.N</th>
                                             <th>TICKET ID</th>
+                                            <th>CATEGORY NAME</th>
                                             <th>NAMES</th>
                                             <th>MOBILE</th>
                                             <th>RESIDENCE</th>
@@ -274,6 +281,7 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $ticket->ticket_uuid }}</td>
+                                                <td>{{ $ticket->category_name }}</td>
                                                 <td>{{ strtoupper($ticket->customer_name) }}</td>
                                                 <td>{{ $ticket->customer_phone }}</td>
                                                 <td>{{ $ticket->residence }}</td>

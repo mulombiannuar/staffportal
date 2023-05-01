@@ -50,10 +50,12 @@ class SendCustomersSurveyReminderCommand extends Command
                 'customer_responded_survey' => 0,
             ])->get();
 
-        foreach ($tickets as $ticket) {
-            //Send customer notification sms
-            $customerData = CRMCustomer::find($ticket->customer_id);
-            CustomerTicket::sendCustomerReminder($ticket->ticket_id, $customerData, $ticket->survey_message);
+        if ($tickets) {
+            foreach ($tickets as $ticket) {
+                //Send customer notification sms
+                $customerData = CRMCustomer::find($ticket->customer_id);
+                CustomerTicket::sendCustomerReminder($ticket->ticket_id, $customerData, $ticket->survey_message);
+            }
         }
 
         //Save audit trail

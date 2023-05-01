@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class CustomerTicket extends Model
 {
@@ -70,7 +71,7 @@ class CustomerTicket extends Model
                 'outpost_name',
                 'users.name as officer_name'
             )
-            ->where('customer_tickets.created_at', $date)
+            ->whereDate('customer_tickets.created_at', $date)
             ->orderBy('ticket_id', 'desc')
             ->get();
 
@@ -422,7 +423,7 @@ class CustomerTicket extends Model
 
     public static function getCustomerTicketsById($customer_id)
     {
-        return DB::table('customer_tickets')
+        $tickets = DB::table('customer_tickets')
             ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
             ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
             ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
@@ -446,6 +447,7 @@ class CustomerTicket extends Model
             ->where('crm_customers.customer_id', $customer_id)
             ->orderBy('ticket_id', 'desc')
             ->get();
+        return CustomerTicket::getTicketsCurrentLevels($tickets);
     }
 
     public static function saveCustomerTicket($message, $user_id, $source, $category, $date_raised, $customer_id, $created_by)
@@ -669,6 +671,17 @@ class CustomerTicket extends Model
         ];
     }
 
+    public static function defaultUser()
+    {
+        $user = new stdClass;
+        $user->name = 'Catherine Mukami';
+        $user->mobile_no = '0722776906';
+        $user->office_mobile = '0701111700';
+        $user->email = 'cmukami@bimaskenya.com';
+        $user->office_email = 'customercare@bimaskenya.com';
+        return $user;
+    }
+
     public static function markettingOfficer()
     {
         return [
@@ -676,6 +689,18 @@ class CustomerTicket extends Model
             'email' => 'bndiba@bimaskenya.com',
             'mobile_no' => '0723209040'
         ];
+    }
+
+    public static function getOutpostRandomUser($outpost_id)
+    {
+        $random_ids = DB::table('profiles')->where('outpost', $outpost_id)->pluck('user_id')->toArray();
+        $length =  count($random_ids);
+
+        if (is_null($random_ids) || empty($random_ids))
+            return 176;
+
+        shuffle($random_ids);
+        return $random_ids[0];
     }
 
     private static function generateTicketID(): string

@@ -42,13 +42,11 @@ class GenerateTicketsReportCommand extends Command
             'pending_surveys' => CustomerTicket::getSurveyDataByDate(0, $yesterday),
         ];
 
-        //dd($tickets_data['all_tickets']);
-
         //Send report to email
         $messageModel = new Message();
-        $communicationOfficer = CustomerTicket::communicationOfficer();
+        $defaultUser = CustomerTicket::defaultUser();
         $emailSubject = 'Customer Tickets Report for ' . $yesterday;
-        $messageModel->SendTicketsReportEmail($communicationOfficer['name'], $communicationOfficer['office_email'], $emailSubject, $emailSubject, $tickets_data);
+        $messageModel->SendTicketsReportEmail($defaultUser->name, $defaultUser->office_email, $emailSubject, $emailSubject, $tickets_data);
 
         //Save audit trail
         $activity_type = 'Customer Tickets Report';

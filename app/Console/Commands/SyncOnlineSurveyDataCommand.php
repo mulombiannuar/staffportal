@@ -43,7 +43,7 @@ class SyncOnlineSurveyDataCommand extends Command
             $data = json_decode($response->getBody());
             $customerTicket->syncSurveyData($data);
         } catch (\Throwable $th) {
-            file_put_contents("log.txt", $th . " \n", FILE_APPEND);
+            file_put_contents(storage_path('logs/system_logs.txt'), $th . " \n", FILE_APPEND);
         }
 
         //Save audit trail

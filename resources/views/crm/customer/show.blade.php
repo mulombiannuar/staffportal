@@ -99,7 +99,7 @@
                                                 <td>{{ $ticket->ticket_uuid }}</td>
                                                 <td>{{ $ticket->date_raised }}</td>
                                                 <td>{{ $ticket->officer_name }}</td>
-                                                <td>Finance manager</td>
+                                                <td>{{ $ticket->current_level }}</td>
                                                 <td>{{ $ticket->message }}</td>
                                                 <td>
                                                     <div class="margin">
