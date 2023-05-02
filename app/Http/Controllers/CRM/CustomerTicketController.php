@@ -134,11 +134,6 @@ class CustomerTicketController extends Controller
         //Register ticket to the workflow
         CustomerTicket::newCustomerTicketWorkFlow(1, $ticket->ticket_id, $workflow_id, $workflow_user_id);
 
-        //Save audit trail
-        $activity_type = 'Customer Ticket Creation';
-        $description = 'Successfully created new customer ticket ' . $ticket->ticket_uuid . ' for ' . $customerData->customer_name;
-        User::saveAuditTrail($activity_type, $description);
-
         $outpost = Admin::getOutpostById($outpost);
         $ticketCategory = TicketCategory::find($category);
         $ticket_message = $this->getTicketCustomisedMessage($category);
@@ -179,6 +174,11 @@ class CustomerTicketController extends Controller
         $branchEmail = $outpost->outpost_email;
         $messageModel->SendSystemEmail($user->name, $branchEmail, $emailMessage, $emailSubject);
         $messageModel->SendSystemEmail($user->name, $customerCareEmail, $emailMessage, $emailSubject);
+
+        //Save audit trail
+        $activity_type = 'Customer Ticket Creation';
+        $description = 'Successfully created new customer ticket ' . $ticket->ticket_uuid . ' for ' . $customerData->customer_name;
+        User::saveAuditTrail($activity_type, $description);
 
         return back()->with('success', 'Successfully created new customer ticket for ' . $customerData->customer_name . '. Notifications sent to customer and relevant officer');
     }
@@ -545,7 +545,7 @@ class CustomerTicketController extends Controller
         $customerData = CRMCustomer::find($ticket->customer_id);
 
         // Send message to client if ticket escalated beyond branch
-        if ($workflow_id === 5) {
+        if ($workflow_id === 4) {
             $customer_message = $this->setCustomerEscalationMessage($ticket->ticket_uuid);
             $messageModel->saveSystemMessage('Ticket Escalation Customer', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
         }

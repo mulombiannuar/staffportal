@@ -66,6 +66,12 @@ class SyncOnlineLoansCommand extends Command
         $description = 'Successfully synchronized online loans data ' . count($loans) . ' records affected';
         User::saveAutomaticAuditTrail($activity_type, $description);
 
+        // Send communication officer message
+        $messageModel = new Message();
+        $defaultUser = CustomerTicket::defaultUser();
+        $communicationMessage = 'a total of ' . count($loans) . ' online loans have been synchronized today at ' . now();
+        $messageModel->saveSystemMessage('Online Loans Data Synchronization', $defaultUser->mobile_no, $defaultUser->name, $communicationMessage, true);
+
         $this->info($description);
     }
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\CRM\CRMCustomer;
 use App\Models\CRM\CustomerTicket;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +58,12 @@ class SendCustomersSurveyReminderCommand extends Command
                 CustomerTicket::sendCustomerReminder($ticket->ticket_id, $customerData, $ticket->survey_message);
             }
         }
+
+        // Send communication officer message
+        $messageModel = new Message();
+        $defaultUser = CustomerTicket::defaultUser();
+        $communicationMessage = 'a total of ' . count($tickets) . ' reminders sent to customers today at ' . now();
+        $messageModel->saveSystemMessage('Customers Survey Reminders', $defaultUser->mobile_no, $defaultUser->name, $communicationMessage, true);
 
         //Save audit trail
         $activity_type = 'Customers Survey Reminders';

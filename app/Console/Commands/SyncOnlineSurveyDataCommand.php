@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\CRM\CustomerTicket;
+use App\Models\Message;
 use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
@@ -45,6 +46,12 @@ class SyncOnlineSurveyDataCommand extends Command
         } catch (\Throwable $th) {
             file_put_contents(storage_path('logs/system_logs.txt'), $th . " \n", FILE_APPEND);
         }
+
+        // Send communication officer message
+        $messageModel = new Message();
+        $defaultUser = CustomerTicket::defaultUser();
+        $communicationMessage = 'a total of ' . count($data) . ' customer survey responses synchronized today at ' . now();
+        $messageModel->saveSystemMessage('Survey Data Synchronization', $defaultUser->mobile_no, $defaultUser->name, $communicationMessage, true);
 
         //Save audit trail
         $activity_type = 'Survey Data Synchronization';

@@ -50,6 +50,7 @@
                                                         View</button>
                                                 </a>
                                             </div>
+                                             @if (Auth::user()->hasRole('admin'))
                                             <div class="btn-group">
                                                 <form action="{{ route('crm.customers.destroy', $customer->customer_id) }}"
                                                     method="post"
@@ -61,6 +62,7 @@
                                                         Delete</button>
                                                 </form>
                                             </div>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
