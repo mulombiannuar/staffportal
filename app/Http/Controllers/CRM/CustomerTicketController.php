@@ -28,7 +28,8 @@ class CustomerTicketController extends Controller
      */
     public function index()
     {
-        //return CustomerTicket::getCustomerTickets();
+        //return count(CustomerTicket::getCustomerTicketsByCategory(6));
+        //return TicketWorkflow::getWorkFlowTickets();
         //return CustomerTicket::getCustomerOverdueTickets();
         $pageData = [
             'page_name' => 'crm',
@@ -38,6 +39,7 @@ class CustomerTicketController extends Controller
             'workflows' => TicketWorkflow::getWorkFlowTickets(),
             'overdue_tickets' => CustomerTicket::getCustomerOverdueTickets(),
             'closed_tickets' => CustomerTicket::getCustomerTicketsByStatus(1),
+            'online_loans' => CustomerTicket::getCustomerTicketsByCategory(6)
         ];
         return view('crm.ticket.index', $pageData);
     }
@@ -141,7 +143,7 @@ class CustomerTicketController extends Controller
 
         //Send sms notification to the officer
         $user = User::getUserById($ticket->officer_id);
-        $officer_ticket_message = 'you have a new client ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' generated at the Staffportal. Login at the portal to view details. ';
+        $officer_ticket_message = 'you have a new client ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' generated at the Staffportal. Login at the portal to view details and make your response within 24hrs. ';
         $messageModel->saveSystemMessage($ticketCategory->category_name, $user->mobile_no, $user->name,  $officer_ticket_message, true);
 
         // Send sms notification to the branch manager
@@ -194,6 +196,7 @@ class CustomerTicketController extends Controller
         $messageModel = new Message();
         $ticket = CustomerTicket::getCustomerTicketById($id);
         $customer = CRMCustomer::getCustomerByMobileNumber($ticket->customer_phone);
+        $current_ticket_workflow = CustomerTicket::getCurrentActiveTicketWorkflowLevel($ticket->ticket_id);
         // return TicketWorkflow::getUserForwadedToLevels(Auth::user()->id);
 
         $pageData = [
@@ -208,7 +211,8 @@ class CustomerTicketController extends Controller
             'ticket_url' => CustomerTicket::getTicketURL($ticket->ticket_uuid),
             'escalations' => CustomerTicket::getTicketEscalationWorkflowLevels($id),
             'current_workflow' => CustomerTicket::getTicketCurrentWorkflowLevel($id),
-            'workflows' => TicketWorkflow::getUserForwadedToLevels(Auth::user()->id)
+            'workflows' => TicketWorkflow::getUserForwadedToLevels(Auth::user()->id),
+            'progress_status' => CustomerTicket::setTicketStatus($current_ticket_workflow)
         ];
         return view('crm.ticket.show', $pageData);
     }
@@ -418,6 +422,11 @@ class CustomerTicketController extends Controller
         return 'thank you for contacting BIMAS concerning our products and services. Your issue of ticket ID ' . $ticket_id . ' has been escalated to another agent. Please be patient while we try to resolve the matter in the best way and shortest time possible';
     }
 
+    private function setTicketHoldingMessage($ticket_uuid, $hours, $officer_name)
+    {
+        return $officer_name . ' has held ticket of ID ' . $ticket_uuid . ' for ' . $hours . ' hours';
+    }
+
     private function setCustomerTicketClosureMessage($ticket_id)
     {
         return 'Your issue of ticket ID ' . $ticket_id . ' has been successfully closed. Thank you for your patience. For further inquiries you can always contact our customer care line on 0701111700';
@@ -425,7 +434,7 @@ class CustomerTicketController extends Controller
 
     private function setOfficerEscalationMessage($ticket_id)
     {
-        return 'You have ticket issue of ID ' . $ticket_id . ' forwarded to you. Login to the Staffportal to view details';
+        return 'You have ticket issue of ID ' . $ticket_id . ' forwarded to you. Login to the Staffportal to view details and make response within 24hrs';
     }
 
     private function setOfficerOverdueReminderMessage($ticket_id, $hours, $customer_name)
@@ -510,24 +519,59 @@ class CustomerTicketController extends Controller
         $workflow_message = $request->workflow_message;
         $ticket_id = $request->ticket_id;
 
+        //return $request;
+
         if ($ticket_resolved == 1) {
             $workflow_id = 1;
             $workflow_user_id = 1;
-        } else {
+        } else if ($ticket_resolved == 0) {
             $request->validate([
                 'workflow_id' => 'integer|required',
                 'workflow_user_id' => 'integer|required',
             ]);
             $workflow_id = $request->workflow_id;
             $workflow_user_id = $request->workflow_user_id;
+        } else if ($ticket_resolved == 2) {
+            $hold_hours = $request->hold_hours;
+            $request->validate([
+                'hold_hours' => 'string|required',
+            ]);
+            $workflow_id = $request->workflow_id;
+            $workflow_user_id = $request->workflow_user_id;
         }
         //return $request;
 
+        $ticket = CustomerTicket::find($ticket_id);
+        $customerData = CRMCustomer::find($ticket->customer_id);
+
+        if ($ticket_resolved == 2) {
+
+            // Update workflow holding comment message
+            $workflow_ticket = TicketWorkflow::submitTicketHoldingComment($current_id, $workflow_message, $hold_hours, 0, 0);
+
+            //Register ticket to the new workflow
+            CustomerTicket::newCustomerTicketWorkFlow(1, $workflow_ticket->ticket_id, $workflow_ticket->workflow_id, $workflow_ticket->workflow_user_id);
+
+            //Send sms notification to the officer
+            $messageModel = new Message();
+            $category = 'Ticket Escalation Holding';
+            $user = User::getUserById($ticket->officer_id);
+            $officer_ticket_message = 'you have successfully hold ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' for ' . $hold_hours . ' hours';
+            $messageModel->saveSystemMessage($category, $user->mobile_no, $user->name,  $officer_ticket_message, true);
+
+            $defaultUser = CustomerTicket::defaultUser();
+            $communicationMessage = $this->setTicketHoldingMessage($ticket->ticket_uuid, $hold_hours, $user->name);
+            $messageModel->saveSystemMessage($category, $defaultUser->mobile_no, $defaultUser->name, $communicationMessage, true);
+
+            //Save audit trail
+            $description = 'Successfully submitted customer ticket holding comment for ' . $ticket->ticket_uuid;
+            User::saveAuditTrail($category, $description);
+
+            return back()->with('success', $description);
+        }
+
         // Update workflow message
         TicketWorkflow::submitTicketComment($current_id, $workflow_message, $ticket_resolved, 0);
-
-        //Register ticket to the workflow
-        $ticket = CustomerTicket::find($ticket_id);
 
         $workflow = new TicketWorkflow();
         $workflow->is_current = 1;
@@ -542,7 +586,6 @@ class CustomerTicketController extends Controller
         User::saveAuditTrail($activity_type, $description);
 
         $messageModel = new Message();
-        $customerData = CRMCustomer::find($ticket->customer_id);
 
         // Send message to client if ticket escalated beyond branch
         if ($workflow_id === 4) {
@@ -600,6 +643,7 @@ class CustomerTicketController extends Controller
         $request->validate([
             'current_id' => 'integer|required',
             'ticket_id' => 'integer|required',
+            'receive_sms' => 'integer|required',
             'date_closed' => 'date|required',
             'closure_message' => 'string|required',
         ]);
@@ -608,6 +652,7 @@ class CustomerTicketController extends Controller
         $date_closed = $request->date_closed;
         $ticket_id = $request->ticket_id;
         $current_id = $request->current_id;
+        $receive_sms = $request->receive_sms;
 
         $messageModel = new Message();
         $ticket = CustomerTicket::find($ticket_id);
@@ -628,8 +673,10 @@ class CustomerTicketController extends Controller
         User::saveAuditTrail($activity_type, $description);
 
         //Send Customer customized sms notification
-        $customer_message = $this->setCustomerTicketClosureMessage($ticket->ticket_uuid);
-        $messageModel->saveSystemMessage('Client Ticket Closure', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
+        if ($receive_sms) {
+            $customer_message = $this->setCustomerTicketClosureMessage($ticket->ticket_uuid);
+            $messageModel->saveSystemMessage('Client Ticket Closure', $customerData->customer_phone, $customerData->customer_name,  $customer_message, true);
+        }
 
         //Send sms notification to the logged in user
         $loggedInUser = User::getUserById(Auth::user()->id);

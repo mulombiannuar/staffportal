@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:survey-data')->weekdays()->dailyAt('08:05');
         $schedule->command('sync:online-loans')->dailyAt('08:05');
         $schedule->command('sms:customers-reminder')->weekdays()->dailyAt('18:05');
+        $schedule->command('reports:tickets')->dailyAt('18:05');
     }
 
     /**

@@ -84,7 +84,7 @@
                                         </div>
                                         <div class="col-md-4 col-sm-12">
                                             <div class="form-group">
-                                                <label for="users">Complaint Receiver</label>
+                                                <label for="users">Ticket Receiver</label>
                                                 <input type="text" name="officer_name" class="form-control"
                                                     id="outpost_id" placeholder="Enter officer_name"
                                                     value="{{ $ticket->officer_name }}" autocomplete="on" required>
@@ -137,6 +137,24 @@
                                         </div>
                                         <div class="col-md-4 col-sm-12">
                                             <div class="form-group">
+                                                <label for="raised_by">Ticket Raised By</label>
+                                                <input type="text" name="raised_by" class="form-control"
+                                                    id="source_name" placeholder="Enter raised_by"
+                                                    value="{{ $ticket->created_by }}" autocomplete="on" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="progress_status">Ticket Progress Satus</label>
+                                                <input type="text" name="progress_status" class="form-control"
+                                                    id="progress_status" value="{{ $progress_status }}"
+                                                    autocomplete="on" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8 col-sm-12">
+                                            <div class="form-group">
                                                 <label for="message">Ticket Content</label>
                                                 <textarea class="form-control" name="message" id="message" cols="4" rows="3"
                                                     placeholder="Enter ticket content" autocomplete="on" required>{{ $ticket->message }}</textarea>
@@ -173,6 +191,8 @@
                                                         <option selected value="1">Yes, it has been resolved</option>
                                                         <option value="0">Nop, lemme forward to the next person
                                                         </option>
+                                                        <option value="2">Nop, Hold ticket for more time to resolve
+                                                        </option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -201,6 +221,24 @@
                                                             id="workflow_users">
                                                             <option class="mb-1" value="">
                                                                 - Select Workflow Level First -</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="hidden2" style="display: none">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="hold_hours">Number of Days</label>
+                                                        <select name="hold_hours" class="form-control select2"
+                                                            id="workflows">
+                                                            <option class="mb-1" value="">
+                                                                - Select Number of Days -</option>
+                                                            <option value="24">1 Day</option>
+                                                            <option value="48">2 Days</option>
+                                                            <option value="72">3 Days</option>
+                                                            <option value="96">4 Days</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -244,6 +282,7 @@
                                             <th>EMAIL</th>
                                             <th>LEVEL</th>
                                             <th>COMMENT</th>
+                                            <th>STATUS</th>
                                             <th>DATE RESPONDED</th>
                                             <th>RES. TIME</th>
                                             <th>RESOLVED?</th>
@@ -257,6 +296,8 @@
                                                 <td>{{ $ticket->email }}</td>
                                                 <td>{{ $ticket->workflow_user_name }}</td>
                                                 <td>{{ $ticket->workflow_message }}</td>
+                                                <td>{{ $ticket->hold_hours ? 'Held for ' . $ticket->hold_hours . ' hrs ' : 'In progress' }}
+                                                </td>
                                                 <td>{{ $ticket->date_responded }}</td>
                                                 <td>{{ $ticket->resolution_time }}Hrs</td>
                                                 <td>{{ $ticket->ticket_resolved ? 'Yes' : 'No' }}</td>
@@ -276,7 +317,8 @@
                         <div class="card card-warning">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fa fa-calendar"></i>
-                                    {{ $ticketData->ticket_closed ? 'Ticket Closure Details' : 'Ticket Comment' }} </h3>
+                                    {{ $ticketData->ticket_closed ? 'Ticket Closure Details' : 'Ticket Closure Comment' }}
+                                </h3>
                             </div>
                             <div class="card-body">
                                 @if ($ticketData->ticket_closed)
@@ -311,7 +353,7 @@
                                         @csrf
                                         <div class="modal-body">
                                             <div class="row">
-                                                <div class="col-md-4 col-sm-12">
+                                                <div class="col-md-6 col-sm-12">
                                                     <div class="form-group">
                                                         <label for="date_closed">Date Closed</label>
                                                         <input type="date" name="date_closed" class="form-control"
@@ -319,7 +361,24 @@
                                                             value="{{ date('Y-m-d') }}" required>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-8 col-sm-12">
+                                                <div class="col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="receive_sms">Send Client Closure SMS?</label>
+                                                        <select name="receive_sms" class="form-control select2"
+                                                            id="receive_sms" required>
+                                                            <option value=""> - Select Option -
+                                                            </option>
+                                                            <option value="1">Yes, Send Sms
+                                                            </option>
+                                                            <option value="0">Nop, Don't send Sms
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12">
                                                     <div class="form-group">
                                                         <label for="closure_message">Your Comment</label>
                                                         <textarea class="form-control" name="closure_message" id="closure_comment" cols="4" rows="2"
@@ -492,6 +551,9 @@
             if (ticket_resolved != '') {
                 if (ticket_resolved == 0) {
                     document.getElementById("hidden").style.display = "block";
+                }
+                if (ticket_resolved == 2) {
+                    document.getElementById("hidden2").style.display = "block";
                 }
             }
         });

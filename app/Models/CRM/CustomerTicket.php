@@ -207,12 +207,14 @@ class CustomerTicket extends Model
         $tickets = DB::table('customer_tickets')
             ->join('crm_customers', 'crm_customers.customer_id', '=', 'customer_tickets.customer_id')
             ->join('ticket_sources', 'ticket_sources.source_id', '=', 'customer_tickets.source_id')
+            ->join('ticket_categories', 'ticket_categories.category_id', '=', 'customer_tickets.category_id')
             ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
             ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
             ->select(
                 'customer_tickets.*',
                 'customer_name',
                 'customer_phone',
+                'category_name',
                 'residence',
                 'business',
                 //'branch_id',
@@ -223,7 +225,7 @@ class CustomerTicket extends Model
                 'outpost_name',
                 'users.name as officer_name'
             )
-            ->where('category_id', $category_id)
+            ->where('customer_tickets.category_id', $category_id)
             ->orderBy('ticket_id', 'desc')
             ->get();
 
@@ -263,6 +265,7 @@ class CustomerTicket extends Model
                 'customer_tickets.ticket_uuid',
                 'crm_customers.customer_id',
                 'customer_name',
+                'hold_hours',
                 'customer_phone',
                 'residence',
                 'business',
@@ -315,7 +318,7 @@ class CustomerTicket extends Model
             ->select(
                 //'ticket_workflows.id',
                 //'ticket_workflows.workflow_id',
-                //'ticket_workflows.workflow_user_id',
+                'customer_tickets.category_id',
                 'customer_tickets.created_at',
                 'customer_tickets.category_id',
                 'customer_tickets.source_id',
@@ -324,6 +327,7 @@ class CustomerTicket extends Model
                 'customer_tickets.ticket_uuid',
                 'crm_customers.customer_id',
                 'customer_name',
+                'hold_hours',
                 'customer_phone',
                 'residence',
                 'business',
@@ -345,6 +349,8 @@ class CustomerTicket extends Model
     {
         foreach ($tickets as $ticket) {
             $ticket->current_level = CustomerTicket::getTicketCurrentWorkflowLevel($ticket->ticket_id)->workflow_user_name;
+            $current_ticket = CustomerTicket::getCurrentActiveTicketWorkflowLevel($ticket->ticket_id);
+            $ticket->progress_status = CustomerTicket::setTicketStatus($current_ticket);
         }
         return $tickets;
     }
@@ -356,6 +362,19 @@ class CustomerTicket extends Model
             ->select('workflow_user_name', 'id')
             ->where(['ticket_id' => $ticket_id, 'is_current' => 1])
             ->first();
+    }
+
+    public static function getCurrentActiveTicketWorkflowLevel($ticket_id)
+    {
+        return DB::table('ticket_workflows')
+            ->select('hold_hours')
+            ->where(['ticket_id' => $ticket_id, 'is_current' => 1])
+            ->first();
+    }
+
+    public static function setTicketStatus($ticket)
+    {
+        return is_null($ticket->hold_hours) ?  'In progress' : 'Held for ' . $ticket->hold_hours . ' hours';
     }
 
     public static function getTicketEscalationWorkflowLevels($ticket_id)
@@ -370,7 +389,8 @@ class CustomerTicket extends Model
                 'name as officer_name',
                 'ticket_resolved',
                 'resolution_time',
-                'email'
+                'email',
+                'hold_hours'
             )
             ->where(['ticket_id' => $ticket_id, 'is_current' => 0])
             ->get();
@@ -394,6 +414,7 @@ class CustomerTicket extends Model
             ->join('outposts', 'outposts.outpost_id', '=', 'crm_customers.outpost_id')
             ->join('branches', 'branches.branch_id', '=', 'crm_customers.branch_id')
             ->join('users', 'users.id', '=', 'customer_tickets.officer_id')
+            ->join('users as creators', 'creators.id', '=', 'customer_tickets.created_by')
             ->join('ticket_workflows', 'ticket_workflows.ticket_id', '=', 'customer_tickets.ticket_id')
             ->join('crm_workflow_users', 'crm_workflow_users.workflow_user_id', '=', 'ticket_workflows.workflow_id')
             ->join('crm_workflows', 'crm_workflows.workflow_id', '=', 'crm_workflow_users.workflow_id')
@@ -410,12 +431,14 @@ class CustomerTicket extends Model
                 'crm_workflows.name as workflow_name',
                 'crm_workflows.workflow_id as flow_id',
                 'bimas_br_id',
+                'hold_hours',
                 'max_stay_hours',
                 'category_name',
                 'source_name',
                 'outpost_name',
                 'branch_name',
-                'users.name as officer_name'
+                'creators.name as created_by',
+                'users.name as officer_name',
             )
             ->where('customer_tickets.ticket_id', $ticket_id)
             ->first();
