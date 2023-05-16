@@ -103,6 +103,7 @@ class CustomerTicketController extends Controller
             'category' => 'integer|required',
             'workflow_id' => 'integer|required',
             'workflow_user_id' => 'integer|required',
+            'officer_receive_sms' => 'integer|required',
         ]);
 
         $bimas_br_id = null;
@@ -112,6 +113,7 @@ class CustomerTicketController extends Controller
         $business = $request->business;
         $branch = $request->branch;
         $outpost = $request->outpost_id;
+        $officer_receive_sms = $request->officer_receive_sms;
 
         //return $request;
         //return Admin::getOutpostSupervisor($outpost);
@@ -144,7 +146,9 @@ class CustomerTicketController extends Controller
         //Send sms notification to the officer
         $user = User::getUserById($ticket->officer_id);
         $officer_ticket_message = 'you have a new client ticket ' . $ticket->ticket_uuid . ' for ' . strtoupper($customerData->customer_name) . ' generated at the Staffportal. Login at the portal to view details and make your response within 24hrs. ';
-        $messageModel->saveSystemMessage($ticketCategory->category_name, $user->mobile_no, $user->name,  $officer_ticket_message, true);
+        if ($officer_receive_sms) {
+            $messageModel->saveSystemMessage($ticketCategory->category_name, $user->mobile_no, $user->name,  $officer_ticket_message, true);
+        }
 
         // Send sms notification to the branch manager
         $branch_supervisor = Admin::getOutpostSupervisor($outpost->outpost_id);
@@ -618,7 +622,9 @@ class CustomerTicketController extends Controller
     {
         $ticket = CustomerTicket::find($ticket_id);
         $workflow = DB::table('crm_workflow_users')->where('workflow_user_id', $workflow_user_id)->first();
-        if ($workflow_user_id === 12 || $workflow_user_id === 13) {
+
+        // If user is branch manager or credit officer return that user
+        if ($workflow_user_id == 12 || $workflow_user_id == 13) {
             $users = [];
             $user = User::getUserById($ticket->officer_id);
             return is_null($user) ? [] : array_push($users, $user);

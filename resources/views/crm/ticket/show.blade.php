@@ -296,7 +296,16 @@
                                                 <td>{{ $ticket->email }}</td>
                                                 <td>{{ $ticket->workflow_user_name }}</td>
                                                 <td>{{ $ticket->workflow_message }}</td>
-                                                <td>{{ $ticket->hold_hours ? 'Held for ' . $ticket->hold_hours . ' hrs ' : 'In progress' }}
+                                                <td>
+                                                    @if ($ticket->ticket_closed)
+                                                        Ticket closed
+                                                    @else
+                                                        @if ($ticket->hold_hours)
+                                                            Held for {{ $ticket->hold_hours }} hrs
+                                                        @else
+                                                            In progress
+                                                        @endif
+                                                    @endif
                                                 </td>
                                                 <td>{{ $ticket->date_responded }}</td>
                                                 <td>{{ $ticket->resolution_time }}Hrs</td>

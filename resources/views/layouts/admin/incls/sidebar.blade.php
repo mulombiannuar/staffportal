@@ -248,6 +248,18 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a href="{{ route('customers.loans') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Website Loans</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('customers.contacts') }}" class="nav-link">
+                                    <i class="fa fa-arrow-right nav-icon"></i>
+                                    <p>Website Contacts</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="{{ route('crm.workflows.index') }}" class="nav-link">
                                     <i class="fa fa-arrow-right nav-icon"></i>
                                     <p>Workflow Users</p>

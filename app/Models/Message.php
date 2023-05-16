@@ -6,8 +6,10 @@ use App\Mail\SendAccountDetails;
 use App\Mail\SendSessionToken;
 use App\Mail\SendSystemEmail;
 use App\Mail\SendTicketsReport;
+use App\Utilities\Utilities;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class Message extends Model
@@ -33,6 +35,9 @@ class Message extends Model
 
     public function saveSystemMessage($message_type, $mobile_no, $name, $message, $send_sms)
     {
+        $loggedInUser = User::getUserById(1);
+        $loggedInUserMobile = Utilities::formatMobileNumber($loggedInUser->mobile_no);
+
         $message_body = $this->getGreetings(strtoupper($name)) . ', ' . $message;
 
         $message = new Message();
@@ -45,7 +50,7 @@ class Message extends Model
         $message->save();
 
         //if($send_sms) $this->sendSms($mobile_no, $message_body);
-        if ($send_sms) $this->sendSms('254703539208', $message_body);
+        if ($send_sms) $this->sendSms($loggedInUserMobile, $message_body);
         return true;
     }
 

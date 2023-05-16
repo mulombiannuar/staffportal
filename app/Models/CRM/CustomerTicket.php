@@ -367,13 +367,15 @@ class CustomerTicket extends Model
     public static function getCurrentActiveTicketWorkflowLevel($ticket_id)
     {
         return DB::table('ticket_workflows')
-            ->select('hold_hours')
-            ->where(['ticket_id' => $ticket_id, 'is_current' => 1])
+            ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_workflows.ticket_id')
+            ->select('hold_hours', 'ticket_closed')
+            ->where(['ticket_workflows.ticket_id' => $ticket_id, 'is_current' => 1])
             ->first();
     }
 
     public static function setTicketStatus($ticket)
     {
+        if ($ticket->ticket_closed) return 'Ticket closed';
         return is_null($ticket->hold_hours) ?  'In progress' : 'Held for ' . $ticket->hold_hours . ' hours';
     }
 
@@ -381,6 +383,7 @@ class CustomerTicket extends Model
     {
         return DB::table('ticket_workflows')
             ->join('users', 'users.id', '=', 'ticket_workflows.message_by')
+            ->join('customer_tickets', 'customer_tickets.ticket_id', '=', 'ticket_workflows.ticket_id')
             ->join('crm_workflow_users', 'crm_workflow_users.workflow_user_id', '=', 'ticket_workflows.workflow_user_id')
             ->select(
                 'workflow_user_name',
@@ -390,9 +393,10 @@ class CustomerTicket extends Model
                 'ticket_resolved',
                 'resolution_time',
                 'email',
+                'ticket_closed',
                 'hold_hours'
             )
-            ->where(['ticket_id' => $ticket_id, 'is_current' => 0])
+            ->where(['ticket_workflows.ticket_id' => $ticket_id, 'is_current' => 0])
             ->get();
     }
 
@@ -739,6 +743,8 @@ class CustomerTicket extends Model
 
     public static function getTicketURL($ticket_uuid)
     {
-        return env('FEEDBACK_URL') . $ticket_uuid;
+        $rawURL = env('FEEDBACK_URL') . $ticket_uuid;
+        $prettyURL = app('bitly')->getUrl($rawURL);
+        return $prettyURL ? $prettyURL : $rawURL;
     }
 }

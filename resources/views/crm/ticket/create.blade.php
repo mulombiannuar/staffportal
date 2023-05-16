@@ -154,7 +154,21 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-sm-12">
+                                            <div class="col-md-4 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="officer_receive_sms">Officer to receive SMS?</label>
+                                                    <select name="officer_receive_sms" class="form-control select2"
+                                                        id="officer_receive_sms" required>
+                                                        <option value=""> - Select Option -
+                                                        </option>
+                                                        <option value="1">Yes, Send Sms
+                                                        </option>
+                                                        <option value="0">Nop, Don't send Sms
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8 col-sm-12">
                                                 <div class="form-group">
                                                     <label for="message">Ticket Content</label>
                                                     <textarea class="form-control" name="message" id="message" cols="4" rows="3"
